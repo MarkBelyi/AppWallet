@@ -2,11 +2,9 @@ package com.example.walletapp.registrationScreens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
@@ -50,8 +48,8 @@ fun NewUserPage() {
         val endMarginGuideline = createGuidelineFromEnd(0.10f) // Например, заменяем end padding на 10% от конца
 
         // Гайдлайны для отступов между элементами
-        val buttonSpacingGuideline = createGuidelineFromBottom(0.25f) // Отступ 0.10f между кнопками
-        val checkboxSpacingGuideline = createGuidelineFromBottom(0.40f) // Отступ 0.15f между последней кнопкой и чекбоксом
+        //val buttonSpacingGuideline = createGuidelineFromBottom(0.25f) // Отступ 0.10f между кнопками
+        //val checkboxSpacingGuideline = createGuidelineFromBottom(0.40f) // Отступ 0.15f между последней кнопкой и чекбоксом
 
         val (createButton, addButton, checkboxWithLabel, logoImage) = createRefs()
 
@@ -70,17 +68,18 @@ fun NewUserPage() {
 
         // Function to create a button
         @Composable
-        fun createButton(ref: ConstrainedLayoutReference, textResource: Int, enabled: Boolean, linkToBottom: ConstrainedLayoutReference) {
+        fun CustomButton(ref: ConstrainedLayoutReference, textResource: Int, enabled: Boolean, linkToBottom: ConstrainedLayoutReference, bottomMargin: Dp = 0.dp) {
             ElevatedButton(
-                onClick = { /* обработчик нажатия */ },
-
+                onClick = {
+                          /* обработчик нажатия */
+                },
                 modifier = Modifier
                     .fillMaxWidth(0.75f)
-                    .heightIn(min = 45.dp, max = 80.dp)
+                    .heightIn(min = 45.dp, max = 60.dp)
                     .constrainAs(ref) {
                         start.linkTo(startMarginGuideline)
                         end.linkTo(endMarginGuideline)
-                        bottom.linkTo(linkToBottom.top)
+                        bottom.linkTo(linkToBottom.top, margin = bottomMargin)
                     },
                 enabled = enabled,
                 shape = roundedShape,
@@ -110,20 +109,21 @@ fun NewUserPage() {
         )
 
         // AddButton
-        createButton(
+        CustomButton(
             ref = addButton,
             textResource = R.string.add_button,
             enabled = termsAccepted,
-            linkToBottom = checkboxWithLabel
+            linkToBottom = checkboxWithLabel,
+            bottomMargin = 32.dp
         )
 
         // CreateButton
-        createButton(
+        CustomButton(
             ref = createButton,
             textResource = R.string.create_button,
             enabled = termsAccepted,
             linkToBottom = addButton,
-
+            bottomMargin = 8.dp
         )
     }
 }
