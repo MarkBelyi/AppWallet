@@ -6,6 +6,7 @@
     <string name="add_button">Добавить кошелек</string>
 
     <string name="terms_of_use">Я принимаю условия пользовательского соглашения</string>
+    <string name="create_password_screen_title">Придумайте пароль</string>
 
     //resourses OLD
     <string name="app_package_name">com.app.wallet2</string>

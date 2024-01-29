@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -47,35 +48,20 @@ fun NewUserPage() {
         val startMarginGuideline = createGuidelineFromStart(0.10f) // Например, заменяем start padding на 10% от начала
         val endMarginGuideline = createGuidelineFromEnd(0.10f) // Например, заменяем end padding на 10% от конца
 
-        // Гайдлайны для отступов между элементами
-        //val buttonSpacingGuideline = createGuidelineFromBottom(0.25f) // Отступ 0.10f между кнопками
-        //val checkboxSpacingGuideline = createGuidelineFromBottom(0.40f) // Отступ 0.15f между последней кнопкой и чекбоксом
-
         val (createButton, addButton, checkboxWithLabel, logoImage) = createRefs()
 
-        Image(
-            painter = painterResource(id = R.drawable.logo),
-            contentDescription = "Logo",
-            modifier = Modifier
-                .fillMaxWidth(fraction = 0.6f)
-                .aspectRatio(1f)
-                .constrainAs(logoImage) {
-                    top.linkTo(topMarginGuideline)
-                    start.linkTo(startMarginGuideline)
-                    end.linkTo(endMarginGuideline)
-                }
-        )
+
 
         // Function to create a button
         @Composable
         fun CustomButton(ref: ConstrainedLayoutReference, textResource: Int, enabled: Boolean, linkToBottom: ConstrainedLayoutReference, bottomMargin: Dp = 0.dp) {
             ElevatedButton(
                 onClick = {
-                          /* обработчик нажатия */
+                    /* обработчик нажатия */
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.75f)
-                    .heightIn(min = 45.dp, max = 60.dp)
+                    .heightIn(min = 40.dp, max = 64.dp)
                     .constrainAs(ref) {
                         start.linkTo(startMarginGuideline)
                         end.linkTo(endMarginGuideline)
@@ -94,17 +80,19 @@ fun NewUserPage() {
             }
         }
 
-        // Checkbox with label
-        CheckboxWithLabel(
-            text = stringResource(id = R.string.terms_of_use),
-            isChecked = termsAccepted,
-            onCheckedChange = { isChecked -> termsAccepted = isChecked },
+        //Logo
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "Logo",
             modifier = Modifier
-                .fillMaxWidth(0.75f)
-                .constrainAs(checkboxWithLabel) {
+                .fillMaxWidth(fraction = 0.6f)
+                .heightIn(min = 75.dp, max = 202.dp)
+                .widthIn(min = 108.dp, max = 232.dp)
+                .aspectRatio(1f)
+                .constrainAs(logoImage) {
+                    top.linkTo(topMarginGuideline)
                     start.linkTo(startMarginGuideline)
                     end.linkTo(endMarginGuideline)
-                    bottom.linkTo(bottomMarginGuideline)
                 }
         )
 
@@ -125,6 +113,20 @@ fun NewUserPage() {
             linkToBottom = addButton,
             bottomMargin = 8.dp
         )
+
+        // Checkbox with label
+        CheckboxWithLabel(
+            text = stringResource(id = R.string.terms_of_use),
+            isChecked = termsAccepted,
+            onCheckedChange = { isChecked -> termsAccepted = isChecked },
+            modifier = Modifier
+                .fillMaxWidth(0.75f)
+                .constrainAs(checkboxWithLabel) {
+                    //top.linkTo(bottomMarginGuideline)
+                    start.linkTo(startMarginGuideline)
+                    end.linkTo(endMarginGuideline)
+                    bottom.linkTo(bottomMarginGuideline)
+                }
+        )
     }
 }
-
