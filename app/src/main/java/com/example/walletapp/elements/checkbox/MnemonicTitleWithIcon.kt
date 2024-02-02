@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import com.example.walletapp.R
 import com.example.walletapp.ui.theme.roundedShape
 
