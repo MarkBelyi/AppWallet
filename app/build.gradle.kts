@@ -72,4 +72,14 @@ dependencies {
 
     //ConstraintLayout to construct adaptive screens
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+
+    //Seed phrase
+    implementation("org.web3j:core:4.8.7-android")
+
+    //Блюр
+    implementation("com.github.skydoves:cloudy:0.1.2")
+
+    //viewModel для отправки мнем фразы
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
 }

@@ -9,14 +9,28 @@
     <string name="create_password_screen_title">Создание пароля</string>
     <string name="new_password">Введите новый пароль</string>
     <string name="repeat_password">Повторите пароль</string>
-    <string name="alert_password_message">"Пароль должен содержать: \n" +
-                            "        1) Одну большую букву,\n" +
-                            "        2) Спец. символы (Например @, -, _), \n" +
-                            "        3) Хотя бы одну цифру\n" +
+    <string name="alert_password_message">"Пароль должен содержать: \n"
+                            "        1) Одну большую букву,\n"
+                            "        2) Спец. символы (Например @, -, _), \n"
+                            "        3) Хотя бы одну цифру\n"
                             "        4) больше 8 символов."
     </string>
     <string name="password_name">Пароль</string>
     <string name="error_password">Ошибка пароля</string>
+    <string name="seed_phrase_name">Мнемоническая фраза</string>
+
+    <string name="attention">Внимание</string>
+    <string name="seed_phrase_alert_text">
+        "Мнемоническая фраза больше не покажется и вам нужно ее сохранить. "
+        "Напишите 'Согласен(-на)' или 'Yes', чтобы продолжить.
+    </string>
+    <string name="your_answer">Ваш ответ</string>
+    <string name="send_mnem">Отправить мнемоническую фразу</string>
+
+    <string name="mnem_is_sending">Мнемоническая фраза отправлена</string>
+    <string name="or">или</string>
+    <string name="i_save_seed">Я сохранил мнемоническую фразу</string>
+    <string name="button_see_seed">Показать мнемоническую фразу</string>
 
     //resourses OLD
     <string name="app_package_name">com.app.wallet2</string>
@@ -161,7 +175,7 @@
     <string name="simple_keymake">Cоздать ключи и отправить мне мнемоническую фразу</string>
     <string name="my_sec_mem_phrase">Моя секретная мнемоническая фраза для восстановления ключей</string>
     <string name="send_me_mnem_by">Отправить мне мнемоническую фразу через</string>
-    <string name="help1_mnemo">Мнемоническая фраза - это 12 слов, помогающие восстановить ваш секретный ключ в случае утери. Воспользовавшись ею любой человек может заполучить ваш ключ, поэтому рекомендуется её никому не показывать и никуда не пересылать. Однако вам предоставляется выбор..</string>
+    <string name="help1_mnemo">Мнемоническая фраза - это 12 слов, помогающие восстановить ваш секретный ключ в случае утери. Воспользовавшись ею любой человек может заполучить ваш ключ, поэтому рекомендуется её никому не показывать и никуда не пересылать. Однако вам предоставляется выбор.</string>
     <string name="cash_back_wallet">Кошелёк для H2K кэшбэка</string>
     <string name="cash_back_explain">Этот кошелёк создаётся автоматически и работает на блокчейне Polygon. На этот кошелек будут зачисляться раз в сутки монеты проекта H2K в качестве кэшбэка за проведенные операции. В будущем этими монетами можно будет оплачивать услуги сервисов  экосистемы H2K (например комиссии мультиподписных кошельков).</string>
     <string name="recip_adr">Aдрес получателя</string>

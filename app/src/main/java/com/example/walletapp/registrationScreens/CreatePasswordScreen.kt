@@ -22,9 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.R
 import com.example.walletapp.elements.checkbox.PasswordFieldWithLabel
 import com.example.walletapp.ui.theme.paddingColumn
@@ -37,8 +39,13 @@ fun CreatePasswordScreen(){
     var passwordValue by remember { mutableStateOf("") }
     var repeatPasswordValue by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
-    val isPasswordValid = checkPasswordsMatch(passwordValue, repeatPasswordValue)
     val passwordErrorMessage = stringResource(id = R.string.alert_password_message)
+
+    //Работа с сохраненем пароля
+    var savedPassword by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    val ps = PasswordStorageHelper(context)
+    val isPasswordValid = checkPasswordsMatch(passwordValue, repeatPasswordValue)
 
 
     if (showPasswordAlert) {
@@ -104,7 +111,8 @@ fun CreatePasswordScreen(){
             enabled = isPasswordValid,
             onClick = {
                 if (isPasswordValid(passwordValue)) {
-
+                    //сохраняем пароль
+                    ps.setData("MyPassword", passwordValue.toByteArray())
                 } else {
                     passwordAlertMessage = passwordErrorMessage
                     showPasswordAlert = true
@@ -112,6 +120,21 @@ fun CreatePasswordScreen(){
             }
         )
 
+        /*Spacer(modifier = Modifier.weight(0.1f))
+
+        CustomButton(
+            text = "Показать сохранённый пароль",
+            enabled = true,
+            onClick = {
+                savedPassword = ps.getData("MyPassword")?.let { String(it) }
+            }
+        )
+
+        // Показываем сохранённый пароль, если он есть
+        if (savedPassword != null) {
+            Text("Сохранённый пароль: $savedPassword")
+        }
+*/
         Spacer(modifier = Modifier.weight(0.8f))
 
 

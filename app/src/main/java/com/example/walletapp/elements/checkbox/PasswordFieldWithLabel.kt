@@ -1,5 +1,6 @@
 package com.example.walletapp.elements.checkbox
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -85,8 +89,10 @@ fun PasswordFieldWithLabel(
                 IconButton(onClick = {
                     isPasswordVisible = !isPasswordVisible
                 }) {
+                    // painterResource для загрузки векторного изображения из ресурсов
+                    val image = painterResource(id = if (isPasswordVisible) R.drawable.ic_baseline_visibility_off_24 else R.drawable.ic_baseline_visibility_24)
                     Icon(
-                        imageVector = if (isPasswordVisible) Icons.Rounded.Star else Icons.Outlined.Star,
+                        painter = image,
                         contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
                         tint = colorScheme.onBackground
                     )
