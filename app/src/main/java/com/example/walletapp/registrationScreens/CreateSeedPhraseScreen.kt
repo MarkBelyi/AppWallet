@@ -105,7 +105,7 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel){
        // Заголовок
         MnemonicTitleWithIcon(
             modifier = Modifier.constrainAs(titleRef) { // Применяем ограничения
-                top.linkTo(parent.top)
+                top.linkTo(parent.top, margin = 8.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }
@@ -117,11 +117,10 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel){
             showWords = showWords,
             onCloudyClick = { showDialog = true },
             modifier = Modifier.constrainAs(phraseGridRef) {
-                top.linkTo(titleRef.bottom)
+                top.linkTo(titleRef.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 width = Dimension.fillToConstraints
-                height = Dimension.wrapContent
             }
         )
 
@@ -129,7 +128,7 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel){
         DividerWithText(
             text = stringResource(id = R.string.or),
             modifier = Modifier.constrainAs(dividerRef) {
-                top.linkTo(phraseGridRef.bottom)
+                top.linkTo(phraseGridRef.bottom, margin = 8.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }
@@ -140,7 +139,7 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel){
             onShared = { viewModel.isPhraseSent = true }, 
             launcher = launcher,
             modifier = Modifier.constrainAs(sharePhraseRef) {
-                top.linkTo(dividerRef.bottom)
+                top.linkTo(dividerRef.bottom, margin = 8.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }
@@ -160,7 +159,7 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel){
                 text = stringResource(id = R.string.i_save_seed),
                 onCheckedChange = { isPhraseSaved = it },
                 modifier = Modifier.constrainAs(checkboxRef) {
-                    top.linkTo(sharePhraseRef.bottom)
+                    top.linkTo(sharePhraseRef.bottom, margin = 8.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
@@ -177,7 +176,7 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel){
                 if (isPhraseSaved && isPhraseSent){
                 //на главную страницу
                 } else if (showWords) {
-                //на следю страницу
+                //на след страницу
                 } else {
                     showDialog = true
                 }

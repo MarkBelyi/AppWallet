@@ -31,6 +31,9 @@
     <string name="or">или</string>
     <string name="i_save_seed">Я сохранил мнемоническую фразу</string>
     <string name="button_see_seed">Показать мнемоническую фразу</string>
+    <string name="tap_seed_phrase">Соберите мнемоническую фразу</string>
+    <string name="write_seed_phrase">Напишите мнемоническую фразу"</string>
+    <string name="seed_phrase_paste">Вам необходимо написать мнемоническую фразу вручную, либо при долгом нажатии вставить ее в любую ячейку</string>
 
     //resourses OLD
     <string name="app_package_name">com.app.wallet2</string>

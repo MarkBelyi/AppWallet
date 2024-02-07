@@ -82,7 +82,7 @@ val TertiaryContainerLight = PrimaryBase.copy(alpha = 0.1f)
 val OnTertiaryContainerLight = Color.Black
 val BackgroundLight = Color(0xFFF0EAE2)
 val OnBackgroundLight = Color.Black
-val SurfaceLight = Color.White
+val SurfaceLight = Color(0xFFFFFBFB)
 val OnSurfaceLight = Color.Black
 val ErrorLight = Color(0xFFB00020)
 val OnErrorLight = Color.White

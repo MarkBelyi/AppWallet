@@ -1,9 +1,13 @@
 package com.example.walletapp.elements.checkbox
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -19,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.Dimension
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
@@ -70,8 +75,10 @@ fun MnemonicCells(
         items(displayedWords) { word ->
             Box(
                 modifier = Modifier
+                    .aspectRatio(2f)
                     .border(1.5.dp, colorScheme.onBackground, roundedShape)
                     .clip(roundedShape)
+                    .background(colorScheme.surface)
                     .padding(1.dp),
                 contentAlignment = Alignment.Center
             ) {

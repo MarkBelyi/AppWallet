@@ -32,7 +32,7 @@ import com.example.walletapp.ui.theme.roundedShape
 //Этот скрин дается пользователю когда он впервые заходит в это приложение либо переустанвливает его
 //(Но думаю в будущем можно будет сделать функцию переходящую сюда)
 @Composable
-fun NewUserPage() {
+fun NewUserScreen() {
     var termsAccepted by remember { mutableStateOf(false) }
 
     ConstraintLayout(
