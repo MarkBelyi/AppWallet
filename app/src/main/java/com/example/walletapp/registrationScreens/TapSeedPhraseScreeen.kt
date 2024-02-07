@@ -33,13 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.navigation.NavHostController
 import com.example.walletapp.R
 import com.example.walletapp.settings.mnemonicList
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
-fun TapSeedPhraseScreen() {
+fun TapSeedPhraseScreen(navHostController: NavHostController) {
     val isContinueEnabled = remember { mutableStateOf(false) }
 
     ConstraintLayout(
@@ -76,10 +77,8 @@ fun TapSeedPhraseScreen() {
         )
 
         CustomButton(
-            text = "Продолжить",
-            onClick = {
-                // Перевод на главную страницу
-            },
+            text = stringResource(id = R.string.button_continue),
+            onClick = {}/*{navHostController.navigate("App")}*/,
             enabled = isContinueEnabled.value,
             modifier = Modifier.constrainAs(continueButton) {
                 top.linkTo(tapArea.bottom, margin = 16.dp)

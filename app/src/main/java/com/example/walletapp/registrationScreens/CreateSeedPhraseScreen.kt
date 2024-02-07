@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.navigation.NavHostController
 import com.example.walletapp.R
 import com.example.walletapp.elements.checkbox.CheckboxWithText
 import com.example.walletapp.elements.checkbox.MnemonicPhraseGrid
@@ -46,7 +47,7 @@ import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
-fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel){
+fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel, navHostController: NavHostController, onNextClick: (Boolean) -> Unit){
     val context = LocalContext.current
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -174,9 +175,10 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel){
                 stringResource(id = R.string.button_see_seed),
             onClick = {
                 if (isPhraseSaved && isPhraseSent){
-                //на главную страницу
+                    //пока отключим, на время, когда будет готов главный экран
+                    //navHostController.navigate("App")
                 } else if (showWords) {
-                //на след страницу
+                    onNextClick(true)
                 } else {
                     showDialog = true
                 }

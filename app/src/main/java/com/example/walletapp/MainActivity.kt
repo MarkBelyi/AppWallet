@@ -1,15 +1,12 @@
 package com.example.walletapp
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import com.example.walletapp.registrationScreens.CreatePasswordScreen
-import com.example.walletapp.registrationScreens.CreateSeedPhraseScreen
-import com.example.walletapp.registrationScreens.NewUserScreen
-import com.example.walletapp.registrationScreens.NewUserScreenColumn
-import com.example.walletapp.registrationScreens.TapSeedPhraseScreen
-import com.example.walletapp.registrationScreens.WriteSeedPhrasePage
+import androidx.navigation.compose.rememberNavController
+import com.example.walletapp.activity.RegistrationActivity
 import com.example.walletapp.registrationViewModel.RegistrationViewModel
 import com.example.walletapp.ui.theme.WalletAppTheme
 
@@ -18,13 +15,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val viewModel: RegistrationViewModel by viewModels()
 
+
+        //val startDestination = if (hasVisitedApp()) "App" else "Registration"
+
         setContent {
+            val navController = rememberNavController()
             WalletAppTheme {
-                //CreateSeedPhraseScreen(viewModel = viewModel)
-                //CreatePasswordScreen()
-                //TapSeedPhraseScreen()
-                WriteSeedPhrasePage()
+                RegistrationActivity(activity = this@MainActivity, navHostController = navController, viewModel = viewModel)
             }
         }
     }
+}
+
+
+fun Context.markAsVisitedApp() {
+    val sharedPrefs = getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
+    sharedPrefs.edit().putBoolean("VisitedApp", true).apply()
+}
+
+fun Context.hasVisitedApp(): Boolean {
+    val sharedPrefs = getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
+    return sharedPrefs.getBoolean("VisitedApp", false)
 }

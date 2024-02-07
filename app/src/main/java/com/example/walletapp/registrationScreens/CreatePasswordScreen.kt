@@ -33,7 +33,7 @@ import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
-fun CreatePasswordScreen(){
+fun CreatePasswordScreen(onNextAction: () -> Unit){
     var showPasswordAlert by remember { mutableStateOf(false) }
     var passwordAlertMessage by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
@@ -96,7 +96,8 @@ fun CreatePasswordScreen(){
             onImeAction = {
                 // Вызываем функцию проверки пароля, если пароль валиден
                 if (isPasswordValid(passwordValue)) {
-                    // ... код для обработки валидного пароля ...
+                    ps.setData("MyPassword", passwordValue.toByteArray())
+                    onNextAction()
                 } else {
                     passwordAlertMessage = passwordErrorMessage
                     showPasswordAlert = true
@@ -111,8 +112,8 @@ fun CreatePasswordScreen(){
             enabled = isPasswordValid,
             onClick = {
                 if (isPasswordValid(passwordValue)) {
-                    //сохраняем пароль
                     ps.setData("MyPassword", passwordValue.toByteArray())
+                    onNextAction()
                 } else {
                     passwordAlertMessage = passwordErrorMessage
                     showPasswordAlert = true

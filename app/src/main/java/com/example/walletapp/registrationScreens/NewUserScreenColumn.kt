@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,8 +31,7 @@ import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
-fun NewUserScreenColumn(){
-
+fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
     var termsAccepted by remember { mutableStateOf(false) }
 
     Column(
@@ -59,7 +57,8 @@ fun NewUserScreenColumn(){
         // CreateButton
         CustomButton(
             textResource = R.string.create_button,
-            enabled = termsAccepted
+            enabled = termsAccepted,
+            onClick = onCreateClick
         )
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -67,7 +66,8 @@ fun NewUserScreenColumn(){
         // AddButton
         CustomButton(
             textResource = R.string.add_button,
-            enabled = termsAccepted
+            enabled = termsAccepted,
+            onClick = onAddClick
         )
 
         Spacer(modifier = Modifier.weight(0.1f))
@@ -86,21 +86,19 @@ fun NewUserScreenColumn(){
 }
 
 @Composable
-fun CustomButton(textResource: Int, enabled: Boolean) {
+fun CustomButton(textResource: Int, onClick: () -> Unit, enabled: Boolean) {
     ElevatedButton(
-        onClick = {
-            /* обработчик нажатия */
-        },
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth(0.75f)
             .heightIn(min = 48.dp, max = 64.dp),
         enabled = enabled,
         shape = roundedShape,
         colors = ButtonDefaults.elevatedButtonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            containerColor = colorScheme.primary,
+            contentColor = colorScheme.onPrimary,
+            disabledContainerColor = colorScheme.primaryContainer,
+            disabledContentColor = colorScheme.onPrimaryContainer
         )
     ) {
         Text(text = stringResource(textResource))
