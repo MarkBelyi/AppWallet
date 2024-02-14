@@ -175,8 +175,7 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel, navHostController: 
                 stringResource(id = R.string.button_see_seed),
             onClick = {
                 if (isPhraseSaved && isPhraseSent){
-                    //пока отключим, на время, когда будет готов главный экран
-                    //navHostController.navigate("App")
+                    navHostController.navigate("App")
                 } else if (showWords) {
                     onNextClick(true)
                 } else {

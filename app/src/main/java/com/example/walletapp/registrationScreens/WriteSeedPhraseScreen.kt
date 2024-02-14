@@ -1,5 +1,6 @@
 package com.example.walletapp.registrationScreens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,8 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -92,7 +93,7 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController) {
 
         CustomButton(
             text = stringResource(id = R.string.button_continue),
-            onClick = { /*navHostController.navigate("App")*/},
+            onClick = { navHostController.navigate("App") },
             enabled = isContinueEnabled.value,
             modifier = Modifier.constrainAs(continueButton) {
                 top.linkTo(instructionText.bottom, margin = 10.dp)
@@ -156,10 +157,5 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
             }
         }
     }
-
-
-
-
-
 }
 

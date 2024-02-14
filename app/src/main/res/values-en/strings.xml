@@ -1,4 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">H2K Wallet</string>
+
+    <!-- Button -->
+    <string name="create_button">Create Key</string>
+    <string name="add_button">Add Key</string>
+
+    <string name="terms_of_use">I accept the terms of the user agreement</string>
+    <string name="create_password_screen_title">Password Creation</string>
+    <string name="new_password">Enter a new password</string>
+    <string name="repeat_password">Repeat the password</string>
+    <string name="alert_password_message">"The password must contain: \n"
+                        "        1) One uppercase letter,\n"
+                        "        2) Special characters (@, -, _), \n"
+                        "        3) At least one digit\n"
+                        "        4) More than 8 characters."
+</string>
+    <string name="password_name">Password</string>
+    <string name="error_password">Password Error</string>
+    <string name="seed_phrase_name">Mnemonic Phrase</string>
+
+    <string name="attention">Attention</string>
+    <string name="seed_phrase_alert_text">
+    "The mnemonic phrase will not be shown again, and you need to save it. "
+    "Write 'Agree' or 'Yes' to continue.
+</string>
+    <string name="your_answer">Your Answer</string>
+    <string name="send_mnem">Send Mnemonic Phrase</string>
+
+    <string name="mnem_is_sending">Mnemonic Phrase Sent</string>
+    <string name="or">or</string>
+    <string name="i_save_seed">I have saved the mnemonic phrase</string>
+    <string name="button_see_seed">Show Mnemonic Phrase</string>
+    <string name="tap_seed_phrase">Collect the Mnemonic Phrase</string>
+    <string name="write_seed_phrase">Write the Mnemonic Phrase</string>
+    <string name="seed_phrase_paste">You need to write the mnemonic phrase by hand, or press and hold to paste it into any cell</string>
+
+    <string name="toast_write_seed_phrase">The entered phrase does not match</string>
+
+    //Resoursec OLD
+    <string name="app_package_name">com.app.wallet2</string>
+    <string name="preferens_file_name">Wallet</string>
+    <string name="base_url">https://my.h2k.me/</string>
+    <string name="app_package">com.cri.wallet</string>
+
+    <string name="sign_doc">Sign</string>
+    <string name="reject_doc">Reject</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel_wallet">Cancel wallet creation?</string>
+    <string name="wait_for_sign">Awaiting signature</string>
+    <string name="approved">Approved by me</string>
+    <string name="approved_by">Approved by</string>
+    <string name="of">of</string>  <!-- Approved 2 of 5 -->
+    <string name="approved_amount">Required</string> <!-- 4 required -->
+    <string name="put_pub_keys">Enter public keys of signatories</string>
+    <string name="put_approver">Choose from address book/enter manually</string>
+    <string name="empty_addr">No addresses specified</string>
+    <string name="accept_success">Wallet creation request successfully accepted by the server</string>
+    <string name="tx_accept_success">Transaction creation request successfully accepted by the server</string>
+    <string name="all">all</string>
+    <string name="hot">Hot</string>
+    <string name="pending_wallet">Wallet is being created..</string>
+    <string name="no_keys">You do not have any keys</string>
+    <string name="contacts">Signatories</string>
+    <string name="save">Save</string>
+    <string name="max200">200 character limit</string>
+    <string name="choosewallet">Select a wallet</string>
+    <string name="choosetoken">Select a token</string>
+    <string name="recipientadr">Enter recipient\'s wallet address</string>
+    <string name="inputsum">Enter amount</string>
+    <string name="paymentfor">Specify payment purpose</string>
+    <string name="instanttransaction">Send transaction immediately</string>
+    <string name="this_is_ypkey">This is your public key. Share it with your co-signers. Do not use it as a receiving address for coins in Ethereum or Polygon networks.</string>
+    <string name="response_error">Request caused an error on the server</string>
+    <string name="response_empty">No data</string>
+    <string name="docs_for_sign">Documents for signing</string>
+    <string name="signed_docs">Signed</string>
+    <string name="addr_for_tokens">Address for top-up:</string>
+    <string name="my_cabinet">My Cabinet</string>
+    <string name="min_sign_text">Minimum signatures required for transaction confirmation:</string>
+    <string name="wallet_info">Wallet Information:</string>
+    <string name="balans">Balance:</string>
+    <string name="pba_to_leave">Press again to exit</string>
+    <string name="accept_agreement">I accept the terms</string>
+    <string name="create_keys">Create keys</string>
+    <string name="import_keys">Import keys</string>
+    <string name="approver_pkey">Signatory\'s public key</string>
+    <string name="bio_auth_req">Authorization required</string>
+    <string name="activs">Wallets</string>
+    <string name="operstions">My Cabinet</string>
+    <string name="support">Support</string>
+    <string name="no_data">Empty</string>
+    <string name="access_denied">Access denied.</string>
+    <string name="prompt_password">Password</string>
+    <string name="welcome">"Welcome"</string>
+    <string name="button_continue">Continue</string>
+    <string name="mnemoPhrase">Write down the mnemonic phrase</string>
+    <string name="warningPlate">Warning!</string>
+    <string name="warning2word">I confirm</string>
+    <string name="warning2Plate">H2K will not show you the mnemonic phrase again and cannot recover it in case of loss. If you confirm that you have saved the mnemonic phrase, enter in the field below: "I confirm"</string>
+    <string name="mnemoPhraseNoSay">Do not disclose your mnemonic phrase to anyone</string>
+    <string name="mnemoPhraseConfirm">Confirm correctness</string>
+    <string name="Done">Done</string>
+    <string name="yourKeysReady">Your keys have been successfully created</string>
+    <string name="goToMainScreen">Go to the main screen</string>
+    <string name="wallets">Wallets</string>
+    <string name="enterPassword">Enter password</string>
+    <string name="wrongPassword">Incorrect password</string>
+    <string name="changed_password">Password changed</string>
+    <string name="settings_need_bio_password">Require authorization every time when accessing the app</string>
+
+    <string name="enter_resolution">Enter resolution</string>
+    <string name="restoreKeysFromMem">Recreate keys from mnemonic phrase</string>
+    <string name="lastChangeThisWallet">Last changes to this wallet</string>
+    <string name="bablos">Assets:</string>
+    <string name="makeMemForKeys">Show mnemonic phrase for creating new keys, I will write it down</string>
+    <string name="inputMemPrase">Enter your mnemonic phrase, separating words with spaces</string>
+    <string name="wrongMem">The entered mnemonic phrase is incorrect</string>
+    <string name="not_my_mem">The entered mnemonic phrase does not match yours</string>
+    <string name="agree">Agree</string>
+    <string name="agree_autoexchange">Agree to auto-exchange</string>
+    <string name="notAgree">Disagree</string>
+    <string name="createWallet">Create wallet</string>
+    <string name="createTransaction">Create transaction</string>
+    <string name="myClaims">My requests</string>
+    <string name="chooseChainType">Choose blockchain type</string>
+    <string name="inputWalletLabel">Enter wallet name</string>
+    <string name="exportdb">Export to file</string>
+    <string name="importdb">Import file with addresses..</string>
+    <string name="sharekey">Share address</string>
+    <string name="rate_app">Rate us on Play Market</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="uslovia">Terms of Use</string>
+    <string name="proposal">Make a suggestion</string>
+    <string name="support_srv">Support service</string>
+    <string name="telegram_link">Link to telegram channel</string>
+    <string name="saved_to">Saved to</string>
+    <string name="error">Error</string>
+    <string name="make_a_wallet">Create a wallet.</string>
+    <string name="tx_signed">You have signed the transaction.</string>
+    <string name="tx_declined">You have declined the transaction.</string>
+    <string name="ar_u_makeawallet">Have you already created a wallet?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="comission">Commission</string>
+    <string name="comission_topay">The commission will be</string>
+    <string name="comi_min">Minimum commission</string>
+    <string name="comi_max">Maximum commission</string>
+    <string name="comi_net">Approximate network fee</string>
+    <string name="copytobuffer">Copied to clipboard</string>
+    <string name="recreate_password">Create a new password</string>
+    <string name="bio_login">Biometric login</string>
+    <string name="bio_login_sub">Use biometric data</string>
+    <string name="bio_or_pass">Use biometric data or app password for authorization</string>
+    <string name="make_new_pwd">Enter a new access password</string>
+    <string name="confirm_new_pwd">Confirm password</string>
+    <string name="userAgreement">License Agreement (Offer)</string>
+    <string name="privacyPolicy">Privacy Policy\n\n</string>
+    <string name="settings">Settings</string>
+    <string name="just_signer">The app is used only for signing requests</string>
+    <string name="disable_wallet">Disable wallet</string>
+    <string name="enable_wallet">Enable wallet</string>
+    <string name="show_hidden_wallets">Show inactive wallets</string>
+    <string name="tx_not_in_network">Not yet in the network.</string>
+    <string name="signers">Signers</string>
+    <string name="show_test_net">Show test networks</string>
+    <string name="my_public_key">My public key</string>
+    <string name="my_cur_public_key">My current public key</string>
+    <string name="show12words">Show my mnemonic phrase</string>
+    <string name="my_key">My secret key</string>
+    <string name="export_pk">Export secret key..</string>
+    <string name="import_pk">Import secret key..</string>
+    <string name="import_pk_from_phrase">Use mnemonic phrase</string>
+    <string name="import_pk_from_file">Import keys from file</string>
+    <string name="wrong_key">Incorrect key</string>
+    <string name="hide_show">Enable, Disable</string>
+    <string name="no_wallet_for_tx">You do not have a wallet of the required network for this transaction</string>
+    <string name="network_number">Network number</string>
+    <string name="simple_keymake">Create keys and send me the mnemonic phrase</string>
+    <string name="my_sec_mem_phrase">My secret mnemonic phrase for key recovery</string>
+    <string name="send_me_mnem_by">Send me the mnemonic phrase via</string>
+    <string name="help1_mnemo">A mnemonic phrase is 12 words that help recover your secret key in case of loss. Anyone using it can gain access to your key, so it\'s recommended not to show it to anyone or send it anywhere. However, the choice is provided to you.</string>
+    <string name="cash_back_wallet">Wallet for H2K cashback</string>
+    <string name="cash_back_explain">This wallet is automatically created and operates on the Polygon blockchain. Coins from the H2K project will be credited to this wallet once a day as cashback for completed transactions. In the future, these coins can be used to pay for services within the H2K ecosystem (e.g., multi-signature wallet commissions).</string>
+    <string name="recip_adr">Recipient\'s address</string>
+    <string name="buy_crypto">Buy</string>
+    <string name="str_cash_fname">RUCash</string>
+    <string name="exchange_explain">To transfer USDT, the TRX balance must be at least 60, the system will top up TRX for an amount <span>&amp;asymp</span> %.2f USDT, which will be deducted from your USDT account. Otherwise, top up TRX yourself.</string>
+    <string name="write_support">Create document</string>
+    <string name="browse_support">Go to support</string>
+    <string name="document_text">Document text</string>
+    <string name="send">Send</string>
+    <string name="msg_name">Your name</string>
+    <string name="msg_contact">Your contact for feedback</string>
+    <string name="not_neccessary">Not necessary</string>
+    <string name="delete_me_label">Account deletion</string>
+    <string name="delete_me">Delete my account and all my data from the app server...</string>
+    <string name="delete_me_warning">All your data, wallets, and accounts will be deleted without the possibility of recovery.</string>
+    <string name="delete_me_reason">To continue, please specify the reason for deletion</string>
+    <string name="user_deleted">This address has been deleted and is no longer serviced</string>
+    <string name="close_app">Close the app</string>
+    <string name="confirm_phrase_saved">I confirm the phrase is saved.</string>
+
 
 </resources>

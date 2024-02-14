@@ -2,8 +2,8 @@
     <string name="app_name">H2K Wallet</string>
 
     //button
-    <string name="create_button">Создать кошелек</string>
-    <string name="add_button">Добавить кошелек</string>
+    <string name="create_button">Создать Ключ</string>
+    <string name="add_button">Добавить Ключи</string>
 
     <string name="terms_of_use">Я принимаю условия пользовательского соглашения</string>
     <string name="create_password_screen_title">Создание пароля</string>
@@ -11,7 +11,7 @@
     <string name="repeat_password">Повторите пароль</string>
     <string name="alert_password_message">"Пароль должен содержать: \n"
                             "        1) Одну большую букву,\n"
-                            "        2) Спец. символы (Например @, -, _), \n"
+                            "        2) Спец. символы (@, -, _), \n"
                             "        3) Хотя бы одну цифру\n"
                             "        4) больше 8 символов."
     </string>
@@ -34,6 +34,8 @@
     <string name="tap_seed_phrase">Соберите мнемоническую фразу</string>
     <string name="write_seed_phrase">Напишите мнемоническую фразу"</string>
     <string name="seed_phrase_paste">Вам необходимо написать мнемоническую фразу вручную, либо при долгом нажатии вставить ее в любую ячейку</string>
+
+    <string name="toast_write_seed_phrase">Введенная фраза не совпадает</string>
 
     //resourses OLD
     <string name="app_package_name">com.app.wallet2</string>

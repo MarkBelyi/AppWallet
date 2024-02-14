@@ -60,7 +60,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit){
                     Text("OK")
                 }
             },
-            shape = RoundedCornerShape(25.dp)
+            shape = roundedShape
         )
     }
 

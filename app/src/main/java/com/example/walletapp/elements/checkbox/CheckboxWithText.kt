@@ -41,7 +41,8 @@ fun CheckboxWithText(
             ),
         )
         Text(
-            text = text
+            text = text,
+            color = colorScheme.onBackground
         )
     }
 }

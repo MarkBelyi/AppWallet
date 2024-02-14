@@ -42,8 +42,9 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
             .padding(paddingColumn)
     ){
         Spacer(modifier = Modifier.weight(0.35f))
+
         //Logo
-        Image(
+        /*Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo",
             modifier = Modifier
@@ -51,7 +52,8 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
                 .heightIn(min = 75.dp, max = 202.dp)
                 .widthIn(min = 108.dp, max = 232.dp)
                 .aspectRatio(1f)
-        )
+        )*/
+
         Spacer(modifier = Modifier.weight(0.35f))
 
         // CreateButton

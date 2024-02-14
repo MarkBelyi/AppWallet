@@ -78,7 +78,7 @@ fun TapSeedPhraseScreen(navHostController: NavHostController) {
 
         CustomButton(
             text = stringResource(id = R.string.button_continue),
-            onClick = {}/*{navHostController.navigate("App")}*/,
+            onClick = {navHostController.navigate("App")},
             enabled = isContinueEnabled.value,
             modifier = Modifier.constrainAs(continueButton) {
                 top.linkTo(tapArea.bottom, margin = 16.dp)
@@ -136,6 +136,7 @@ fun Tap(wordsList: List<String>,  isContinueEnabled: MutableState<Boolean>, modi
             modifier = Modifier
                 .border(1.5.dp, colorScheme.onBackground, roundedShape)
                 .clip(roundedShape)
+                .background(colorScheme.surface)
                 .aspectRatio(2f)
                 .padding(8.dp)
                 .clickable(onClick = onClick),
@@ -160,6 +161,7 @@ fun Tap(wordsList: List<String>,  isContinueEnabled: MutableState<Boolean>, modi
             modifier = Modifier
                 .border(0.75.dp, colorScheme.onBackground, roundedShape)
                 .clip(roundedShape)
+                .background(colorScheme.surface)
                 .padding(6.dp)
                 .clickable(enabled = word in availableWords, onClick = onClick),
             contentAlignment = Alignment.Center
