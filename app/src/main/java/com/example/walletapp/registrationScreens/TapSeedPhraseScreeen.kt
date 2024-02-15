@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -35,13 +36,20 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
 import com.example.walletapp.R
-import com.example.walletapp.settings.mnemonicList
+import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.registrationViewModel.RegistrationViewModel
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
+import org.web3j.crypto.Credentials
+import org.web3j.crypto.WalletUtils
+import java.math.BigInteger
 
 @Composable
-fun TapSeedPhraseScreen(navHostController: NavHostController) {
+fun TapSeedPhraseScreen(navHostController: NavHostController, viewModel: RegistrationViewModel) {
     val isContinueEnabled = remember { mutableStateOf(false) }
+    val mnemonicList = viewModel.getMnemonicList()
+    val mnemonic = viewModel.getMnemonic()
+    val ps = PasswordStorageHelper(LocalContext.current)
 
     ConstraintLayout(
         modifier = Modifier
@@ -68,6 +76,7 @@ fun TapSeedPhraseScreen(navHostController: NavHostController) {
         Tap(
             mnemonicList,
             isContinueEnabled,
+            viewModel,
             modifier = Modifier.constrainAs(tapArea) {
                 top.linkTo(title.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
@@ -78,7 +87,12 @@ fun TapSeedPhraseScreen(navHostController: NavHostController) {
 
         CustomButton(
             text = stringResource(id = R.string.button_continue),
-            onClick = {navHostController.navigate("App")},
+            onClick = {
+                val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("MARKovka", mnemonic)
+                ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
+                ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
+                navHostController.navigate("App")
+                      },
             enabled = isContinueEnabled.value,
             modifier = Modifier.constrainAs(continueButton) {
                 top.linkTo(tapArea.bottom, margin = 16.dp)
@@ -91,7 +105,7 @@ fun TapSeedPhraseScreen(navHostController: NavHostController) {
 }
 
 @Composable
-fun Tap(wordsList: List<String>,  isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifier) {
+fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewModel: RegistrationViewModel, modifier: Modifier = Modifier) {
     val (displayedWords, setDisplayedWords) = remember {
         val chosenIndices = (wordsList.indices).shuffled().take(8).toSet()
         val displayedWithEmptySlots = MutableList<String?>(12) { null }
@@ -214,6 +228,7 @@ fun Tap(wordsList: List<String>,  isContinueEnabled: MutableState<Boolean>, modi
         }
     }
 
+    val mnemonicList = viewModel.getMnemonicList()
     isContinueEnabled.value = displayedWords.filterNotNull().size == mnemonicList.size &&
             displayedWords.filterNotNull() == mnemonicList
 }

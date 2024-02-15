@@ -15,13 +15,17 @@ fun Getsign(context: Context, mes:String):Array<String> { // Внимание! �
 
     val privKey = ps.getData("MyPrivateKey") ?: return rsva
     val pubKey = ps.getData("MyPublicKey") ?: return rsva
-    // val ss:String = String(privKey)
-    val bigpriv: BigInteger = String(privKey).toBigInteger(16)
-    val bigpub: BigInteger = String(pubKey).toBigInteger(16)
-    //val keyPair = ECKeyPair(bigpriv, bigpub)
-    val msg = "{$mes}"
-    //  val msgHash: ByteArray = Hash.sha3(msg.toByteArray())
 
+    // val ss:String = String(privKey)
+
+    val bigpriv: BigInteger = BigInteger(privKey)
+    val bigpub: BigInteger = BigInteger(pubKey)
+
+    //val keyPair = ECKeyPair(bigpriv, bigpub)
+
+    val msg = "{$mes}"
+
+    //val msgHash: ByteArray = Hash.sha3(msg.toByteArray())
     //val signature = Sign.signMessage(msgHash, ECKeyPair(bigpriv, bigpub), false) // old version for api: /ec/
 
     val signature = Sign.signPrefixedMessage(msg.toByteArray(), ECKeyPair(bigpriv, bigpub))// new version for api: /ece/

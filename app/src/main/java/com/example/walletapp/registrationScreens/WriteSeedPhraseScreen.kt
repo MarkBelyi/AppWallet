@@ -1,6 +1,5 @@
 package com.example.walletapp.registrationScreens
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -34,13 +33,16 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
 import com.example.walletapp.R
-import com.example.walletapp.settings.mnemonicList
+import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
+import org.web3j.crypto.Credentials
+import org.web3j.crypto.WalletUtils
 
 @Composable
 fun WriteSeedPhraseScreen(navHostController: NavHostController) {
     val isContinueEnabled = remember { mutableStateOf(false) }
+    val ps = PasswordStorageHelper(LocalContext.current)
 
     ConstraintLayout(
         modifier = Modifier
@@ -68,6 +70,7 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController) {
 
         Write(
             isContinueEnabled,
+            ps = ps,
             modifier = Modifier.constrainAs(writeComponent) {
                 top.linkTo(textHeader.bottom, margin = paddingColumn)
                 start.linkTo(parent.start)
@@ -105,7 +108,7 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController) {
 }
 
 @Composable
-fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifier) {
+fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifier, ps: PasswordStorageHelper) {
     val userPhrases = remember { mutableStateListOf(*Array(12) { "" }) }
 
     @Composable
@@ -121,10 +124,15 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
                         }
                     }
                     val inputWords = words.joinToString(" ")
-                    isContinueEnabled.value = inputWords == mnemonicList.joinToString(" ")
+                    isContinueEnabled.value = true//inputWords == mnemonicList.joinToString(" ")
+                    /*val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("MARKovka", inputWords)
+                    ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
+                    ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())*/
+
+
                 } else {
                     userPhrases[index] = newValue
-                    isContinueEnabled.value = userPhrases.joinToString(" ") == mnemonicList.joinToString(" ")
+                    isContinueEnabled.value = true//userPhrases.joinToString(" ") == mnemonicList.joinToString(" ")
                 }
             },
             modifier = modifier

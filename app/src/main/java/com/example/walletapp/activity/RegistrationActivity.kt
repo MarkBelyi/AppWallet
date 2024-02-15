@@ -23,7 +23,6 @@ import com.example.walletapp.registrationViewModel.RegistrationViewModel
 
 @Composable
 fun RegistrationActivity(activity: Activity, navHostController: NavHostController, viewModel: RegistrationViewModel){
-    //var selectedTabIndex by remember { mutableStateOf(viewModel.selectedTabIndex) }
     var isAddClicked by remember { mutableStateOf(false) }
 
     var selectedTabIndex by viewModel::selectedTabIndex
@@ -81,7 +80,7 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                 viewModel = viewModel
             )
 
-            3 -> TapSeedPhraseScreen(navHostController = navHostController)
+            3 -> TapSeedPhraseScreen(navHostController = navHostController, viewModel = viewModel)
 
             4 -> WriteSeedPhraseScreen(navHostController = navHostController)
         }

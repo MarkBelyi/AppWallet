@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
@@ -15,11 +16,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.room.Room.databaseBuilder
 import com.example.walletapp.DataBase.DataBase
 import com.example.walletapp.DataBase.SignerData.SignerViewModel
+import com.example.walletapp.Server.Getsign
 import com.example.walletapp.activity.AppActivity
 import com.example.walletapp.activity.RegistrationActivity
-import com.example.walletapp.registrationScreens.NewUserScreenColumn
+import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.registrationViewModel.RegistrationViewModel
 import com.example.walletapp.ui.theme.WalletAppTheme
+import org.web3j.crypto.Credentials
+import org.web3j.crypto.MnemonicUtils
+import org.web3j.crypto.WalletUtils
+import java.math.BigInteger
+import java.security.SecureRandom
 
 class MainActivity : ComponentActivity() {
 
@@ -30,6 +37,7 @@ class MainActivity : ComponentActivity() {
             "database.db"
         ).build()
     }
+    @Suppress("UNCHECKED_CAST")
     private val viewModelDB by viewModels<SignerViewModel> (
         factoryProducer = {
             object: ViewModelProvider.Factory{
@@ -44,9 +52,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val viewModelReg: RegistrationViewModel by viewModels()
-
-
-
         val startDestination = if (hasVisitedApp()) "App" else "Registration"
 
         setContent {
@@ -64,8 +69,18 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-            }
+                /*
+                var restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("hello" , mnemonic)
+                val ps = PasswordStorageHelper(LocalContext.current)
+                ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
+                ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
+                */
+                /*val prkey=restoreCredentials.ecKeyPair.privateKey.toByteArray()
+                val nn=     BigInteger(prkey)
+                val kk= nn.toString(16)*/
+                //Getsign(LocalContext.current, "")
 
+            }
         }
     }
 }
@@ -80,18 +95,3 @@ fun Context.hasVisitedApp(): Boolean {
     val sharedPrefs = getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
     return sharedPrefs.getBoolean("VisitedApp", false)
 }
-
-/*
-fun fetchAndSaveNetworks(
-    context: Context,
-    */
-/*dao: NetworksDAO,
-    restoreCredentials: Credentials*//*
-
-): String {
-    val ps = PasswordStorageHelper(context)
-    ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
-    ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray() )
-    val s = GetAPIString(context, api = "netlist/1")
-    return s
-}*/
