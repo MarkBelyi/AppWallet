@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
@@ -16,17 +15,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.room.Room.databaseBuilder
 import com.example.walletapp.DataBase.DataBase
 import com.example.walletapp.DataBase.SignerData.SignerViewModel
-import com.example.walletapp.Server.Getsign
 import com.example.walletapp.activity.AppActivity
 import com.example.walletapp.activity.RegistrationActivity
-import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.registrationViewModel.RegistrationViewModel
 import com.example.walletapp.ui.theme.WalletAppTheme
-import org.web3j.crypto.Credentials
-import org.web3j.crypto.MnemonicUtils
-import org.web3j.crypto.WalletUtils
-import java.math.BigInteger
-import java.security.SecureRandom
 
 class MainActivity : ComponentActivity() {
 
@@ -57,9 +49,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val state by viewModelDB.state.collectAsState()
-
             WalletAppTheme {
-
                 NavHost(navController, startDestination = startDestination) {
                     composable("Registration"){
                         RegistrationActivity(activity = this@MainActivity, navHostController = navController, viewModel = viewModelReg)
@@ -68,18 +58,6 @@ class MainActivity : ComponentActivity() {
                         AppActivity(this@MainActivity, state = state, onEvent = viewModelDB::onEvent)
                     }
                 }
-
-                /*
-                var restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("hello" , mnemonic)
-                val ps = PasswordStorageHelper(LocalContext.current)
-                ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
-                ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
-                */
-                /*val prkey=restoreCredentials.ecKeyPair.privateKey.toByteArray()
-                val nn=     BigInteger(prkey)
-                val kk= nn.toString(16)*/
-                //Getsign(LocalContext.current, "")
-
             }
         }
     }
@@ -95,3 +73,14 @@ fun Context.hasVisitedApp(): Boolean {
     val sharedPrefs = getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
     return sharedPrefs.getBoolean("VisitedApp", false)
 }
+
+/*
+                var restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("hello" , mnemonic)
+                val ps = PasswordStorageHelper(LocalContext.current)
+                ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
+                ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
+                */
+/*val prkey=restoreCredentials.ecKeyPair.privateKey.toByteArray()
+val nn=     BigInteger(prkey)
+val kk= nn.toString(16)*/
+//Getsign(LocalContext.current, "")

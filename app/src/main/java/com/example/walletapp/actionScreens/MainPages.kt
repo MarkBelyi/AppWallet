@@ -17,10 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.util.Pair
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.cri.wallet.database.NetworksDAO
+import com.example.walletapp.DataBase.SignerData.NetworkViewModel
 import com.example.walletapp.R
 import com.example.walletapp.mainScreens.Home
 import com.example.walletapp.mainScreens.Sign
@@ -33,15 +36,16 @@ fun MainPagesActivity(
     onShareClick : () -> Unit,*/
     onSignersClick : () -> Unit
 ){
+
     val navController = rememberNavController()
     val screens = mutableListOf(Screen.Wallet, Screen.Home, Screen.Subscriptions)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current
 
-    /*LaunchedEffect(Unit) {
+    LaunchedEffect(Unit) {
         context.markAsVisitedApp()
-    }*/
+    }
 
 
     Scaffold(
@@ -53,7 +57,7 @@ fun MainPagesActivity(
     ) { padding ->
         NavHost(navController, startDestination = Screen.Home.route, Modifier.padding(padding)) {
             composable(Screen.Wallet.route) {
-                Wallet(/*cards*/)
+                Wallet()
             }
             composable(Screen.Home.route) {
                 Home(

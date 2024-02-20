@@ -11,15 +11,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NetworksDAO {
-
     @Query("SELECT COUNT(*) FROM Networks")
-    suspend fun getCount(): Int
+    fun getCount(): Int
 
     @Query("SELECT * FROM Networks")
-    suspend fun fetchNets(): List<Networks>
+    fun fetchNets(): Flow<List<Networks>>
 
     @Delete
-    suspend fun deleteNet(item: Networks)
+    fun deleteNet(item: Networks)
 
     @Query("DELETE FROM Networks")
     suspend fun deleteAll()

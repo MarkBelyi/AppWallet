@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,11 +25,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -37,8 +43,10 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.core.util.Pair
 import com.example.walletapp.actionScreens.actionItems
+import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
+import java.math.BigInteger
 
 @Composable
 fun Home(
@@ -46,13 +54,14 @@ fun Home(
     onShareClick: () -> Unit,*/
     onSignersClick: () -> Unit
 ) {
+    val ps = PasswordStorageHelper(LocalContext.current)
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
             .padding(paddingColumn)
     ) {
-        val (gridRef) = createRefs()
+        val (gridRef, button, text) = createRefs()
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
@@ -67,6 +76,33 @@ fun Home(
             end.linkTo(parent.end)
             width = Dimension.fillToConstraints
         })
+
+        var outputText by remember { mutableStateOf("") }
+
+        Button(onClick = {
+            val key = ps.getData("MyPrivateKey")
+            val n = BigInteger(key)
+            outputText = n.toString(16)
+        },
+            modifier = Modifier.constrainAs(button){
+                top.linkTo(gridRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+            }
+
+        ) {
+            Text(text = "Enter")
+        }
+
+        Text(
+            text = outputText, // Использование сохранённого значения для отображения
+            modifier = Modifier.constrainAs(text) { // Замените yourTextRef на ваше собственное определение ссылки для размещения текста
+                top.linkTo(button.bottom, margin = 8.dp) // Размещение под кнопкой с небольшим отступом
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }
+        )
     }
 }
 
