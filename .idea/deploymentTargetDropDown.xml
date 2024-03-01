@@ -13,12 +13,12 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\santa\.android\avd\Small_Phone_API_UpsideDownCakePrivacySandbox.avd" />
+                  <value value="C:\Users\santa\.android\avd\rescue.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-02-15T06:28:01.237623300Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-02-23T09:33:15.135700800Z" />
         </State>
       </entry>
     </value>

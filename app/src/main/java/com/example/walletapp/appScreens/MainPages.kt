@@ -1,4 +1,4 @@
-package com.example.walletapp.actionScreens
+package com.example.walletapp.appScreens
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -17,24 +17,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.util.Pair
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.cri.wallet.database.NetworksDAO
-import com.example.walletapp.DataBase.SignerData.NetworkViewModel
 import com.example.walletapp.R
-import com.example.walletapp.mainScreens.Home
-import com.example.walletapp.mainScreens.Sign
-import com.example.walletapp.mainScreens.Wallet
+import com.example.walletapp.appScreens.mainScreens.Home
+import com.example.walletapp.appScreens.mainScreens.Sign
+import com.example.walletapp.appScreens.mainScreens.Wallet
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.markAsVisitedApp
 
 @Composable
 fun MainPagesActivity(
+    viewModel: appViewModel,
     /*onSettingClick: () -> Unit,
     onShareClick : () -> Unit,*/
-    onSignersClick : () -> Unit
+    onSignersClick: () -> Unit,
 ){
 
     val navController = rememberNavController()
@@ -57,7 +56,7 @@ fun MainPagesActivity(
     ) { padding ->
         NavHost(navController, startDestination = Screen.Home.route, Modifier.padding(padding)) {
             composable(Screen.Wallet.route) {
-                Wallet()
+                Wallet(viewModel)
             }
             composable(Screen.Home.route) {
                 Home(

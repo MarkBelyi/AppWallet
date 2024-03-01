@@ -1,5 +1,6 @@
 package com.example.walletapp.registrationScreens
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,12 +28,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.R
+import com.example.walletapp.animation.springAnimationSpec
 import com.example.walletapp.elements.checkbox.CheckboxWithLabel
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
 fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
+    //Animation
+    var startAnimation by remember { mutableStateOf(false) }
+    val offsetY = animateDpAsState(
+        targetValue = if (startAnimation) 100.dp else 0.dp,
+        animationSpec = springAnimationSpec(),
+        label = ""
+    )
+
+    LaunchedEffect(Unit) {
+        startAnimation = true
+    }
+
+
+
     var termsAccepted by remember { mutableStateOf(false) }
 
     Column(
@@ -39,12 +56,13 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
         modifier = Modifier
             .fillMaxSize()
             .background(color = colorScheme.background)
-            .padding(paddingColumn)
+            //.padding(paddingColumn)
+            .padding(top = offsetY.value)
     ){
         Spacer(modifier = Modifier.weight(0.35f))
 
         //Logo
-        /*Image(
+        Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo",
             modifier = Modifier
@@ -52,7 +70,7 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
                 .heightIn(min = 75.dp, max = 202.dp)
                 .widthIn(min = 108.dp, max = 232.dp)
                 .aspectRatio(1f)
-        )*/
+        )
 
         Spacer(modifier = Modifier.weight(0.35f))
 
@@ -81,6 +99,7 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
             onCheckedChange = { isChecked -> termsAccepted = isChecked },
             modifier = Modifier
                 .fillMaxWidth(0.75f)
+
         )
 
         Spacer(modifier = Modifier.weight(0.2f))

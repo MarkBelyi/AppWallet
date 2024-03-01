@@ -1,7 +1,7 @@
 package com.example.walletapp.DataBase.Event
 
 import com.example.walletapp.DataBase.Entities.Signer
-import com.example.walletapp.DataBase.SignerData.SortType
+import com.example.walletapp.DataBase.ViewModel.SortType
 
 sealed interface SignerEvent {
     object SaveSigner: SignerEvent

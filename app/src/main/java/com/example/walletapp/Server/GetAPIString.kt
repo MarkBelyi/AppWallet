@@ -60,3 +60,14 @@ suspend fun GetAPIString(con: Context, api:String, mes:String="", POST:Boolean=f
     }
     return@withContext ss
 }
+
+/*
+var restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("hello" , mnemonic)
+val ps = PasswordStorageHelper(LocalContext.current)
+ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
+ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
+*/
+/*val prkey=restoreCredentials.ecKeyPair.privateKey.toByteArray()
+val nn=     BigInteger(prkey)
+val kk= nn.toString(16)*/
+//Getsign(LocalContext.current, "")

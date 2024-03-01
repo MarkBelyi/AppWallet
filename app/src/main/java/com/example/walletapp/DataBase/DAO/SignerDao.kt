@@ -2,6 +2,8 @@ package com.example.walletapp.DataBase.DAO
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.walletapp.DataBase.Entities.Signer
@@ -12,8 +14,14 @@ interface SignerDao{
     @Upsert
     suspend fun upsertSigner(signer: Signer)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSigner(signer: Signer)
+
     @Delete
     suspend fun deleteSigner(signer: Signer)
+
+    @Query("SELECT COUNT(*) FROM signers")
+    fun getCount(): Int
 
     @Query("SELECT * FROM signers ORDER BY address ASC")
     fun getSignersByAddress(): Flow<List<Signer>>

@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
+    kotlin("plugin.serialization") version "1.5.31"
 }
 
 android {
@@ -97,8 +98,10 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
 
     //JSON Parsing
-    implementation("com.google.code.gson:gson:2.8.6")
+    //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+    implementation("com.google.code.gson:gson:2.8.8")
 
     //LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.2")
 }

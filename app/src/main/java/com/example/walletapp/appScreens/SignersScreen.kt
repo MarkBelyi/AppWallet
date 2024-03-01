@@ -1,4 +1,4 @@
-package com.example.walletapp.actionScreens
+package com.example.walletapp.appScreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,23 +23,33 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Event.SignerEvent
 import com.example.walletapp.DataBase.State.SignerState
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
 fun SignersScreen(
-    state: SignerState,
-    onEvent: (SignerEvent) -> Unit
+    viewModel: appViewModel
 ){
+    val signers by viewModel.allSigners.observeAsState(initial = emptyList())
+    val isAddingSigner by viewModel.isAddingSigner.observeAsState(initial = false)
+
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onEvent(SignerEvent.ShowDialog) },
+                onClick = { viewModel.showAddSignerDialog() },
                 containerColor = colorScheme.background,
                 contentColor = colorScheme.onBackground,
                 shape = roundedShape,
@@ -53,8 +63,8 @@ fun SignersScreen(
         }
     ) {padding ->
 
-        if(state.isAddingSigner){
-            AddSignerDialog(state = state, onEvent = onEvent)
+        if (isAddingSigner) {
+            AddSignerDialog(viewModel = viewModel)
         }
 
         LazyColumn(
@@ -62,7 +72,7 @@ fun SignersScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
-            items(state.signers){signer ->
+            items(signers){signer ->
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
@@ -97,7 +107,7 @@ fun SignersScreen(
                         }
                     }
                     IconButton(
-                        onClick = { onEvent(SignerEvent.DeleteSigner(signer)) }
+                        onClick = { viewModel.deleteSigner(signer) }
                     ) {
                        Icon(
                            imageVector = Icons.Rounded.Delete,
@@ -112,16 +122,24 @@ fun SignersScreen(
 
 @Composable
 fun AddSignerDialog(
-    state: SignerState,
-    onEvent: (SignerEvent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: appViewModel
 ){
+
+    var name by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var telephone by remember { mutableStateOf("") }
+
     AlertDialog(
         modifier = modifier,
-        onDismissRequest = { onEvent(SignerEvent.HideDialog) },
+        onDismissRequest = { viewModel.hideAddSignerDialog() },
         confirmButton = {
                         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd){
-                            Button(onClick = { onEvent(SignerEvent.SaveSigner) }) {
+                            Button(onClick = {
+                                viewModel.insertSigner(Signer(name, email, telephone, type = 1, address))
+                                viewModel.hideAddSignerDialog()
+                            }) {
                                 Text(text = "Save")
                             }
                         }
@@ -132,36 +150,36 @@ fun AddSignerDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ){
                 TextField(
-                    value = state.name,
+                    value = name,
                     onValueChange = {
-                        onEvent(SignerEvent.SetName(it))
+                        name = it
                     },
                     placeholder = {
                         Text(text = "Name")
                     }
                 )
                 TextField(
-                    value = state.address,
+                    value = address,
                     onValueChange = {
-                        onEvent(SignerEvent.SetAddress(it))
+                        address = it
                     },
                     placeholder = {
                         Text(text = "Address")
                     }
                 )
                 TextField(
-                    value = state.email,
+                    value = email,
                     onValueChange = {
-                        onEvent(SignerEvent.SetEmail(it))
+                        email = it
                     },
                     placeholder = {
                         Text(text = "Email")
                     }
                 )
                 TextField(
-                    value = state.telephone,
+                    value = telephone,
                     onValueChange = {
-                        onEvent(SignerEvent.SetTelephone(it))
+                        telephone = it
                     },
                     placeholder = {
                         Text(text = "Phone number")

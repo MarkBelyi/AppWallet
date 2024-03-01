@@ -1,7 +1,7 @@
 package com.example.walletapp.DataBase.State
 
 import com.example.walletapp.DataBase.Entities.Signer
-import com.example.walletapp.DataBase.SignerData.SortType
+import com.example.walletapp.DataBase.ViewModel.SortType
 
 data class SignerState(
     val signers: List<Signer> = emptyList(),

@@ -1,4 +1,4 @@
-package com.cri.wallet.database.entities
+package com.example.walletapp.DataBase.Entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

@@ -7,9 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
-import com.cri.wallet.database.entities.Networks
-import com.cri.wallet.database.entities.Wallets
-import kotlinx.coroutines.flow.Flow
+import com.example.walletapp.DataBase.Entities.Wallets
 
 @Dao
 interface WalletsDAO {

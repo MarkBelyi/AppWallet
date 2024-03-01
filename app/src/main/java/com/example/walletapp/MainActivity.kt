@@ -1,63 +1,55 @@
 package com.example.walletapp
 
+import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room.databaseBuilder
 import com.example.walletapp.DataBase.DataBase
-import com.example.walletapp.DataBase.SignerData.SignerViewModel
 import com.example.walletapp.activity.AppActivity
 import com.example.walletapp.activity.RegistrationActivity
+import com.example.walletapp.appScreens.mainScreens.Wallet
+import com.example.walletapp.appViewModel.AppViewModelFactory
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.registrationViewModel.RegistrationViewModel
+import com.example.walletapp.repository.AppRepository
 import com.example.walletapp.ui.theme.WalletAppTheme
+
+class MainApplication : Application(){
+    val database by lazy { DataBase.getDatabase(this) }
+    val repository by lazy { AppRepository(database.signerDao(), database.networksDao()) }
+}
 
 class MainActivity : ComponentActivity() {
 
-    private val db by lazy {
-        databaseBuilder(
-            applicationContext,
-            DataBase::class.java,
-            "database.db"
-        ).build()
+    //инициализируем viewModel
+    private val appViewModel: appViewModel by viewModels {
+        AppViewModelFactory((application as MainApplication).repository)
     }
-    @Suppress("UNCHECKED_CAST")
-    private val viewModelDB by viewModels<SignerViewModel> (
-        factoryProducer = {
-            object: ViewModelProvider.Factory{
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return SignerViewModel(db.dao) as T
-                }
-            }
-        }
-    )
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val viewModelReg: RegistrationViewModel by viewModels()
-        val startDestination = if (hasVisitedApp()) "App" else "Registration"
 
         setContent {
-            val navController = rememberNavController()
-            val state by viewModelDB.state.collectAsState()
             WalletAppTheme {
-                NavHost(navController, startDestination = startDestination) {
-                    composable("Registration"){
+                val navController = rememberNavController()
+                val startDestination = if (hasVisitedApp()) "App" else "Registration"
+
+
+                NavHost(navController = navController, startDestination = startDestination) {
+                    composable("Registration") {
                         RegistrationActivity(activity = this@MainActivity, navHostController = navController, viewModel = viewModelReg)
                     }
-                    composable("App"){
-                        AppActivity(this@MainActivity, state = state, onEvent = viewModelDB::onEvent)
+                    composable("App") {
+                        AppActivity(this@MainActivity, viewModel = appViewModel)
                     }
                 }
+
             }
         }
     }
@@ -74,13 +66,28 @@ fun Context.hasVisitedApp(): Boolean {
     return sharedPrefs.getBoolean("VisitedApp", false)
 }
 
-/*
-                var restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("hello" , mnemonic)
-                val ps = PasswordStorageHelper(LocalContext.current)
-                ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
-                ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
-                */
-/*val prkey=restoreCredentials.ecKeyPair.privateKey.toByteArray()
-val nn=     BigInteger(prkey)
-val kk= nn.toString(16)*/
-//Getsign(LocalContext.current, "")
+
+/*private val db by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            DataBase::class.java,
+            "database.db"
+        ).build()
+    }
+
+
+    private val viewModelFactory by lazy {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+                    return MainViewModel(db.signerDao(), db.networksDao()) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    }*/
+
+
+
+

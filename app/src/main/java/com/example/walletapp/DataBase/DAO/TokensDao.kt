@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
-import com.cri.wallet.database.entities.Tokens
+import com.example.walletapp.DataBase.Entities.Tokens
 
 
 @Dao

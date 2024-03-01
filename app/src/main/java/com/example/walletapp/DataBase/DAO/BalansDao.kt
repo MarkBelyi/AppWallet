@@ -1,15 +1,12 @@
 package com.cri.wallet.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Upsert
-import com.cri.wallet.database.entities.Balans
-import com.cri.wallet.database.entities.Tokens
+import com.example.walletapp.DataBase.Entities.Balans
 
 
 @Dao

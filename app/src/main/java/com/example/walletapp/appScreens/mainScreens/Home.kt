@@ -1,4 +1,4 @@
-package com.example.walletapp.mainScreens
+package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -42,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.core.util.Pair
-import com.example.walletapp.actionScreens.actionItems
+import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape

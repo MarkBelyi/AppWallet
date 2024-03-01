@@ -1,4 +1,4 @@
-package com.example.walletapp.mainScreens
+package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.runtime.Composable
 
