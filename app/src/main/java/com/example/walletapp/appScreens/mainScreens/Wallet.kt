@@ -52,7 +52,7 @@ fun Wallet(viewModel: appViewModel) {
 
     Spacer(modifier = Modifier.height(16.dp))
 
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+    LazyColumn(modifier = Modifier.fillMaxWidth().background(color = colorScheme.background)) {
         items(networks) { network ->
             NetworkItem(network = network)
         }
