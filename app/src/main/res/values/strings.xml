@@ -37,6 +37,8 @@
 
     <string name="toast_write_seed_phrase">Введенная фраза не совпадает</string>
 
+    <string name="default_name_of_signer">Мой публичный ключ</string>
+
     //resourses OLD
     <string name="app_package_name">com.app.wallet2</string>
     <string name="preferens_file_name">Wallet</string>

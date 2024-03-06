@@ -113,7 +113,7 @@ fun WalletAppTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        //typography = Typography,
+
         content = content
     )
 }

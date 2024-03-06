@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.core.util.Pair
+import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
@@ -53,7 +54,6 @@ fun Home(
     onShareClick: () -> Unit,*/
     onSignersClick: () -> Unit
 ) {
-    val ps = PasswordStorageHelper(LocalContext.current)
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -76,12 +76,10 @@ fun Home(
             width = Dimension.fillToConstraints
         })
 
-        var outputText by remember { mutableStateOf("") }
+        /*var outputText by remember { mutableStateOf("") }
 
         Button(onClick = {
-            val key = ps.getData("MyPrivateKey")
-            val n = BigInteger(key)
-            outputText = n.toString(16)
+            outputText = GetMyAddr(context = context)
         },
             modifier = Modifier.constrainAs(button){
                 top.linkTo(gridRef.bottom)
@@ -101,7 +99,7 @@ fun Home(
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }
-        )
+        )*/
     }
 }
 

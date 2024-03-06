@@ -7,26 +7,32 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.walletapp.DataBase.Event.SignerEvent
-import com.example.walletapp.DataBase.State.SignerState
 import com.example.walletapp.appScreens.MainPagesActivity
-import com.example.walletapp.appScreens.SignersScreen
+import com.example.walletapp.appScreens.mainScreens.SignersScreen
+import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appViewModel.appViewModel
 
 @Composable
-fun AppActivity(activity: Activity,
-                viewModel: appViewModel
-                )
-{
+fun AppActivity(
+    activity: Activity,
+    viewModel: appViewModel
+){
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    var selectedSignerAddress by remember { mutableStateOf("") }
 
     fun switchToPage(index: Int) {
         selectedTabIndex = index
 
+    }
+
+    fun switchToPage(index: Int, address: String = "") {
+        selectedTabIndex = index
+        selectedSignerAddress = address
     }
 
     BackHandler(
@@ -38,9 +44,9 @@ fun AppActivity(activity: Activity,
                 3 -> {
                     switchToPage(0)
                 }
-                /*4 -> {
+                4 -> {
                     switchToPage(3)
-                }*/
+                }
             }
         }
     )
@@ -56,8 +62,16 @@ fun AppActivity(activity: Activity,
                 //onShareClick = {switchToPage(2)},
                 onSignersClick = {switchToPage(3)}
             )
+
             3 -> SignersScreen(
-                viewModel = viewModel
+                viewModel = viewModel,
+                onCurrentSignerClick = { address -> switchToPage(4, address) }
+            )
+
+            4 -> EditSigner(
+                viewModel = viewModel,
+                signerAddress = selectedSignerAddress,
+                onSaveClick = {switchToPage(3)}
             )
 
 

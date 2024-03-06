@@ -12,10 +12,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.walletapp.DataBase.DataBase
 import com.example.walletapp.activity.AppActivity
 import com.example.walletapp.activity.RegistrationActivity
-import com.example.walletapp.appScreens.mainScreens.Wallet
 import com.example.walletapp.appViewModel.AppViewModelFactory
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.registrationViewModel.RegistrationViewModel
 import com.example.walletapp.repository.AppRepository
 import com.example.walletapp.ui.theme.WalletAppTheme
 
@@ -33,7 +31,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModelReg: RegistrationViewModel by viewModels()
 
         setContent {
             WalletAppTheme {
@@ -43,7 +40,7 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("Registration") {
-                        RegistrationActivity(activity = this@MainActivity, navHostController = navController, viewModel = viewModelReg)
+                        RegistrationActivity(activity = this@MainActivity, navHostController = navController, viewModel = appViewModel)
                     }
                     composable("App") {
                         AppActivity(this@MainActivity, viewModel = appViewModel)

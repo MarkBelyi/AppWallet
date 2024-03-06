@@ -38,6 +38,8 @@
 
     <string name="toast_write_seed_phrase">The entered phrase does not match</string>
 
+    <string name="default_name_of_signer">My current public key</string>
+
     //Resoursec OLD
     <string name="app_package_name">com.app.wallet2</string>
     <string name="preferens_file_name">Wallet</string>

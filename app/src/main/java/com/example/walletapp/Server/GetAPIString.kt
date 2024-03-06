@@ -13,8 +13,7 @@ import okhttp3.Response
 
 import java.util.concurrent.TimeUnit
 
-suspend fun GetAPIString(con: Context, api:String, mes:String="", POST:Boolean=false):String = withContext(
-    Dispatchers.IO) {
+suspend fun GetAPIString(con: Context, api:String, mes:String="", POST:Boolean=false):String = withContext(Dispatchers.IO) {
     val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .writeTimeout(10, TimeUnit.SECONDS)

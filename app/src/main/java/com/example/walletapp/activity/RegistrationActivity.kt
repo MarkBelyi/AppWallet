@@ -13,16 +13,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.registrationScreens.CreatePasswordScreen
 import com.example.walletapp.registrationScreens.CreateSeedPhraseScreen
 import com.example.walletapp.registrationScreens.NewUserScreenColumn
 import com.example.walletapp.registrationScreens.TapSeedPhraseScreen
 import com.example.walletapp.registrationScreens.WriteSeedPhraseScreen
-import com.example.walletapp.registrationViewModel.RegistrationViewModel
 
 
 @Composable
-fun RegistrationActivity(activity: Activity, navHostController: NavHostController, viewModel: RegistrationViewModel){
+fun RegistrationActivity(activity: Activity, navHostController: NavHostController, viewModel: appViewModel){
     var isAddClicked by remember { mutableStateOf(false) }
 
     var selectedTabIndex by viewModel::selectedTabIndex

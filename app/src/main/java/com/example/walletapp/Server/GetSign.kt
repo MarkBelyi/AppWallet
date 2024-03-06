@@ -18,8 +18,10 @@ fun Getsign(context: Context, mes:String):Array<String> { // Внимание! �
 
     // val ss:String = String(privKey)
 
-    val bigpriv: BigInteger = BigInteger(privKey)
-    val bigpub: BigInteger = BigInteger(pubKey)
+    /*val bigpriv: BigInteger = BigInteger(privKey)
+    val bigpub: BigInteger = BigInteger(pubKey)*/
+    val bigpriv = BigInteger(privKey)
+    val bigpub = BigInteger(pubKey)
 
     //val keyPair = ECKeyPair(bigpriv, bigpub)
 

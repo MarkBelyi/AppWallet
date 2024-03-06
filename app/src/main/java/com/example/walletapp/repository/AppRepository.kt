@@ -1,36 +1,52 @@
 package com.example.walletapp.repository
 
 import androidx.annotation.WorkerThread
+import com.example.walletapp.DataBase.DAO.WalletsDAO
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
+import com.example.walletapp.DataBase.Entities.Wallets
 import kotlinx.coroutines.flow.Flow
 
 class AppRepository(
-    private val signerDao: SignerDao,
-    private val networksDAO: NetworksDAO
+    private val signersDao: SignerDao,
+    private val networksDAO: NetworksDAO,
+    private val walletsDAO: WalletsDAO
 ){
+    //Wallet
+    val allWallets: Flow<List<Wallets>> = walletsDAO.getWallets()
+
+
     //Singer
-    val allSigners: Flow<List<Signer>> = signerDao.getSignersByName()
+    val allSigners: Flow<List<Signer>> = signersDao.getSignersByName()
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun upsertSigner(signer: Signer){
-        signerDao.upsertSigner(signer)
+        signersDao.upsertSigner(signer)
     }
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun deleteSigner(signer: Signer){
-        signerDao.deleteSigner(signer)
+        signersDao.deleteSigner(signer)
     }
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insertSigner(signer: Signer){
-        signerDao.insertSigner(signer)
+        signersDao.insertSigner(signer)
     }
-    fun amountOfSigner(){
-        signerDao.getCount()
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getSignerAddress(address: String): Signer? {
+        return signersDao.getSignerAddress(address)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun amountOfSigner(){
+        signersDao.getCount()
     }
 
     //Network

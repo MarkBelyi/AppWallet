@@ -36,23 +36,24 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
+import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
+import com.example.walletapp.Server.GetMyAddr
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.elements.checkbox.CheckboxWithText
 import com.example.walletapp.elements.checkbox.MnemonicPhraseGrid
 import com.example.walletapp.elements.checkbox.MnemonicTitleWithIcon
 import com.example.walletapp.elements.checkbox.ShareMnemonicPhrase
 import com.example.walletapp.helper.PasswordStorageHelper
-import com.example.walletapp.registrationViewModel.RegistrationViewModel
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.MnemonicUtils
 import org.web3j.crypto.WalletUtils
-import java.math.BigInteger
 import java.security.SecureRandom
 
 @Composable
-fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel, navHostController: NavHostController, onNextClick: (Boolean) -> Unit){
+fun CreateSeedPhraseScreen(viewModel: appViewModel, navHostController: NavHostController, onNextClick: (Boolean) -> Unit){
     val context = LocalContext.current
     val ps = PasswordStorageHelper(context)
     val initialEntropy = SecureRandom.getSeed(16)
@@ -63,8 +64,6 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel, navHostController: 
 
     viewModel.setMnemonicList(mnemonicList)
     viewModel.setMnemonic(mnemonic)
-
-
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -194,7 +193,7 @@ fun CreateSeedPhraseScreen(viewModel: RegistrationViewModel, navHostController: 
                     val restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("MARKovka" , mnemonic)
                     ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                     ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
-
+                    viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context)))
                     navHostController.navigate("App")
                 } else if (showWords) {
                     onNextClick(true)
