@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 class AppRepository(
     private val signersDao: SignerDao,
     private val networksDAO: NetworksDAO,
-    private val walletsDAO: WalletsDAO
+    //private val walletsDAO: WalletsDAO
 ){
     //Wallet
-    val allWallets: Flow<List<Wallets>> = walletsDAO.getWallets()
+    //val allWallets: Flow<List<Wallets>> = walletsDAO.getWallets()
 
 
     //Singer
