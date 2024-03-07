@@ -104,4 +104,7 @@ dependencies {
     //LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.2")
+
+    //QR scanner
+    implementation("com.journeyapps:zxing-android-embedded:4.2.0")
 }

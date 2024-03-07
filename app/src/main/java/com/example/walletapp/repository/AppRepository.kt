@@ -1,6 +1,7 @@
 package com.example.walletapp.repository
 
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.asFlow
 import com.example.walletapp.DataBase.DAO.WalletsDAO
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
@@ -12,10 +13,40 @@ import kotlinx.coroutines.flow.Flow
 class AppRepository(
     private val signersDao: SignerDao,
     private val networksDAO: NetworksDAO,
-    //private val walletsDAO: WalletsDAO
+    private val walletsDAO: WalletsDAO
 ){
-    //Wallet
-    //val allWallets: Flow<List<Wallets>> = walletsDAO.getWallets()
+    // Wallets
+    val allWallets: Flow<List<Wallets>> = walletsDAO.getLiveWallets().asFlow() // Получаем кошельки
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun insertWallet(wallet: Wallets) {
+        walletsDAO.insertWallet(wallet)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun addWallets(wallets: List<Wallets>) {
+        walletsDAO.addWallets(wallets)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun deleteWallet(wallet: Wallets) {
+        walletsDAO.deleteWallet(wallet)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun deleteAllWallets() {
+        walletsDAO.deleteAll()
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getCountOfWallets(): Int {
+        return walletsDAO.getCount()
+    }
 
 
     //Singer

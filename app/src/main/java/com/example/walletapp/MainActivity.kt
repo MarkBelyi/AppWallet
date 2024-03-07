@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.walletapp.DataBase.DataBase
 import com.example.walletapp.activity.AppActivity
 import com.example.walletapp.activity.RegistrationActivity
+import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appViewModel.AppViewModelFactory
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.repository.AppRepository
@@ -19,7 +20,7 @@ import com.example.walletapp.ui.theme.WalletAppTheme
 
 class MainApplication : Application(){
     val database by lazy { DataBase.getDatabase(this) }
-    val repository by lazy { AppRepository(database.signerDao(), database.networksDao()) }
+    val repository by lazy { AppRepository(database.signerDao(), database.networksDao(), database.walletsDao()) }
 }
 
 class MainActivity : ComponentActivity() {
@@ -36,7 +37,6 @@ class MainActivity : ComponentActivity() {
             WalletAppTheme {
                 val navController = rememberNavController()
                 val startDestination = if (hasVisitedApp()) "App" else "Registration"
-
 
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("Registration") {

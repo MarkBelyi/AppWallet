@@ -52,7 +52,8 @@ import java.math.BigInteger
 fun Home(
     /*onSettingClick: () -> Unit,
     onShareClick: () -> Unit,*/
-    onSignersClick: () -> Unit
+    onSignersClick: () -> Unit,
+    onCreateWalletClick: () -> Unit
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -67,6 +68,7 @@ fun Home(
                 /*"Настройки" -> onSettingClick()
                 "Поделиться публичным ключем" -> onShareClick()*/
                 "Подписанты" -> onSignersClick()
+                "Создать кошелек" -> onCreateWalletClick()
                 else -> Unit
             }
         }, modifier = Modifier.constrainAs(gridRef) {

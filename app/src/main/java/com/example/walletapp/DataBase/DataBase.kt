@@ -6,13 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
+import com.example.walletapp.DataBase.DAO.WalletsDAO
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
+import com.example.walletapp.DataBase.Entities.Wallets
 
 @Database(
     entities = [
         Signer::class,
-        Networks::class
+        Networks::class,
+        Wallets::class
     ],
     version = 1,
     exportSchema = false
@@ -20,6 +23,7 @@ import com.example.walletapp.DataBase.Entities.Signer
 abstract class DataBase: RoomDatabase(){
     abstract fun signerDao(): SignerDao
     abstract fun networksDao(): NetworksDAO
+    abstract fun walletsDao(): WalletsDAO
 
     companion object{
         @Volatile

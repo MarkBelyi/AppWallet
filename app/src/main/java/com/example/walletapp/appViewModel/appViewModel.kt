@@ -13,12 +13,36 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
+import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.Server.GetAPIString
 import com.example.walletapp.parse.parseNetworks
 import com.example.walletapp.repository.AppRepository
 import kotlinx.coroutines.launch
 
 class appViewModel(private val repository: AppRepository) : ViewModel() {
+
+    // Wallets
+    val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
+
+    fun insertWallet(wallet: Wallets) = viewModelScope.launch {
+        repository.insertWallet(wallet)
+    }
+
+    fun addWallets(wallets: List<Wallets>) = viewModelScope.launch {
+        repository.addWallets(wallets)
+    }
+
+    fun deleteWallet(wallet: Wallets) = viewModelScope.launch {
+        repository.deleteWallet(wallet)
+    }
+
+    fun deleteAllWallets() = viewModelScope.launch {
+        repository.deleteAllWallets()
+    }
+
+    fun getCountOfWallets(): LiveData<Int> = liveData {
+        emit(repository.getCountOfWallets())
+    }
 
     //Регистрация
     var isPhraseSent: Boolean by mutableStateOf(false)

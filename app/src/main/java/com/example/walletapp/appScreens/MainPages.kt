@@ -34,6 +34,7 @@ fun MainPagesActivity(
     /*onSettingClick: () -> Unit,
     onShareClick : () -> Unit,*/
     onSignersClick: () -> Unit,
+    onCreateWalletClick: () -> Unit
 ){
 
     val navController = rememberNavController()
@@ -62,7 +63,8 @@ fun MainPagesActivity(
                 Home(
                     /*onSettingClick,
                     onShareClick,*/
-                    onSignersClick
+                    onSignersClick,
+                    onCreateWalletClick,
                 )
             }
             composable(Screen.Subscriptions.route) {

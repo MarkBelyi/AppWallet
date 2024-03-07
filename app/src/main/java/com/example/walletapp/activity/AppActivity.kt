@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.walletapp.appScreens.MainPagesActivity
+import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appViewModel.appViewModel
@@ -47,6 +48,9 @@ fun AppActivity(
                 4 -> {
                     switchToPage(3)
                 }
+                5 -> {
+                    switchToPage(0)
+                }
             }
         }
     )
@@ -60,7 +64,8 @@ fun AppActivity(
                 viewModel = viewModel,
                 //onSettingClick = {switchToPage(1)},
                 //onShareClick = {switchToPage(2)},
-                onSignersClick = {switchToPage(3)}
+                onSignersClick = {switchToPage(3)},
+                onCreateWalletClick = {switchToPage(5)}
             )
 
             3 -> SignersScreen(
@@ -73,6 +78,11 @@ fun AppActivity(
                 signerAddress = selectedSignerAddress,
                 onSaveClick = {switchToPage(3)}
             )
+
+            5 -> CreateWalletScreen(
+                viewModel = viewModel
+            )
+
 
 
         }
