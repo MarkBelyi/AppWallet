@@ -188,6 +188,7 @@ fun CreateWalletScreen(viewModel: appViewModel) {
                     onValueChange = { signerKeys[index] = it },
                     singleLine = true,
                     maxLines = 1,
+                    minLines = 1,
                     shape = roundedShape,
                     modifier = Modifier
                         .fillMaxWidth()
