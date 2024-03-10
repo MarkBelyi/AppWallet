@@ -39,6 +39,7 @@ import androidx.navigation.NavHostController
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetMyAddr
+import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.elements.checkbox.CheckboxWithText
 import com.example.walletapp.elements.checkbox.MnemonicPhraseGrid
@@ -53,7 +54,7 @@ import org.web3j.crypto.WalletUtils
 import java.security.SecureRandom
 
 @Composable
-fun CreateSeedPhraseScreen(viewModel: appViewModel, navHostController: NavHostController, onNextClick: (Boolean) -> Unit){
+fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: appViewModel, navHostController: NavHostController, onNextClick: (Boolean) -> Unit){
     val context = LocalContext.current
     val ps = PasswordStorageHelper(context)
     val initialEntropy = SecureRandom.getSeed(16)
@@ -62,8 +63,8 @@ fun CreateSeedPhraseScreen(viewModel: appViewModel, navHostController: NavHostCo
     // Преобразуем строку мнемонической фразы в список слов:
     val mnemonicList: List<String> = mnemonic.split(" ")
 
-    viewModel.setMnemonicList(mnemonicList)
-    viewModel.setMnemonic(mnemonic)
+    viewModelReg.setMnemonicList(mnemonicList)
+    viewModelReg.setMnemonic(mnemonic)
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -77,7 +78,7 @@ fun CreateSeedPhraseScreen(viewModel: appViewModel, navHostController: NavHostCo
             .background(color = colorScheme.background)
             .padding(paddingColumn)
     ) {
-        var isPhraseSent by viewModel::isPhraseSent
+        var isPhraseSent by viewModelReg::isPhraseSent
         var isPhraseSaved by remember { mutableStateOf(false) }
         //val termsAccepted by remember { mutableStateOf(false) }
 
@@ -151,7 +152,7 @@ fun CreateSeedPhraseScreen(viewModel: appViewModel, navHostController: NavHostCo
 
         ShareMnemonicPhrase(
             randomSeedPhrases = mnemonicList,
-            onShared = { viewModel.isPhraseSent = true }, 
+            onShared = { viewModelReg.isPhraseSent = true },
             launcher = launcher,
             modifier = Modifier.constrainAs(sharePhraseRef) {
                 top.linkTo(dividerRef.bottom, margin = 8.dp)
@@ -193,7 +194,7 @@ fun CreateSeedPhraseScreen(viewModel: appViewModel, navHostController: NavHostCo
                     val restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("MARKovka" , mnemonic)
                     ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                     ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
-                    viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context)))
+                    viewModelApp.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context)))
                     navHostController.navigate("App")
                 } else if (showWords) {
                     onNextClick(true)

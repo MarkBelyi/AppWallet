@@ -50,8 +50,9 @@ import java.math.BigInteger
 
 @Composable
 fun Home(
-    /*onSettingClick: () -> Unit,
-    onShareClick: () -> Unit,*/
+    /*onSettingClick: () -> Unit,*/
+    onQRClick: () -> Unit,
+    onShareClick: () -> Unit,
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit
 ) {
@@ -65,8 +66,9 @@ fun Home(
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
-                /*"Настройки" -> onSettingClick()
-                "Поделиться публичным ключем" -> onShareClick()*/
+                /*"Настройки" -> onSettingClick()*/
+                "QR" -> onQRClick()
+                "Поделиться публичным ключем" -> onShareClick()
                 "Подписанты" -> onSignersClick()
                 "Создать кошелек" -> onCreateWalletClick()
                 else -> Unit
@@ -181,7 +183,7 @@ fun ActionCell(
                 modifier = Modifier
                     .border(
                         1.dp,
-                        shape = RoundedCornerShape(10.dp),
+                        shape = roundedShape,
                         color = Color.LightGray
                     )
                     .padding(8.dp)

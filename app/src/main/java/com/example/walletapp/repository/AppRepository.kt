@@ -2,19 +2,43 @@ package com.example.walletapp.repository
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.asFlow
+import com.cri.wallet.database.TokensDAO
 import com.example.walletapp.DataBase.DAO.WalletsDAO
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
+import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
 import kotlinx.coroutines.flow.Flow
 
 class AppRepository(
     private val signersDao: SignerDao,
     private val networksDAO: NetworksDAO,
-    private val walletsDAO: WalletsDAO
+    private val walletsDAO: WalletsDAO,
+    private val tokensDAO: TokensDAO
 ){
+    //tokens
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun insertToken(item: Tokens) = tokensDAO.insert(item)
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun addTokens(items: List<Tokens>) = tokensDAO.add(items)
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun tokensCount() =tokensDAO.getCount()
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun deleteToken(item: Tokens) = tokensDAO.deleteItem(item)
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun deleteAllTokens()=tokensDAO.deleteAll()
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getAllForNet(net:Int)=tokensDAO.getAllForNet(net)
+
+
     // Wallets
     val allWallets: Flow<List<Wallets>> = walletsDAO.getLiveWallets().asFlow() // Получаем кошельки
 

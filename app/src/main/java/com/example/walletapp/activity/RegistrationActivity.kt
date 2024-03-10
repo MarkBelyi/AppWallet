@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.registrationScreens.CreatePasswordScreen
 import com.example.walletapp.registrationScreens.CreateSeedPhraseScreen
@@ -22,20 +23,20 @@ import com.example.walletapp.registrationScreens.WriteSeedPhraseScreen
 
 
 @Composable
-fun RegistrationActivity(activity: Activity, navHostController: NavHostController, viewModel: appViewModel){
+fun RegistrationActivity(activity: Activity, navHostController: NavHostController, viewModelReg: RegistrationViewModel, viewModelApp: appViewModel){
     var isAddClicked by remember { mutableStateOf(false) }
 
-    var selectedTabIndex by viewModel::selectedTabIndex
+    var selectedTabIndex by viewModelReg::selectedTabIndex
 
     fun switchToPage(index: Int, isAddClick: Boolean = false) {
-        viewModel.saveState(index)
+        viewModelReg.saveState(index)
         selectedTabIndex = index
         isAddClicked = isAddClick
     }
 
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.saveState(selectedTabIndex)
+            viewModelReg.saveState(selectedTabIndex)
         }
     }
 
@@ -77,10 +78,11 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
             2 -> CreateSeedPhraseScreen(
                 onNextClick = {switchToPage(3)},
                 navHostController = navHostController,
-                viewModel = viewModel
+                viewModelReg = viewModelReg,
+                viewModelApp = viewModelApp
             )
 
-            3 -> TapSeedPhraseScreen(navHostController = navHostController, viewModel = viewModel)
+            3 -> TapSeedPhraseScreen(navHostController = navHostController, viewModelReg = viewModelReg, viewModelApp = viewModelApp)
 
             4 -> WriteSeedPhraseScreen(navHostController = navHostController)
         }

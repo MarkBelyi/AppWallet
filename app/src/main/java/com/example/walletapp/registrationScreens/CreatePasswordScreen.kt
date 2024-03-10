@@ -1,5 +1,6 @@
 package com.example.walletapp.registrationScreens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -111,6 +112,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit){
             enabled = isPasswordValid,
             onClick = {
                 if (isPasswordValid(passwordValue)) {
+                    Toast.makeText(context, R.string.password_saved, Toast.LENGTH_SHORT).show()
                     ps.setData("MyPassword", passwordValue.toByteArray())
                     onNextAction()
                 } else {

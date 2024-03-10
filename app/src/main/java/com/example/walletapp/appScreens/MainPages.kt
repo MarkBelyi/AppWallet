@@ -31,8 +31,9 @@ import com.example.walletapp.markAsVisitedApp
 @Composable
 fun MainPagesActivity(
     viewModel: appViewModel,
-    /*onSettingClick: () -> Unit,
-    onShareClick : () -> Unit,*/
+    /*onSettingClick: () -> Unit,*/
+    onQRClick: () -> Unit,
+    onShareClick : () -> Unit,
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit
 ){
@@ -61,8 +62,9 @@ fun MainPagesActivity(
             }
             composable(Screen.Home.route) {
                 Home(
-                    /*onSettingClick,
-                    onShareClick,*/
+                    /*onSettingClick,*/
+                    onQRClick,
+                    onShareClick,
                     onSignersClick,
                     onCreateWalletClick,
                 )

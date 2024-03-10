@@ -38,6 +38,7 @@ import androidx.navigation.NavHostController
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetMyAddr
+import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
@@ -46,11 +47,11 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.WalletUtils
 
 @Composable
-fun TapSeedPhraseScreen(navHostController: NavHostController, viewModel: appViewModel) {
+fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: RegistrationViewModel, viewModelApp: appViewModel) {
     val context = LocalContext.current
     val isContinueEnabled = remember { mutableStateOf(false) }
-    val mnemonicList = viewModel.getMnemonicList()
-    val mnemonic = viewModel.getMnemonic()
+    val mnemonicList = viewModelReg.getMnemonicList()
+    val mnemonic = viewModelReg.getMnemonic()
     val ps = PasswordStorageHelper(LocalContext.current)
 
 
@@ -80,7 +81,7 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModel: appView
         Tap(
             mnemonicList,
             isContinueEnabled,
-            viewModel,
+            viewModelReg,
             modifier = Modifier.constrainAs(tapArea) {
                 top.linkTo(title.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
@@ -96,7 +97,7 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModel: appView
                 ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                 ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
                 navHostController.navigate("App")
-                viewModel.insertSigner(
+                viewModelApp.insertSigner(
                     Signer(
                         name = context.getString(R.string.default_name_of_signer),
                         email = "",
@@ -118,7 +119,7 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModel: appView
 }
 
 @Composable
-fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewModel: appViewModel, modifier: Modifier = Modifier) {
+fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewModel: RegistrationViewModel, modifier: Modifier = Modifier) {
     val (displayedWords, setDisplayedWords) = remember {
         val chosenIndices = (wordsList.indices).shuffled().take(8).toSet()
         val displayedWithEmptySlots = MutableList<String?>(12) { null }

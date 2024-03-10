@@ -13,11 +13,16 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
+import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.Server.GetAPIString
+import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
 import com.example.walletapp.repository.AppRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class appViewModel(private val repository: AppRepository) : ViewModel() {
 
@@ -44,33 +49,47 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
         emit(repository.getCountOfWallets())
     }
 
-    //Регистрация
-    var isPhraseSent: Boolean by mutableStateOf(false)
-
-    var selectedTabIndex: Int by mutableStateOf(0)
-
-    fun saveState(index: Int) {
-        selectedTabIndex = index
+    fun createWallet(context: Context,msg:String) = viewModelScope.launch {
+        val jsonString = GetAPIString(context,"newWallet",msg,true)
+        //в ответ получаем джейсон строку
+        val jsonconversion = JSONObject(jsonString)
+        // и смотрим что внутри:
+        if (jsonconversion.has("ERROR")) //Всё пропало, сервер долго ругался и послал нас и наш кошелёк
+            return@launch// Завершаем старания. Нужно что-то печальное юзеру сказать или значёк какой вывести..
+        if (jsonconversion.has("myUNID")) // сервер успешно зарегистрировал наш запрос и у нового кошелька будет вот такой UNID. Делать нам с ним нечего.
+        // Нужно запросить список кошельков с сервера и этот свежесозданный будет уже там на стадии [создаётся, ждите]
+            fillWallets(context)
+        // Нужно подождать пару минут и кошель появится уже и в блокчейне если всё ОК.
     }
 
-    private val _mnemonicList = MutableLiveData<List<String>>()
-
-    private val _mnemonic = MutableLiveData<String>()
-
-    fun setMnemonic(mnemonic: String) {
-        _mnemonic.value = mnemonic
-    }
-    fun setMnemonicList(list: List<String>) {
-        _mnemonicList.value = list
-    }
-
-    fun getMnemonic(): String {
-        return _mnemonic.value ?: ""
-    }
-
-    fun getMnemonicList(): List<String> {
-        // Возвращаем текущее значение _mnemonicList, если оно не null, иначе возвращаем пустой список
-        return _mnemonicList.value ?: emptyList()
+    suspend fun fillWallets(context: Context) {
+        var ss: String  = GetAPIString(context, "wallets_2")
+        if (ss.isEmpty()) return;
+        if (ss == "{}") ss = "[]";
+        val jarr = jsonArray(ss)
+        val gg = mutableListOf<Wallets>()
+        for (i in 0 until jarr.length())
+        {val j = jarr.getJSONObject(i)
+            gg.add(Wallets(j["wallet_id"].toString().toInt(),
+                j["network"].toString().toInt(),
+                j.optString("myFlags", ""),
+                j.optString("wallet_type","0").toInt(),
+                j.optString("name",""),
+                j.optString("info",""),
+                j.optString("addr",""),
+                j.optString("addr_info",""),
+                j.optString("myUNID",""),
+                j.optString("tokenShortNames","")))
+        }
+        repository.addWallets(gg) // allWallets обновится с триггера в базе
+        viewModelScope.launch { withContext(Dispatchers.IO) {
+            for (i in gg) {
+                val k = i.tokenShortNames.split(";")
+                for (t in k)//0.543210029602051 CH2K;0.2 MATIC
+                    repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
+                TODO("Балансы нужно тоже сразу распихать по базе балансов. Справишься? ")
+            }}
+        }
     }
 
     //Определение

@@ -6,6 +6,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,13 +16,21 @@ import com.example.walletapp.activity.AppActivity
 import com.example.walletapp.activity.RegistrationActivity
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appViewModel.AppViewModelFactory
+import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.repository.AppRepository
 import com.example.walletapp.ui.theme.WalletAppTheme
 
 class MainApplication : Application(){
     val database by lazy { DataBase.getDatabase(this) }
-    val repository by lazy { AppRepository(database.signerDao(), database.networksDao(), database.walletsDao()) }
+    val repository by lazy {
+        AppRepository(
+            database.signerDao(),
+            database.networksDao(),
+            database.walletsDao(),
+            database.tokensDao()
+        )
+    }
 }
 
 class MainActivity : ComponentActivity() {
@@ -35,12 +45,13 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WalletAppTheme {
+                val registrationViewModel: RegistrationViewModel by viewModels()
                 val navController = rememberNavController()
                 val startDestination = if (hasVisitedApp()) "App" else "Registration"
 
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("Registration") {
-                        RegistrationActivity(activity = this@MainActivity, navHostController = navController, viewModel = appViewModel)
+                        RegistrationActivity(activity = this@MainActivity, navHostController = navController, viewModelReg = registrationViewModel, viewModelApp = appViewModel)
                     }
                     composable("App") {
                         AppActivity(this@MainActivity, viewModel = appViewModel)
@@ -63,27 +74,6 @@ fun Context.hasVisitedApp(): Boolean {
     return sharedPrefs.getBoolean("VisitedApp", false)
 }
 
-
-/*private val db by lazy {
-        Room.databaseBuilder(
-            applicationContext,
-            DataBase::class.java,
-            "database.db"
-        ).build()
-    }
-
-
-    private val viewModelFactory by lazy {
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-                    return MainViewModel(db.signerDao(), db.networksDao()) as T
-                }
-                throw IllegalArgumentException("Unknown ViewModel class")
-            }
-        }
-    }*/
 
 
 

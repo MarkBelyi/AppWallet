@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -52,7 +53,7 @@ fun CreateWalletScreen(viewModel: appViewModel) {
     val networks by viewModel.allNetworks.observeAsState(initial = emptyList())
 
 
-    val numberOfSigner = 3
+    val numberOfSigner = 9
     var selectedNetwork by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     var walletNameText by remember { mutableStateOf("") }
@@ -177,6 +178,8 @@ fun CreateWalletScreen(viewModel: appViewModel) {
 
         LazyColumn(
             modifier = Modifier
+                .background(color = Color.Blue)
+                .fillMaxWidth()
                 .constrainAs(signerKeysList) {
                     top.linkTo(signerName.bottom, margin = 8.dp)
                 },

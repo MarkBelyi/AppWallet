@@ -16,6 +16,8 @@ import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
 import com.example.walletapp.appScreens.mainScreens.EditSigner
+import com.example.walletapp.appScreens.mainScreens.QrScreen
+import com.example.walletapp.appScreens.mainScreens.ShareAddress
 import com.example.walletapp.appViewModel.appViewModel
 
 @Composable
@@ -42,6 +44,12 @@ fun AppActivity(
                 0 -> {
                     activity.finish()
                 }
+                1 -> {
+                    switchToPage(0)
+                }
+                2 -> {
+                    switchToPage(0)
+                }
                 3 -> {
                     switchToPage(0)
                 }
@@ -63,10 +71,15 @@ fun AppActivity(
             0 -> MainPagesActivity(
                 viewModel = viewModel,
                 //onSettingClick = {switchToPage(1)},
-                //onShareClick = {switchToPage(2)},
+                onQRClick = {switchToPage(1)},
+                onShareClick = {switchToPage(2)},
                 onSignersClick = {switchToPage(3)},
                 onCreateWalletClick = {switchToPage(5)}
             )
+
+            1 -> QrScreen(viewModel = viewModel)
+
+            2 -> ShareAddress()
 
             3 -> SignersScreen(
                 viewModel = viewModel,
