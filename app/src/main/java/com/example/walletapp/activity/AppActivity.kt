@@ -1,6 +1,7 @@
 package com.example.walletapp.activity
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
@@ -77,7 +79,7 @@ fun AppActivity(
                 onCreateWalletClick = {switchToPage(5)}
             )
 
-            1 -> QrScreen(viewModel = viewModel)
+            1 -> QrScreen()
 
             2 -> ShareAddress()
 
