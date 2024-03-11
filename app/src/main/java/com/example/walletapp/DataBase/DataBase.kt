@@ -20,7 +20,7 @@ import com.example.walletapp.DataBase.Entities.Wallets
         Wallets::class,
         Tokens::class
     ],
-    version = 2,
+    version = 1,
     exportSchema = false
 )
 abstract class DataBase: RoomDatabase(){
@@ -40,7 +40,7 @@ abstract class DataBase: RoomDatabase(){
                     context.applicationContext,
                     DataBase::class.java,
                     "AppDataBase"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }
