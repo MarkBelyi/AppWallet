@@ -42,6 +42,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.core.util.Pair
 import com.example.walletapp.Server.GetMyAddr
+import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
@@ -67,10 +68,10 @@ fun Home(
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
                 /*"Настройки" -> onSettingClick()*/
-                "QR" -> onQRClick()
-                "Поделиться публичным ключем" -> onShareClick()
-                "Подписанты" -> onSignersClick()
-                "Создать кошелек" -> onCreateWalletClick()
+                Actions.QR -> onQRClick()
+                Actions.shareMyAddr -> onShareClick()
+                Actions.signers -> onSignersClick()
+                Actions.createWallet -> onCreateWalletClick()
                 else -> Unit
             }
         }, modifier = Modifier.constrainAs(gridRef) {
@@ -110,8 +111,8 @@ fun Home(
 
 @Composable
 fun ActionGrid(
-    actionItems: MutableList<Pair<String, Int>>,
-    onItemClick: (String) -> Unit,
+    actionItems: List<Triple<String, Int, Actions>>,
+    onItemClick: (Actions) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val configuration = LocalConfiguration.current
@@ -139,7 +140,7 @@ fun ActionGrid(
             ActionCell(
                 text = actionItem.first,
                 imageVector = actionItem.second,
-                onClick = { onItemClick(actionItem.first) },
+                onClick = { onItemClick(actionItem.third) },
                 cellWidth = cellWidth,
                 cellHeight = cellHeight
             )
