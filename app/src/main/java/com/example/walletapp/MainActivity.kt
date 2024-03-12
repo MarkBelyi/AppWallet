@@ -1,6 +1,7 @@
 package com.example.walletapp
 
 import android.app.Application
+import android.content.ComponentCallbacks2
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,6 +23,7 @@ import com.example.walletapp.repository.AppRepository
 import com.example.walletapp.ui.theme.WalletAppTheme
 
 class MainApplication : Application(){
+    var isInBackground=false // Применяется для понимания что приложение перешло в фоновый режим работы
     val database by lazy { DataBase.getDatabase(this) }
     val repository by lazy {
         AppRepository(
@@ -34,10 +36,14 @@ class MainApplication : Application(){
 }
 
 class MainActivity : ComponentActivity() {
-
     //инициализируем viewModel
     private val appViewModel: appViewModel by viewModels {
         AppViewModelFactory((application as MainApplication).repository)
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) (application as MainApplication).isInBackground = true // Приложение перешло в фоновый режим работы
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,8 +67,19 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        if((application as MainApplication).isInBackground) {
+            requestAuth()
+            (application as MainApplication).isInBackground=false}
+    }
+
 }
 
+fun requestAuth(){
+    // TODO: тут сопсна можно спросить у юзера биометрию или пароль 
+}
 
 fun Context.markAsVisitedApp() {
     val sharedPrefs = getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
