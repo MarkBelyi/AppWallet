@@ -44,24 +44,13 @@ fun AppActivity(
     BackHandler(
         onBack = {
             when (selectedTabIndex) {
-                0 -> {
-                    activity.finish()
-                }
-                1 -> {
-                    switchToPage(0)
-                }
-                2 -> {
-                    switchToPage(0)
-                }
-                3 -> {
-                    switchToPage(0)
-                }
-                4 -> {
-                    switchToPage(3)
-                }
-                5 -> {
-                    switchToPage(0)
-                }
+                0 -> { activity.finish() }
+                //1 -> { switchToPage(0) }
+                //2 -> { switchToPage(0) }
+                //3 -> { switchToPage(0) }
+                4 -> { switchToPage(3) }
+                //5 -> { switchToPage(0) }
+                else -> { switchToPage(0) }// в любой непонятной ситуации возвращаемся в кабинет
             }
         }
     )
