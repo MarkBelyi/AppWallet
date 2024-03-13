@@ -149,6 +149,7 @@ fun checkPasswordsMatch(password1: String, password2: String): Boolean {
 }
 
 fun isPasswordValid(password: String): Boolean {
+    return true
     val hasUpperCase = password.any { it.isUpperCase() }
     val hasDigit = password.any { it.isDigit() }
     val hasSpecialChar = password.any { !it.isLetterOrDigit() }

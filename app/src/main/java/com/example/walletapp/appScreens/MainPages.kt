@@ -28,6 +28,21 @@ import com.example.walletapp.appScreens.mainScreens.Wallet
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.markAsVisitedApp
 
+enum class Actions{
+    send,
+    recieve,
+    history,
+    createWallet,
+    buyCrypto,
+    exchangeCrypto,
+    shareMyAddr,
+    signers,
+    coSigner,
+    support,
+    settings,
+    QR
+}
+
 @Composable
 fun MainPagesActivity(
     viewModel: appViewModel,
@@ -77,20 +92,19 @@ fun MainPagesActivity(
 }
 
 
-val actionItems =
-    mutableListOf(
-        Pair("Перевести", R.drawable.send),
-        Pair("Получить", R.drawable.receive),
-        Pair("История", R.drawable.history_fill1_wght400_grad0_opsz24),
-        Pair("Создать кошелек", R.drawable.add),
-        Pair("Купить", R.drawable.buy),
-        Pair("Обменять", R.drawable.excange),
-        Pair("Поделиться публичным ключем", R.drawable.share),
-        Pair("Подписанты", R.drawable.signers),
-        Pair("Соподписант", R.drawable.sosigner),
-        Pair("Поддержка", R.drawable.headset_mic_fill1_wght400_grad0_opsz24),
-        Pair("Настройки", R.drawable.settings),
-        Pair("QR", R.drawable.qr_code_scanner)
+val actionItems = listOf(
+        Triple("Перевести", R.drawable.send,Actions.send),
+        Triple("Получить", R.drawable.receive,Actions.recieve),
+        Triple("История", R.drawable.history_fill1_wght400_grad0_opsz24,Actions.history),
+        Triple("Создать кошелек", R.drawable.add, Actions.createWallet),
+        Triple("Купить", R.drawable.buy, Actions.buyCrypto),
+        Triple("Обменять", R.drawable.excange, Actions.exchangeCrypto),
+        Triple("Поделиться публичным ключем", R.drawable.share, Actions.shareMyAddr),
+        Triple("Подписанты", R.drawable.signers, Actions.signers),
+        Triple("Соподписант", R.drawable.sosigner, Actions.coSigner),
+        Triple("Поддержка", R.drawable.headset_mic_fill1_wght400_grad0_opsz24, Actions.support),
+        Triple("Настройки", R.drawable.settings, Actions.settings),
+        Triple("QR", R.drawable.qr_code_scanner, Actions.QR)
     )
 
 
