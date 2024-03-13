@@ -53,7 +53,7 @@ fun MatrixRain(stripCount: Int = 20) {
     Row {
         repeat(stripCount) {
             MatrixColumn(
-                yStartDelay = Random.nextInt(8) * 1000L,
+                yStartDelay = Random.nextInt(8) * 500L,//1000L
                 crawlSpeed = (Random.nextInt(10) * 10L) + 100
             )
         }
