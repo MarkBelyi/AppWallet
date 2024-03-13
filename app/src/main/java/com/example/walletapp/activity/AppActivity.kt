@@ -18,6 +18,7 @@ import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
 import com.example.walletapp.appScreens.mainScreens.EditSigner
+import com.example.walletapp.appScreens.mainScreens.MatrixRain
 import com.example.walletapp.appScreens.mainScreens.QrScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
 import com.example.walletapp.appViewModel.appViewModel
@@ -76,7 +77,8 @@ fun AppActivity(
                 onQRClick = {switchToPage(1)},
                 onShareClick = {switchToPage(2)},
                 onSignersClick = {switchToPage(3)},
-                onCreateWalletClick = {switchToPage(5)}
+                onCreateWalletClick = {switchToPage(5)},
+                onMatrixClick= {switchToPage(6)}
             )
 
             1 -> QrScreen()
@@ -94,11 +96,9 @@ fun AppActivity(
                 onSaveClick = {switchToPage(3)}
             )
 
-            5 -> CreateWalletScreen(
-                viewModel = viewModel
-            )
+            5 -> CreateWalletScreen(viewModel = viewModel)
 
-
+            6->MatrixRain()
 
         }
     }

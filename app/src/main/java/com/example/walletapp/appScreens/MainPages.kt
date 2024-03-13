@@ -50,7 +50,8 @@ fun MainPagesActivity(
     onQRClick: () -> Unit,
     onShareClick : () -> Unit,
     onSignersClick: () -> Unit,
-    onCreateWalletClick: () -> Unit
+    onCreateWalletClick: () -> Unit,
+    onMatrixClick:()->Unit
 ){
 
     val navController = rememberNavController()
@@ -82,6 +83,7 @@ fun MainPagesActivity(
                     onShareClick,
                     onSignersClick,
                     onCreateWalletClick,
+                    onMatrixClick
                 )
             }
             composable(Screen.Subscriptions.route) {

@@ -57,7 +57,8 @@ fun Home(
     onQRClick: () -> Unit,
     onShareClick: () -> Unit,
     onSignersClick: () -> Unit,
-    onCreateWalletClick: () -> Unit
+    onCreateWalletClick: () -> Unit,
+    onMatrixClick: () -> Unit
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -74,7 +75,7 @@ fun Home(
                 Actions.shareMyAddr -> onShareClick()
                 Actions.signers -> onSignersClick()
                 Actions.createWallet -> onCreateWalletClick()
-                else -> Unit
+                else -> onMatrixClick()
             }
         }, modifier = Modifier.constrainAs(gridRef) {
             top.linkTo(parent.top)
