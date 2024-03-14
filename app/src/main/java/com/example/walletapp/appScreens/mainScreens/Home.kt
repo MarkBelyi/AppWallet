@@ -2,8 +2,12 @@ package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,14 +15,20 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,18 +39,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.core.util.Pair
@@ -53,7 +72,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Home(
-    /*onSettingClick: () -> Unit,*/
     onQRClick: () -> Unit,
     onShareClick: () -> Unit,
     onSignersClick: () -> Unit,
@@ -100,11 +118,8 @@ fun ActionGrid(
         modifier = modifier.background(color = Color.White, shape = roundedShape),
     ) {
         items(actionItems) { actionItem ->
-            ActionCell(
-                text = actionItem.first,
-                imageVector = actionItem.second,
-                onClick = { onItemClick(actionItem.third) },
-            )
+         //   ActionCell(text = actionItem.first, imageVector = actionItem.second, onClick = { onItemClick(actionItem.third) },)
+            ActionCell(actionItem,userClick = { onItemClick(actionItem.third) })
         }
     }
 }
@@ -116,7 +131,7 @@ fun ActionCell(
     text: String,
     imageVector: Int,
     onClick: () -> Unit
-){
+) {
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     var textSize by remember { mutableStateOf(IntSize.Zero) }
@@ -145,17 +160,15 @@ fun ActionCell(
     }
 
 
-
     val interactionSource = remember { MutableInteractionSource() }
+
     Card(
         onClick = onClick,
         modifier = Modifier
-            .aspectRatio(1f),
-            //.padding(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            .aspectRatio(1f)
+            .padding(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         interactionSource = interactionSource
     ) {
         Column(
@@ -164,8 +177,9 @@ fun ActionCell(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 8.dp)
-        ) {
-            Box(modifier = Modifier.padding(8.dp)){
+        )
+        {
+            Box(modifier = Modifier.padding(8.dp)) {
                 Icon(
                     painter = painterResource(id = imageVector),
                     contentDescription = text,
@@ -174,11 +188,12 @@ fun ActionCell(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            // Spacer(Modifier.height(8.dp))
 
-            Box(modifier = Modifier.horizontalScroll(scrollState).onGloballyPositioned { coordinates ->
-                textSize = coordinates.size
-            }) {
+            Box(
+                modifier = Modifier.horizontalScroll(scrollState)
+                    .onGloballyPositioned { coordinates -> textSize = coordinates.size })
+            {
                 Text(
                     text = text,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize,
@@ -191,3 +206,55 @@ fun ActionCell(
         }
     }
 }
+
+
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ActionCell(act: Triple<String, Int, Actions>, userClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val cardScale = if (isPressed) 2f else 1f
+    //Столбец содержит Card и текст под Card, который появится когда на Card нажмут и исчезнет когда отпустят
+    Column( horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Card(
+            onClick = userClick,
+            modifier = Modifier.aspectRatio(1f)
+                .scale(cardScale)
+                .padding(8.dp)
+            ,
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            interactionSource = interactionSource
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp))
+            {
+// иконка кнопки
+                    Icon(
+                        painter = painterResource(id = act.second),
+                        contentDescription = act.first,
+                        modifier = Modifier.scale(1.2f).padding(8.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                // текст под иконкой пока на неё не нажимают
+                if (!isPressed)  Text(
+                        text = act.first,
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                        fontWeight = FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1,
+                        textAlign = TextAlign.Center
+                    )
+            }
+        }
+        // текст под иконкой пока на неё нажимают
+        if (isPressed) Text(text = act.first, softWrap = true,  overflow = TextOverflow.Visible)
+    }
+}
+
+
