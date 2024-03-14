@@ -54,6 +54,7 @@ import org.web3j.crypto.WalletUtils
 import java.security.SecureRandom
 
 @Composable
+/**Экран СОЗДАНИЯ ключевой пары*/
 fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: appViewModel, navHostController: NavHostController, onNextClick: (Boolean) -> Unit){
     val context = LocalContext.current
     val ps = PasswordStorageHelper(context)
@@ -67,10 +68,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
     viewModelReg.setMnemonic(mnemonic)
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            Toast.makeText(context, R.string.mnem_is_sending, Toast.LENGTH_SHORT).show()
-        }
-    }
+        if (result.resultCode == Activity.RESULT_OK) { Toast.makeText(context, R.string.mnem_is_sending, Toast.LENGTH_SHORT).show() } }
 
     ConstraintLayout(
         modifier = Modifier
@@ -184,14 +182,11 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
 
         // Кнопка
         CustomButton(
-            text = if (showWords || isPhraseSaved && isPhraseSent)
-                stringResource(id = R.string.button_continue)
-            else
-                stringResource(id = R.string.button_see_seed),
+            text = if (showWords || isPhraseSaved && isPhraseSent) stringResource(id = R.string.button_continue) else stringResource(id = R.string.button_see_seed),
             onClick = {
                 if (isPhraseSaved && isPhraseSent){
                     //имея эту фразу можно создать ключевую пару:
-                    val restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("MARKovka" , mnemonic)
+                    val restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on" , mnemonic)
                     ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                     ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
                     viewModelApp.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context)))
@@ -262,7 +257,6 @@ fun ShowWarningDialog(showDialog: Boolean, onDismiss: () -> Unit, onAgree: () ->
                 }
             },
             shape = roundedShape
-
         )
     }
 }

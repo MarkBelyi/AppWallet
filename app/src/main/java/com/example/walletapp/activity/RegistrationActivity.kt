@@ -40,21 +40,11 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
         }
     }
 
-    BackHandler(
-        onBack = {
+    BackHandler(onBack = {
             when (selectedTabIndex) {
-                0 -> {
-                    activity.finish()
-                }
-                1, 3 -> {
-                    switchToPage(selectedTabIndex - 1)
-                }
-                2, 4 -> {
-                    switchToPage(0)
-                }
-            }
-        }
-    )
+                0 -> { activity.finish() }
+                1, 3 -> { switchToPage(selectedTabIndex - 1)}
+                2, 4 -> { switchToPage(0) } } })
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -74,7 +64,7 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                 }
             }
             )
-
+                // создаём ключи
             2 -> CreateSeedPhraseScreen(
                 onNextClick = {switchToPage(3)},
                 navHostController = navHostController,

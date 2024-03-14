@@ -46,7 +46,10 @@ import com.example.walletapp.ui.theme.roundedShape
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.WalletUtils
 
+
+
 @Composable
+/** Экран проверки сгенерированной мнемонической фразы - юзеру нужно верно расставить слова*/
 fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: RegistrationViewModel, viewModelApp: appViewModel) {
     val context = LocalContext.current
     val isContinueEnabled = remember { mutableStateOf(false) }
