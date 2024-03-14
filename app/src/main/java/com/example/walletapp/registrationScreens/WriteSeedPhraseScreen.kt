@@ -100,7 +100,7 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController) {
         CustomButton(
             text = stringResource(id = R.string.button_continue),
             onClick = { navHostController.navigate("App") },
-            enabled = isContinueEnabled.value,
+            enabled = /*isContinueEnabled.value*/ false,
             modifier = Modifier.constrainAs(continueButton) {
                 top.linkTo(instructionText.bottom, margin = 10.dp)
                 start.linkTo(parent.start)
@@ -127,14 +127,14 @@ val con=LocalContext.current
                         }
                     }
                 } else userPhrases[index] = newValue
-// Итак, в итоге мы здесь имеем 12 слов.
+                    // Итак, в итоге мы здесь имеем 12 слов.
                     if (userPhrases.filter { !it.isBlank() }.size==12) {
                         // Вот наша мнемоФраза одной строкой
                        val mnemonic = userPhrases.joinToString(" ")
                         // проверка на валидность фразы, ато мош юзер навтыкал слов ваще не отсюда
                         if (!MnemonicUtils.validateMnemonic(mnemonic))
                         {// проверка на валидность не прошла, всё плохо и ключи из этих слов сгенерить не получится
-                            Toast.makeText(con, R.string.toast_write_seed_phrase, Toast.LENGTH_SHORT).show(); isContinueEnabled.value = false;return@TextField }
+                            Toast.makeText(con, R.string.toast_write_seed_phrase, Toast.LENGTH_SHORT).show(); isContinueEnabled.value = false; return@TextField }
                         // ну раз мы добрались досюда, значит всё круто. Создаём ключи по фразе:
                        val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on", mnemonic)
                         // Сохраняем эти ключи в наше шифрохранилище

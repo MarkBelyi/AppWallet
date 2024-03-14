@@ -93,9 +93,9 @@ fun PasswordFieldWithLabel(
                 }
             },
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = colorScheme.background,
+                focusedContainerColor = colorScheme.surface,
                 focusedLabelColor = colorScheme.primary,
-                unfocusedContainerColor = colorScheme.background,
+                unfocusedContainerColor = colorScheme.surface,
                 unfocusedLabelColor = colorScheme.onBackground,
                 cursorColor = colorScheme.primary
             ),

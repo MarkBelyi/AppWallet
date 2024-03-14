@@ -82,7 +82,9 @@ fun SignersScreen(
                 SignerItem(
                     signer = signer,
                     viewModel = viewModel,
-                    onClick = { onCurrentSignerClick(signer.address) }
+                    onClick = {
+                        onCurrentSignerClick(signer.address)
+                    }
                 )
             }
         }

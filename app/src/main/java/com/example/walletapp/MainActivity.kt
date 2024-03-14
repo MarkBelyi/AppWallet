@@ -57,10 +57,16 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("Registration") {
-                        RegistrationActivity(activity = this@MainActivity, navHostController = navController, viewModelReg = registrationViewModel, viewModelApp = appViewModel)
+                        RegistrationActivity(
+                            activity = this@MainActivity,
+                            navHostController = navController,
+                            viewModelReg = registrationViewModel,
+                            viewModelApp = appViewModel)
                     }
                     composable("App") {
-                        AppActivity(this@MainActivity, viewModel = appViewModel)
+                        AppActivity(
+                            activity = this@MainActivity,
+                            viewModel = appViewModel)
                     }
                 }
 

@@ -1,7 +1,6 @@
 package com.example.walletapp.activity
 
 import android.app.Activity
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,14 +12,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
-import com.example.walletapp.appScreens.mainScreens.SignersScreen
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.MatrixRain
 import com.example.walletapp.appScreens.mainScreens.QrScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
+import com.example.walletapp.appScreens.mainScreens.SignersScreen
 import com.example.walletapp.appViewModel.appViewModel
 
 @Composable
@@ -30,6 +28,7 @@ fun AppActivity(
 ){
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var selectedSignerAddress by remember { mutableStateOf("") }
+    var qrScanResult by remember { mutableStateOf<String?>(null) }
 
     fun switchToPage(index: Int) {
         selectedTabIndex = index
@@ -62,7 +61,6 @@ fun AppActivity(
         when(selectedTabIndex){
             0 -> MainPagesActivity(
                 viewModel = viewModel,
-                //onSettingClick = {switchToPage(1)},
                 onQRClick = {switchToPage(1)},
                 onShareClick = {switchToPage(2)},
                 onSignersClick = {switchToPage(3)},
@@ -70,7 +68,7 @@ fun AppActivity(
                 onMatrixClick= {switchToPage(6)}
             )
 
-            1 -> QrScreen()
+            1 -> QrScreen(onScanResult = { result -> qrScanResult = result })
 
             2 -> ShareAddress()
 
@@ -85,9 +83,11 @@ fun AppActivity(
                 onSaveClick = {switchToPage(3)}
             )
 
-            5 -> CreateWalletScreen(viewModel = viewModel)
+            5 -> CreateWalletScreen(
+                viewModel = viewModel
+            )
 
-            6->MatrixRain()
+            6 -> MatrixRain()
 
         }
     }

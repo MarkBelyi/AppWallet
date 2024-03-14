@@ -122,24 +122,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit){
             }
         )
 
-        /*Spacer(modifier = Modifier.weight(0.1f))
-
-        CustomButton(
-            text = "Показать сохранённый пароль",
-            enabled = true,
-            onClick = {
-                savedPassword = ps.getData("MyPassword")?.let { String(it) }
-            }
-        )
-
-        // Показываем сохранённый пароль, если он есть
-        if (savedPassword != null) {
-            Text("Сохранённый пароль: $savedPassword")
-        }
-*/
         Spacer(modifier = Modifier.weight(0.8f))
-
-
     }
 }
 
@@ -149,7 +132,6 @@ fun checkPasswordsMatch(password1: String, password2: String): Boolean {
 }
 
 fun isPasswordValid(password: String): Boolean {
-    return true
     val hasUpperCase = password.any { it.isUpperCase() }
     val hasDigit = password.any { it.isDigit() }
     val hasSpecialChar = password.any { !it.isLetterOrDigit() }

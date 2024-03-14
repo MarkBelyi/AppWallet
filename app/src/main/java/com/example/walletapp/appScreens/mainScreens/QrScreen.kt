@@ -37,7 +37,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 
 @Composable
-fun QrScreen() {
+fun QrScreen(onScanResult: (String) -> Unit) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var hasCameraPermission by remember {
@@ -73,6 +73,8 @@ fun QrScreen() {
                     .also {
                         it.setAnalyzer(ContextCompat.getMainExecutor(context), QRCodeAnalyzer { result ->
                             scanResult = result
+                            // Вызываем onScanResult с результатом сканирования QR-кода
+                            onScanResult(result)
                         })
                     }
 
@@ -109,7 +111,7 @@ fun QrScreen() {
                 if (result == SnackbarResult.ActionPerformed) {
                     val clip = ClipData.newPlainText("QR Code", scanResult)
                     clipboardManager.setPrimaryClip(clip)
-                    scanResult = "" // Optional: Clear result after copying
+                    scanResult = "" // Optional: Очистит как закончится сканирование
                 }
             }
         }
