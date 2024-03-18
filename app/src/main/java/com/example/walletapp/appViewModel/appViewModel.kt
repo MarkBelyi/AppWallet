@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.Tokens
@@ -87,10 +88,58 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
                 val k = i.tokenShortNames.split(";")
                 for (t in k)//0.543210029602051 CH2K;0.2 MATIC
                     repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
-                TODO("Балансы нужно тоже сразу распихать по базе балансов. Справишься? ")
+                for (tokenString in k) {
+                    // Разделяем строку на количество и имя токена
+                    val parts = tokenString.split(" ")
+                    if (parts.size < 2) continue
+                    val amount = parts[0].toDoubleOrNull() ?: continue
+                    val name = parts[1]
+
+                    // Создаем объект Balans для каждого токена
+                    val balans = Balans(
+                        name = name,
+                        contract = "", //адрес контракта, его нужно будет здесь указать
+                        addr = i.addr,
+                        network_id = i.network,
+                        amount = amount,
+                        price = 0.0 // Здесь Нужно добавить логику для получения текущей цены токена, но пока так(скорее всего какая то функция)
+                    )
+                    repository.insertBalans(balans)
+                }
+
             }}
         }
     }
+
+    /*suspend fun fillWallets(context: Context) {
+        var ss: String  = GetAPIString(context, "wallets_2")
+        if (ss.isEmpty()) return;
+        if (ss == "{}") ss = "[]";
+        val jarr = jsonArray(ss)
+        val gg = mutableListOf<Wallets>()
+        for (i in 0 until jarr.length())
+        {val j = jarr.getJSONObject(i)
+            gg.add(Wallets(j["wallet_id"].toString().toInt(),
+                j["network"].toString().toInt(),
+                j.optString("myFlags", ""),
+                j.optString("wallet_type","0").toInt(),
+                j.optString("name",""),
+                j.optString("info",""),
+                j.optString("addr",""),
+                j.optString("addr_info",""),
+                j.optString("myUNID",""),
+                j.optString("tokenShortNames","")))
+        }
+        repository.addWallets(gg) // allWallets обновится с триггера в базе
+        viewModelScope.launch { withContext(Dispatchers.IO) {
+            val balancesToAdd = mutableListOf<Balans>()
+            for (i in gg) {
+                val k = i.tokenShortNames.split(";")
+                for (t in k)//0.543210029602051 CH2K;0.2 MATIC
+                    repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
+            }
+        }}
+    }*/
 
     //Определение
     val allSigners: LiveData<List<Signer>> = repository.allSigners.asLiveData()
@@ -149,6 +198,45 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
 
     fun hideAddSignerDialog() {
         _isAddingSigner.value = false
+    }
+
+    //balans
+
+    // Balans methods
+    fun getAllBalans(): LiveData<List<Balans>> = liveData {
+        emit(repository.getAllBalans())
+    }
+
+    fun getBalansCount(): LiveData<Int> = liveData {
+        emit(repository.getBalansCount())
+    }
+
+    fun getOverallBalans(): LiveData<List<Balans>> = liveData {
+        emit(repository.getOverallBalans())
+    }
+
+    fun getAllBalansByAddr(adr: String): LiveData<List<Balans>> = liveData {
+        emit(repository.getAllBalansByAddr(adr))
+    }
+
+    fun getAllBalansByNet(net: Int): LiveData<List<Balans>> = liveData {
+        emit(repository.getAllBalansByNet(net))
+    }
+
+    fun deleteBalansItem(item: Balans) = viewModelScope.launch {
+        repository.deleteBalansItem(item)
+    }
+
+    fun deleteAllBalans() = viewModelScope.launch {
+        repository.deleteAllBalans()
+    }
+
+    fun addBalans(items: List<Balans>) = viewModelScope.launch {
+        repository.addBalans(items)
+    }
+
+    fun insertBalans(item: Balans) = viewModelScope.launch {
+        repository.insertBalans(item)
     }
 
 }
