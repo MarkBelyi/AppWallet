@@ -20,9 +20,6 @@ interface BalansDAO {
     @Query("SELECT name,contract,'' as addr, network_id, SUM(amount) AS amount,MAX(price) as price FROM Balans GROUP BY name, network_id, contract")
     suspend fun getOverall(): List<Balans>
 
-
-
-
     @Query("SELECT * FROM Balans WHERE addr = :adr")
     suspend fun getAllByAddr(adr:String): List<Balans>
 

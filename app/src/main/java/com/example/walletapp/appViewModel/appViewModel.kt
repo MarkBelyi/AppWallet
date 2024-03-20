@@ -23,6 +23,7 @@ import com.example.walletapp.repository.AppRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 
 class appViewModel(private val repository: AppRepository) : ViewModel() {
@@ -62,52 +63,81 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
             fillWallets(context)
         // Нужно подождать пару минут и кошель появится уже и в блокчейне если всё ОК.
     }
-
     suspend fun fillWallets(context: Context) {
-        var ss: String  = GetAPIString(context, "wallets_2")
-        if (ss.isEmpty()) return;
-        if (ss == "{}") ss = "[]";
-        val jarr = jsonArray(ss)
+        var ss: String = GetAPIString(context, "wallets_2")
+        if (ss.isEmpty()) return
+        if (ss == "{}") ss = "[]"
+        val jarr = JSONArray(ss)
         val gg = mutableListOf<Wallets>()
-        for (i in 0 until jarr.length())
-        {val j = jarr.getJSONObject(i)
-            gg.add(Wallets(j["wallet_id"].toString().toInt(),
-                j["network"].toString().toInt(),
+        for (i in 0 until jarr.length()) {
+            val j = jarr.getJSONObject(i)
+            gg.add(Wallets(
+                j.getInt("wallet_id"),
+                j.getInt("network"),
                 j.optString("myFlags", ""),
-                j.optString("wallet_type","0").toInt(),
-                j.optString("name",""),
-                j.optString("info",""),
-                j.optString("addr",""),
-                j.optString("addr_info",""),
-                j.optString("myUNID",""),
-                j.optString("tokenShortNames","")))
+                j.optInt("wallet_type", 0),
+                j.optString("name", ""),
+                j.optString("info", ""),
+                j.optString("addr", ""),
+                j.optString("addr_info", ""),
+                j.optString("myUNID", ""),
+                j.optString("tokenShortNames", "")
+            ))
         }
-        repository.addWallets(gg) // allWallets обновится с триггера в базе
-        viewModelScope.launch { withContext(Dispatchers.IO) {
-            for (i in gg) {
-                val k = i.tokenShortNames.split(";")
-                for (t in k)//0.543210029602051 CH2K;0.2 MATIC
-                    repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
-                for (tokenString in k) {
-                    // Разделяем строку на количество и имя токена
-                    val parts = tokenString.split(" ")
-                    if (parts.size < 2) continue
-                    val amount = parts[0].toDoubleOrNull() ?: continue
-                    val name = parts[1]
+        repository.addWallets(gg)
 
-                    // Создаем объект Balans для каждого токена
-                    val balans = Balans(
-                        name = name,
-                        contract = "", //адрес контракта, его нужно будет здесь указать
-                        addr = i.addr,
-                        network_id = i.network,
-                        amount = amount,
-                        price = 0.0 // Здесь Нужно добавить логику для получения текущей цены токена, но пока так(скорее всего какая то функция)
-                    )
-                    repository.insertBalans(balans)
+        withContext(Dispatchers.IO) {
+            /*for (wallet in gg) {
+                val tokenStrings = wallet.tokenShortNames.split(";").filter { it.isNotBlank() }
+
+                if (tokenStrings.isEmpty()) {
+                    // Добавляем записи с пустыми значениями токенов и балансов для данного кошелька
+                    repository.insertToken(Tokens(wallet.network, "", wallet.addr))
+                    repository.insertBalans(Balans(
+                        name = "",
+                        contract = "",
+                        addr = wallet.addr,
+                        network_id = wallet.network,
+                        amount = 0.0,
+                        price = 0.0
+                    ))
+                } else {
+                    for (tokenString in tokenStrings) {
+                        val parts = tokenString.trim().split(" ")
+                        if (parts.size >= 2) {
+                            val amount = parts[0].toDoubleOrNull() ?: 0.0
+                            val tokenName = parts[1]
+                            // Добавляем информацию о токенах и балансах, если строка токенов не пустая
+                            repository.insertToken(Tokens(wallet.network, tokenName, wallet.addr))
+                            repository.insertBalans(Balans(
+                                name = tokenName,
+                                contract = "", // Здесь должен быть реальный адрес контракта, если известен
+                                addr = wallet.addr,
+                                network_id = wallet.network,
+                                amount = amount,
+                                price = 0.0 // Цену необходимо получить или рассчитать
+                            ))
+                        }
+                    }
                 }
+            }*/
+            gg.forEach { wallet ->
+                if (wallet.tokenShortNames.isBlank()) {
+                    // Если список токенов пуст, добавляем пустой токен и баланс для данного кошелька
+                    repository.insertToken(Tokens(wallet.network, "", wallet.addr))
+                    repository.insertBalans(Balans("", "", wallet.addr, wallet.network, 0.0, 0.0))
+                } else {
+                    wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
+                        val parts = token.split(" ")
+                        val amount = parts[0].toDoubleOrNull() ?: 0.0
+                        val name = parts.getOrNull(1) ?: ""
 
-            }}
+                        repository.insertToken(Tokens(wallet.network, name, wallet.addr))
+                        repository.insertBalans(Balans(name, "", wallet.addr, wallet.network, amount, 0.0))
+                    }
+                }
+            }
+
         }
     }
 
@@ -132,11 +162,101 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
         }
         repository.addWallets(gg) // allWallets обновится с триггера в базе
         viewModelScope.launch { withContext(Dispatchers.IO) {
-            val balancesToAdd = mutableListOf<Balans>()
             for (i in gg) {
                 val k = i.tokenShortNames.split(";")
                 for (t in k)//0.543210029602051 CH2K;0.2 MATIC
                     repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
+                TODO("Балансы нужно тоже сразу распихать по базе балансов. Справишься? ")
+            }}}
+    }*/
+
+    /*suspend fun fillWallets(context: Context) {
+        var ss: String  = GetAPIString(context, "wallets_2")
+        if (ss.isEmpty()) return;
+        if (ss == "{}") ss = "[]";
+        val jarr = jsonArray(ss)
+        val gg = mutableListOf<Wallets>()
+        for (i in 0 until jarr.length())
+        {val j = jarr.getJSONObject(i)
+            gg.add(Wallets(j["wallet_id"].toString().toInt(),
+                j["network"].toString().toInt(),
+                j.optString("myFlags", ""),
+                j.optString("wallet_type","0").toInt(),
+                j.optString("name",""),
+                j.optString("info",""),
+                j.optString("addr",""),
+                j.optString("addr_info",""),
+                j.optString("myUNID",""),
+                j.optString("tokenShortNames","")))
+        }
+        repository.addWallets(gg) // allWallets обновится с триггера в базе
+        viewModelScope.launch { withContext(Dispatchers.IO) {
+            for (i in gg) {
+                val k = i.tokenShortNames.split(";")
+                for (t in k) {//0.543210029602051 CH2K;0.2 MATIC
+                    repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
+                    if (k.isNotEmpty()) {
+                        k.forEach { tokenString ->
+                            val parts = tokenString.split(" ")
+                            if (parts.size >= 2) {
+                                val amount = parts[0].toDoubleOrNull()
+                                    ?: 0.0 // В случае ошибки парсинга ставим 0
+                                val name = parts[1]
+
+                                val balans = Balans(
+                                    name = name,
+                                    contract = "", //адрес контракта, его нужно будет здесь указать
+                                    addr = i.addr,
+                                    network_id = i.network,
+                                    amount = amount,
+                                    price = 0.0 // Логика для получения текущей цены токена
+                                )
+                                repository.insertBalans(balans)
+                            }
+                        }
+                    } else {
+                        // Создаем пустой объект Balans, если tokenShortNames была пустая
+                        val balans = Balans(
+                            name = "", // Пустое имя токена
+                            contract = "", // Пустой адрес контракта
+                            addr = i.addr,
+                            network_id = i.network,
+                            amount = 0.0, // Пустое количество токенов
+                            price = 0.0 // Пустая цена
+                        )
+                        repository.insertBalans(balans)
+                    }
+                }
+            }
+        }}
+    }*/
+
+    /*suspend fun fillWallets(context: Context) {
+        var ss: String  = GetAPIString(context, "wallets_2")
+        if (ss.isEmpty()) return;
+        if (ss == "{}") ss = "[]";
+        val jarr = jsonArray(ss)
+        val gg = mutableListOf<Wallets>()
+        for (i in 0 until jarr.length())
+        {val j = jarr.getJSONObject(i)
+            gg.add(Wallets(j["wallet_id"].toString().toInt(),
+                j["network"].toString().toInt(),
+                j.optString("myFlags", ""),
+                j.optString("wallet_type","0").toInt(),
+                j.optString("name",""),
+                j.optString("info",""),
+                j.optString("addr",""),
+                j.optString("addr_info",""),
+                j.optString("myUNID",""),
+                j.optString("tokenShortNames","")))
+        }
+        repository.addWallets(gg) // allWallets обновится с триггера в базе
+        viewModelScope.launch { withContext(Dispatchers.IO) {
+            for (i in gg) {
+                val k = i.tokenShortNames.split(";")
+                for (t in k) {//0.543210029602051 CH2K;0.2 MATIC
+                    repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
+                    TODO(Балансы тоже нужно распихать по базе)
             }
         }}
     }*/

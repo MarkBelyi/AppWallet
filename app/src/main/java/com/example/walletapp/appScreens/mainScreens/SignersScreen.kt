@@ -99,7 +99,7 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
         onClick = {onClick(signer.address)},
         shape = roundedShape,
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
+            containerColor = colorScheme.surface,
             contentColor = colorScheme.onBackground
             ),
         elevation = CardDefaults.cardElevation(

@@ -2,10 +2,12 @@ package com.example.walletapp.repository
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.asFlow
+import com.cri.wallet.database.BalansDAO
 import com.cri.wallet.database.TokensDAO
 import com.example.walletapp.DataBase.DAO.WalletsDAO
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
+import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.Tokens
@@ -16,8 +18,46 @@ class AppRepository(
     private val signersDao: SignerDao,
     private val networksDAO: NetworksDAO,
     private val walletsDAO: WalletsDAO,
-    private val tokensDAO: TokensDAO
+    private val tokensDAO: TokensDAO,
+    private val balansDAO: BalansDAO
 ){
+    //balans
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getAllBalans(): List<Balans> = balansDAO.getAll()
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getBalansCount(): Int = balansDAO.getCount()
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getOverallBalans(): List<Balans> = balansDAO.getOverall()
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getAllBalansByAddr(adr: String): List<Balans> = balansDAO.getAllByAddr(adr)
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getAllBalansByNet(net: Int): List<Balans> = balansDAO.getAllByNet(net)
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun deleteBalansItem(item: Balans) = balansDAO.deleteItem(item)
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun deleteAllBalans() = balansDAO.deleteAll()
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun addBalans(items: List<Balans>) = balansDAO.add(items)
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun insertBalans(item: Balans) = balansDAO.insert(item)
+
     //tokens
     @Suppress("RedundantSuspendModifier")
     @WorkerThread

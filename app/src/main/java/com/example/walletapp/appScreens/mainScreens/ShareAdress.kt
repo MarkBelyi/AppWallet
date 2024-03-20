@@ -113,8 +113,8 @@ fun ShareAddress(){
                     }
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor = colorScheme.surface,
+                    unfocusedContainerColor = colorScheme.surface,
                     focusedLeadingIconColor = colorScheme.onBackground,
                     focusedTrailingIconColor = colorScheme.onBackground
                 )

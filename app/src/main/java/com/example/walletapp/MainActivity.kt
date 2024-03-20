@@ -30,7 +30,8 @@ class MainApplication : Application(){
             database.signerDao(),
             database.networksDao(),
             database.walletsDao(),
-            database.tokensDao()
+            database.tokensDao(),
+            database.balansDAO()
         )
     }
 }

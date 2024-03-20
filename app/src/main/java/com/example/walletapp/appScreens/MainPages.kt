@@ -87,7 +87,7 @@ fun MainPagesActivity(
                 )
             }
             composable(Screen.Subscriptions.route) {
-                Sign()
+                Sign(viewModel = viewModel)
             }
         }
     }

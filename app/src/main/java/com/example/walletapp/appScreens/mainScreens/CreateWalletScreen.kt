@@ -50,16 +50,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateWalletScreen(viewModel: appViewModel) {
+fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit) {
+    var selectedNetworkId by remember { mutableStateOf<Int?>(null) }
+
     var selectingSignerIndex by remember { mutableStateOf<Int?>(null) }
     var selectedSignerAddress by remember { mutableStateOf<String?>(null) }
 
@@ -76,6 +80,8 @@ fun CreateWalletScreen(viewModel: appViewModel) {
     var walletNameText by remember { mutableStateOf("") }
     val signerKeys = remember { mutableStateListOf<String>("") }
     var requiredSigners by remember { mutableStateOf(1f) }
+
+
 
     LaunchedEffect(networks) {
         if (networks.isEmpty()) {
@@ -158,6 +164,7 @@ fun CreateWalletScreen(viewModel: appViewModel) {
                             },
                             onClick = {
                                 selectedNetwork = network.network_name
+                                selectedNetworkId = network.network_id
                                 expanded = false
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -217,10 +224,6 @@ fun CreateWalletScreen(viewModel: appViewModel) {
                 onValueChange = { newSigners ->
                     requiredSigners = newSigners.coerceIn(1f, signerKeys.size.toFloat())
                 },
-                onValueChangeFinished = {
-                    // Этот блок вызывается, когда пользователь отпускает слайдер.
-                    // Можно использовать для финализации значения, если нужно.
-                },
                 valueRange = 1f..numberOfSigner.toFloat(),
                 steps = numberOfSigner - 1,
                 modifier = Modifier
@@ -228,7 +231,33 @@ fun CreateWalletScreen(viewModel: appViewModel) {
             )
 
             ElevatedButton(
-                onClick = {},
+                onClick = { coroutineScope.launch{
+                    //GetAPIString(context, "newWallet", POST = true)
+                    //signerKeys - массив содержит все адреса подписантов, что юзер указал. Их отдадим на сервер через запятую
+                    val EC = signerKeys
+                        .filter { !it.isNullOrEmpty() } // отфильтруем пустые (ну а вдруг!)
+                        .toList()
+
+                    var ss:String="" // Json тело запроса
+                    ss="\"slist\":{"
+                    for (i in 0..EC.size-1) {
+                        ss += "\""+i+"\":{\"type\":" + "\"any\"," + "\"ecaddress\":\"" + EC[i] + "\"}"
+                        if (i<EC.size-1)ss+=","
+                    }
+                    // "type":"any" значит что сервер примет любой метод подписи от подписанта[смс, емаил или ECDSA] (но мы пока используем ECDSA)
+
+                    if (requiredSigners>0) // минимальное кол-во подписантов для кворума (минимум один, максимум все) когда-то был возможен ноль.
+                        ss+=",\"min_signs\":\""+requiredSigners.toString()+"\""
+                    ss+="},"
+                    // selectedNetworkid - код сети, меняется в момент смены сети юзером в поле выбора сети
+                    ss+="\"network\":\""+selectedNetworkId+"\"," // код сети блокчейна (3000 эфир, 5000 трон итд)
+                    ss+="\"info\":\""+walletNameText+"\"" // Имя кошелька
+                    // Когда ss набит инфой, шлём его на сервер:
+                    viewModel.createWallet(context,ss)
+
+                }
+                    onCreateClick()
+                },
                 shape = roundedShape,
                 enabled = walletNameText.isNotEmpty() && signerKeys.all { it.isNotEmpty() } && requiredSigners <= signerKeys.size,
                 modifier = Modifier
@@ -243,8 +272,6 @@ fun CreateWalletScreen(viewModel: appViewModel) {
             }
         }
     }
-
-
 }
 
 @Composable
@@ -297,6 +324,5 @@ fun SignerRow(index: Int, signerKeys: MutableList<String>, numberOfSigner: Int, 
         }
     }
 }
-
 
 

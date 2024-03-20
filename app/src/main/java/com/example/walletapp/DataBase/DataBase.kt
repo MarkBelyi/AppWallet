@@ -4,11 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.cri.wallet.database.BalansDAO
 import com.cri.wallet.database.TokensDAO
 import com.cri.wallet.database.TxDAO
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
 import com.example.walletapp.DataBase.DAO.WalletsDAO
+import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.TX
@@ -21,9 +23,10 @@ import com.example.walletapp.DataBase.Entities.Wallets
         Networks::class,
         Wallets::class,
         TX::class,
-        Tokens::class
+        Tokens::class,
+        Balans::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class DataBase: RoomDatabase(){
@@ -32,6 +35,7 @@ abstract class DataBase: RoomDatabase(){
     abstract fun walletsDao(): WalletsDAO
     abstract fun tokensDao(): TokensDAO
     abstract fun TxDAO(): TxDAO
+    abstract fun balansDAO(): BalansDAO
 
     companion object{
         @Volatile

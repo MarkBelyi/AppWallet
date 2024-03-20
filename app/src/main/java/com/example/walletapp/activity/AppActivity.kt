@@ -44,11 +44,7 @@ fun AppActivity(
         onBack = {
             when (selectedTabIndex) {
                 0 -> { activity.finish() }
-                //1 -> { switchToPage(0) }
-                //2 -> { switchToPage(0) }
-                //3 -> { switchToPage(0) }
                 4 -> { switchToPage(3) }
-                //5 -> { switchToPage(0) }
                 else -> { switchToPage(0) }// в любой непонятной ситуации возвращаемся в кабинет
             }
         }
@@ -84,7 +80,8 @@ fun AppActivity(
             )
 
             5 -> CreateWalletScreen(
-                viewModel = viewModel
+                viewModel = viewModel,
+                onCreateClick = {switchToPage(0)}
             )
 
             6 -> MatrixRain()

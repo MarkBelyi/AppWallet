@@ -41,6 +41,8 @@
 
     <string name="password_saved">Пароль сохранен</string>
 
+
+
     //resourses OLD
     <string name="app_package_name">com.app.wallet2</string>
     <string name="preferens_file_name">Wallet</string>
