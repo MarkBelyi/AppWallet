@@ -169,7 +169,7 @@ fun PinLockScreen(onNextAction: () -> Unit) {
 fun PinDot(isFiled: Boolean) {
     Box(
         modifier = Modifier
-            .padding(4.dp)
+            .padding(8.dp)
             .size(16.dp)
             .background(
                 color = if (isFiled) colorScheme.primary else Color.LightGray,
@@ -292,12 +292,12 @@ fun NumPadButton(
             Icon(
                 painter = painterResource(id = iconId),
                 contentDescription = null,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(32.dp)
             )
         } else {
             Text(
                 text = number,
-                fontSize = 22.sp,
+                fontSize = 32.sp,
                 textAlign = TextAlign.Center
             )
         }
