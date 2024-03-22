@@ -1,13 +1,7 @@
 package com.example.walletapp.registrationScreens
 
 import android.widget.Toast
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,16 +20,13 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -96,9 +87,8 @@ fun PinLockScreen(onNextAction: () -> Unit) {
         when (entryState.value) {
             EntryState.ENTERING_FIRST -> {
                 firstPinCode.value = pin
-                pinCode.value = "" // Reset for the next entry
+                pinCode.value = ""
                 entryState.value = EntryState.CONFIRMING
-                Toast.makeText(context, "Please enter PIN again for confirmation", Toast.LENGTH_SHORT).show()
             }
             EntryState.CONFIRMING -> {
                 if (pin == firstPinCode.value) {
@@ -106,7 +96,7 @@ fun PinLockScreen(onNextAction: () -> Unit) {
                     onNextAction()
                 } else {
                     Toast.makeText(context, "PINs do not match, please try again", Toast.LENGTH_SHORT).show()
-                    pinCode.value = "" // Reset for re-entry
+                    pinCode.value = ""
                     entryState.value = EntryState.ENTERING_FIRST
                 }
             }
@@ -279,6 +269,7 @@ fun NumPadButton(
         modifier = Modifier
             .width(buttonSize)
             .height(buttonSize * 10 / 15)
+            .background(color = Color.Transparent, shape = roundedShape)
             .padding(4.dp)
             .clickable {
                 when (number) {
