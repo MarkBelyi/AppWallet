@@ -41,8 +41,12 @@
     <string name="default_name_of_signer">My current public key</string>
 
     <string name="password_saved">Password saved</string>
+    <string name="using_pin_code">Use a PIN-code</string>
+    <string name="create_pin_code">Create a PIN-code</string>
+    <string name="repeat_pin_code">Repeat a PIN-code</string>
 
-    //Resoursec OLD
+
+    //Resources OLD
     <string name="app_package_name">com.app.wallet2</string>
     <string name="preferens_file_name">Wallet</string>
     <string name="base_url">https://my.h2k.me/</string>

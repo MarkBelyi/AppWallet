@@ -56,7 +56,6 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
         modifier = Modifier
             .fillMaxSize()
             .background(color = colorScheme.background)
-            //.padding(paddingColumn)
             .padding(top = offsetY.value)
     ){
         Spacer(modifier = Modifier.weight(0.35f))

@@ -18,6 +18,7 @@ import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.registrationScreens.CreatePasswordScreen
 import com.example.walletapp.registrationScreens.CreateSeedPhraseScreen
 import com.example.walletapp.registrationScreens.NewUserScreenColumn
+import com.example.walletapp.registrationScreens.PinLockScreen
 import com.example.walletapp.registrationScreens.TapSeedPhraseScreen
 import com.example.walletapp.registrationScreens.WriteSeedPhraseScreen
 
@@ -44,7 +45,9 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
             when (selectedTabIndex) {
                 0 -> { activity.finish() }
                 1, 3 -> { switchToPage(selectedTabIndex - 1)}
-                2, 4 -> { switchToPage(0) } } })
+                2, 4, 5 -> { switchToPage(0) }
+            }
+    })
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -56,13 +59,15 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                 onAddClick = { switchToPage(1, isAddClick = true) },
             )
 
-            1 -> CreatePasswordScreen(onNextAction = {
-                if (isAddClicked) {
-                    switchToPage(4)
-                } else {
-                    switchToPage(2)
-                }
-            }
+            1 -> CreatePasswordScreen(
+                onNextAction = {
+                    if (isAddClicked) {
+                        switchToPage(4)
+                    } else {
+                        switchToPage(2)
+                    }
+                },
+                onPinCodeClick = {switchToPage(5)}
             )
                 // создаём ключи
             2 -> CreateSeedPhraseScreen(
@@ -75,6 +80,14 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
             3 -> TapSeedPhraseScreen(navHostController = navHostController, viewModelReg = viewModelReg, viewModelApp = viewModelApp)
 
             4 -> WriteSeedPhraseScreen(navHostController = navHostController)
+
+            5-> PinLockScreen(onNextAction = {
+                if (isAddClicked) {
+                    switchToPage(4)
+                } else {
+                    switchToPage(2)
+                }
+            })
         }
     }
 

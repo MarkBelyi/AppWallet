@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -33,7 +34,7 @@ import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
-fun CreatePasswordScreen(onNextAction: () -> Unit){
+fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit){
     var showPasswordAlert by remember { mutableStateOf(false) }
     var passwordAlertMessage by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
@@ -107,6 +108,20 @@ fun CreatePasswordScreen(onNextAction: () -> Unit){
 
         Spacer(modifier = Modifier.weight(0.05f))
 
+        DividerWithText(
+            text = stringResource(id = R.string.or),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        ClickedText(
+            text = stringResource(id = R.string.using_pin_code),
+            onClick = onPinCodeClick
+        )
+
+        Spacer(modifier = Modifier.weight(0.05f))
+
         CustomButton(
             text = stringResource(id = R.string.button_continue),
             enabled = isPasswordValid,
@@ -164,5 +179,19 @@ fun CustomButton(
     ) {
         Text(text = text)
     }
+}
+
+@Composable
+fun ClickedText(
+    text: String,
+    onClick: () -> Unit
+){
+    TextButton(onClick = onClick) {
+        Text(
+            text = text,
+            color = colorScheme.onBackground
+        )
+    }
+
 }
 

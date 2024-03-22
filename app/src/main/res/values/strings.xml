@@ -40,10 +40,11 @@
     <string name="default_name_of_signer">Мой публичный ключ</string>
 
     <string name="password_saved">Пароль сохранен</string>
+    <string name="using_pin_code">Использовать ПИН-код</string>
+    <string name="create_pin_code">Придумайте ПИН-код</string>
+    <string name="repeat_pin_code">Повторите ПИН-код</string>
 
-
-
-    //resourses OLD
+    //resources OLD
     <string name="app_package_name">com.app.wallet2</string>
     <string name="preferens_file_name">Wallet</string>
     <string name="base_url">https://my.h2k.me/</string>
