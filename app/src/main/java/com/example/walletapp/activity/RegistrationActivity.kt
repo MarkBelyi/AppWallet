@@ -67,7 +67,13 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                         switchToPage(2)
                     }
                 },
-                onPinCodeClick = {switchToPage(5)}
+                onPinCodeClick = {
+                    if (isAddClicked) {
+                        switchToPage(5, isAddClick = true)
+                    } else {
+                        switchToPage(5)
+                    }
+                }
             )
                 // создаём ключи
             2 -> CreateSeedPhraseScreen(
@@ -81,7 +87,7 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
 
             4 -> WriteSeedPhraseScreen(navHostController = navHostController)
 
-            5-> PinLockScreen(onNextAction = {
+            5-> PinLockScreen(onAction = {
                 if (isAddClicked) {
                     switchToPage(4)
                 } else {

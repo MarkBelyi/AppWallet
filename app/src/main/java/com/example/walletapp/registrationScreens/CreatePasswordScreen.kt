@@ -43,7 +43,6 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit){
     val passwordErrorMessage = stringResource(id = R.string.alert_password_message)
 
     //Работа с сохраненем пароля
-    var savedPassword by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val ps = PasswordStorageHelper(context)
     val isPasswordValid = checkPasswordsMatch(passwordValue, repeatPasswordValue)

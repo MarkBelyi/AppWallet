@@ -116,4 +116,9 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.2")
     implementation("androidx.camera:camera-view:1.3.2")
 
+    //Biometric
+    implementation("androidx.biometric:biometric:1.2.0-alpha04")
+    // Required for compatibility
+    implementation("androidx.fragment:fragment:1.6.2")
+
 }

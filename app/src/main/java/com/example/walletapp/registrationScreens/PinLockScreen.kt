@@ -1,6 +1,9 @@
 package com.example.walletapp.registrationScreens
 
+import android.content.Context
 import android.widget.Toast
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +36,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import com.example.walletapp.R
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.roundedShape
@@ -43,6 +48,12 @@ enum class EntryState {
     CONFIRMING
 }
 
+fun isBiometricReady(context: Context): Boolean {
+    val biometricManager = BiometricManager.from(context)
+    return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+}
+
+//Для будущего не удалять
 /*val correctPin = "0000"
 
     fun onDoneClick() {
@@ -71,12 +82,42 @@ enum class EntryState {
     }*/
 
 @Composable
-fun PinLockScreen(onNextAction: () -> Unit) {
+fun PinLockScreen(onAction: () -> Unit/*, onBiometricAuthenticated: () -> Unit*/) {
     val pinCode = remember { mutableStateOf("") }
     val firstPinCode = remember { mutableStateOf("") }
     val entryState = remember { mutableStateOf(EntryState.ENTERING_FIRST) }
     val context = LocalContext.current
     val ps = PasswordStorageHelper(context)
+
+    /*val biometricPromptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle("Biometric Login for My App")
+        .setSubtitle("Log in using your biometric credential")
+        .setNegativeButtonText("Use PIN instead")
+        .build()
+
+    val executor = ContextCompat.getMainExecutor(context)
+
+    val biometricPrompt = BiometricPrompt(LocalContext.current as FragmentActivity, executor, object : BiometricPrompt.AuthenticationCallback() {
+        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+            super.onAuthenticationError(errorCode, errString)
+            Toast.makeText(context, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+        }
+
+        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+            super.onAuthenticationSucceeded(result)
+            onAction()
+        }
+
+        override fun onAuthenticationFailed() {
+            super.onAuthenticationFailed()
+            Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show()
+        }
+    })*/
+
+
+    /*fun authenticateWithBiometrics() {
+        biometricPrompt.authenticate(biometricPromptInfo)
+    }*/
 
     fun savePin(pin: String) {
         ps.setData("MyPassword", pin.toByteArray())
@@ -93,7 +134,7 @@ fun PinLockScreen(onNextAction: () -> Unit) {
             EntryState.CONFIRMING -> {
                 if (pin == firstPinCode.value) {
                     savePin(pin)
-                    onNextAction()
+                    onAction()
                 } else {
                     Toast.makeText(context, "PINs do not match, please try again", Toast.LENGTH_SHORT).show()
                     pinCode.value = ""
@@ -150,6 +191,40 @@ fun PinLockScreen(onNextAction: () -> Unit) {
             },
             onBIOClick = {}// Сделать BIO,
         )
+
+        /*if (isBiometricReady(LocalContext.current)) {
+            NumPad(
+                onNumberClick = { number ->
+                    if (pinCode.value.length < 4) {
+                        pinCode.value += number
+                    }
+                },
+                onBackspaceClick = {
+                    if (pinCode.value.isNotEmpty()) {
+                        pinCode.value = pinCode.value.dropLast(1)
+                    }
+                },
+                onBIOClick = {
+                    authenticateWithBiometrics()
+                }
+            )
+        } else {
+            NumPad(
+                onNumberClick = { number ->
+                    if (pinCode.value.length < 4) {
+                        pinCode.value += number
+                    }
+                },
+                onBackspaceClick = {
+                    if (pinCode.value.isNotEmpty()) {
+                        pinCode.value = pinCode.value.dropLast(1)
+                    }
+                },
+                onBIOClick = {
+                    Toast.makeText(context, "Biometric not set up or supported", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }*/
     }
 }
 
