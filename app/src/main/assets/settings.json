@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Электронное Одобрение",
+    "description": "Использовать приложение только для подписания запросов",
+    "type": "SWITCH",
+    "prefsKey": "electronic_approval"
+  },
+  {
+    "name": "Постоянная Авторизация",
+    "description": "Требовать авторизацию при каждом обращении к приложению",
+    "type": "CHECKBOX",
+    "prefsKey": "continuous_authorization"
+  }
+
+
+
+]

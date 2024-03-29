@@ -63,7 +63,7 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
             fillWallets(context)
         // Нужно подождать пару минут и кошель появится уже и в блокчейне если всё ОК.
     }
-    suspend fun fillWallets(context: Context) {
+    /*suspend fun fillWallets(context: Context) {
         var ss: String = GetAPIString(context, "wallets_2")
         if (ss.isEmpty()) return
         if (ss == "{}") ss = "[]"
@@ -87,7 +87,7 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
         repository.addWallets(gg)
 
         withContext(Dispatchers.IO) {
-            /*for (wallet in gg) {
+            *//*for (wallet in gg) {
                 val tokenStrings = wallet.tokenShortNames.split(";").filter { it.isNotBlank() }
 
                 if (tokenStrings.isEmpty()) {
@@ -120,7 +120,7 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
                         }
                     }
                 }
-            }*/
+            }*//*
             gg.forEach { wallet ->
                 if (wallet.tokenShortNames.isBlank()) {
                     // Если список токенов пуст, добавляем пустой токен и баланс для данного кошелька
@@ -139,9 +139,9 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
             }
 
         }
-    }
+    }*/
 
-    /*suspend fun fillWallets(context: Context) {
+    suspend fun fillWallets(context: Context) {
         var ss: String  = GetAPIString(context, "wallets_2")
         if (ss.isEmpty()) return;
         if (ss == "{}") ss = "[]";
@@ -166,9 +166,9 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
                 val k = i.tokenShortNames.split(";")
                 for (t in k)//0.543210029602051 CH2K;0.2 MATIC
                     repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
-                TODO("Балансы нужно тоже сразу распихать по базе балансов. Справишься? ")
+                //TODO("Балансы нужно тоже сразу распихать по базе балансов. Справишься? ")
             }}}
-    }*/
+    }
 
     /*suspend fun fillWallets(context: Context) {
         var ss: String  = GetAPIString(context, "wallets_2")

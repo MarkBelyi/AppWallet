@@ -46,7 +46,7 @@ enum class Actions{
 @Composable
 fun MainPagesActivity(
     viewModel: appViewModel,
-    /*onSettingClick: () -> Unit,*/
+    onSettingsClick: () -> Unit,
     onQRClick: () -> Unit,
     onShareClick : () -> Unit,
     onSignersClick: () -> Unit,
@@ -78,7 +78,7 @@ fun MainPagesActivity(
             }
             composable(Screen.Home.route) {
                 Home(
-                    /*onSettingClick,*/
+                    onSettingsClick,
                     onQRClick,
                     onShareClick,
                     onSignersClick,

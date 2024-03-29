@@ -78,7 +78,6 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
     ) {
         var isPhraseSent by viewModelReg::isPhraseSent
         var isPhraseSaved by remember { mutableStateOf(false) }
-        //val termsAccepted by remember { mutableStateOf(false) }
 
         var showWords by remember { mutableStateOf(false) }
         var showDialog by remember { mutableStateOf(false) }

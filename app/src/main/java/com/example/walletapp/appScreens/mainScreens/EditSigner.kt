@@ -28,6 +28,7 @@ fun EditSigner(
     // Храним изменяемое состояние для каждого поля
     val nameState = remember { mutableStateOf("") }
     val emailState = remember { mutableStateOf("") }
+    val addressState = remember { mutableStateOf("") }
     val telephoneState = remember { mutableStateOf("") }
     val typeState = remember { mutableStateOf("") }
 
@@ -35,6 +36,7 @@ fun EditSigner(
     LaunchedEffect(signer) {
         nameState.value = signer?.name ?: ""
         emailState.value = signer?.email ?: ""
+        addressState.value = signer?.address ?: ""
         telephoneState.value = signer?.telephone ?: ""
         typeState.value = signer?.type?.toString() ?: ""
     }
@@ -49,6 +51,15 @@ fun EditSigner(
         Spacer(modifier = Modifier.height(8.dp))
 
         TextField(
+            value = addressState.value,
+            onValueChange = { addressState.value = it },
+            label = { Text("Адрес") }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+
+        TextField(
             value = emailState.value,
             onValueChange = { emailState.value = it },
             label = { Text("Email") }
@@ -59,7 +70,7 @@ fun EditSigner(
         TextField(
             value = telephoneState.value,
             onValueChange = { telephoneState.value = it },
-            label = { Text("Телефон") }
+            label = { Text("Номер телефона") }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -68,6 +79,7 @@ fun EditSigner(
             // Обработка нажатия на кнопку "Сохранить"
             val updatedSigner = signer?.copy(
                 name = nameState.value,
+                address = addressState.value,
                 email = emailState.value,
                 telephone = telephoneState.value
             )

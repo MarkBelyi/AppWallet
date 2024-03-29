@@ -22,9 +22,12 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -75,7 +78,9 @@ fun SignersScreen(
 
         LazyColumn(
             contentPadding = padding,
-            modifier = Modifier.fillMaxSize().padding(8.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(signers) { signer ->
@@ -114,7 +119,9 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
         ) {
 
             Column(
-                modifier = Modifier.weight(1f).padding(16.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(16.dp)
             ) {
                 Text(
                     text = signer.name,
@@ -161,7 +168,9 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
             ){
                 IconButton(
                     onClick = { viewModel.deleteSigner(signer) },
-                    modifier = Modifier.scale(1.2f).alpha(0.9f),
+                    modifier = Modifier
+                        .scale(1.2f)
+                        .alpha(0.9f),
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Delete,
@@ -180,80 +189,93 @@ fun AddSignerDialog(
     modifier: Modifier = Modifier,
     viewModel: appViewModel
 ) {
-
     var name by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var telephone by remember { mutableStateOf("") }
 
+    fun updateState(updateFunc: (String) -> Unit): (String) -> Unit = { newValue ->
+        updateFunc(newValue)
+    }
+
     AlertDialog(
         modifier = modifier,
         onDismissRequest = { viewModel.hideAddSignerDialog() },
         confirmButton = {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                Button(onClick = {
-                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address))
-                    viewModel.hideAddSignerDialog()
-                }) {
-                    Text(text = "Save")
-                }
+            Button(onClick = {
+                viewModel.insertSigner(Signer(name, email, telephone, type = 1, address))
+                viewModel.hideAddSignerDialog()
+            }) {
+                Text(text = "Save")
             }
         },
         title = { Text(text = "Add contact") },
         text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                TextField(
-                    value = name,
-                    onValueChange = {
-                        name = it
-                    },
-                    placeholder = {
-                        Text(text = "Name")
-                    },
-                    singleLine = true,
-                    maxLines = 1,
-                    minLines = 1
-                )
-                TextField(
-                    value = address,
-                    onValueChange = {
-                        address = it
-                    },
-                    placeholder = {
-                        Text(text = "Address")
-                    },
-                    singleLine = true,
-                    maxLines = 1,
-                    minLines = 1
-                )
-                TextField(
-                    value = email,
-                    onValueChange = {
-                        email = it
-                    },
-                    placeholder = {
-                        Text(text = "Email")
-                    },
-                    singleLine = true,
-                    maxLines = 1,
-                    minLines = 1
-                )
-                TextField(
-                    value = telephone,
-                    onValueChange = {
-                        telephone = it
-                    },
-                    placeholder = {
-                        Text(text = "Phone number")
-                    },
-                    singleLine = true,
-                    maxLines = 1,
-                    minLines = 1
-                )
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                CustomOutlinedTextField(value = name, onValueChange = updateState { name = it }, placeholder = "Name")
+                CustomOutlinedTextField(value = address, onValueChange = updateState { address = it }, placeholder = "Address")
+                CustomOutlinedTextField(value = email, onValueChange = updateState { email = it }, placeholder = "Email")
+                CustomOutlinedTextField(value = telephone, onValueChange = updateState { telephone = it }, placeholder = "Phone number")
             }
         }
+    )
+}
+
+@Composable
+fun CustomOutlinedTextField(value: String, onValueChange: (String) -> Unit, placeholder: String) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = { Text(text = placeholder) },
+        singleLine = true,
+        shape = roundedShape,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = colorScheme.onBackground,
+    /*unfocusedTextColor: Color = ...,
+    disabledTextColor: Color = ...,
+    errorTextColor: Color = ...,
+    focusedContainerColor: Color = ...,
+    unfocusedContainerColor: Color = ...,
+    disabledContainerColor: Color = ...,
+    errorContainerColor: Color = ...,
+    cursorColor: Color = ...,
+    errorCursorColor: Color = ...,
+    selectionColors: TextSelectionColors = ...,
+    focusedIndicatorColor: Color = ...,
+    unfocusedIndicatorColor: Color = ...,
+    disabledIndicatorColor: Color = ...,
+    errorIndicatorColor: Color = ...,
+    focusedLeadingIconColor: Color = ...,
+    unfocusedLeadingIconColor: Color = ...,
+    disabledLeadingIconColor: Color = ...,
+    errorLeadingIconColor: Color = ...,
+    focusedTrailingIconColor: Color = ...,
+    unfocusedTrailingIconColor: Color = ...,
+    disabledTrailingIconColor: Color = ...,
+    errorTrailingIconColor: Color = ...,
+    focusedLabelColor: Color = ...,
+    unfocusedLabelColor: Color = ...,
+    disabledLabelColor: Color = ...,
+    errorLabelColor: Color = ...,
+    focusedPlaceholderColor: Color = ...,
+    unfocusedPlaceholderColor: Color = ...,
+    disabledPlaceholderColor: Color = ...,
+    errorPlaceholderColor: Color = ...,
+    focusedSupportingTextColor: Color = ...,
+    unfocusedSupportingTextColor: Color = ...,
+    disabledSupportingTextColor: Color = ...,
+    errorSupportingTextColor: Color = ...,
+    focusedPrefixColor: Color = ...,
+    unfocusedPrefixColor: Color = ...,
+    disabledPrefixColor: Color = ...,
+    errorPrefixColor: Color = ...,
+    focusedSuffixColor: Color = ...,
+    unfocusedSuffixColor: Color = ...,
+    disabledSuffixColor: Color = ...,
+    errorSuffixColor: Color = ...*/
+
+
+        )
     )
 }
 

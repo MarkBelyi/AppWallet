@@ -33,8 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.walletapp.appScreens.Actions
@@ -44,7 +47,7 @@ import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
 fun Home(
-    /*onSettingClick: () -> Unit,*/
+    onSettingsClick: () -> Unit,
     onQRClick: () -> Unit,
     onShareClick: () -> Unit,
     onSignersClick: () -> Unit,
@@ -61,7 +64,7 @@ fun Home(
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
-                /*"Настройки" -> onSettingClick()*/
+                Actions.settings -> onSettingsClick()
                 Actions.QR -> onQRClick()
                 Actions.shareMyAddr -> onShareClick()
                 Actions.signers -> onSignersClick()
@@ -109,8 +112,8 @@ fun ActionCell(
     onClick: () -> Unit
 ){
   //  val coroutineScope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
-    var textSize by remember { mutableStateOf(IntSize.Zero) }
+    //val scrollState = rememberScrollState()
+    //var textSize by remember { mutableStateOf(IntSize.Zero) }
 
     // Увеличиваем плавность, настраивая длительность анимации
   //  val animationDurationMs = 3000 // Длительность анимации в миллисекундах
@@ -164,9 +167,18 @@ fun ActionCell(
                     tint = MaterialTheme.colorScheme.primary
                 ) }
             Spacer(Modifier.height(8.dp))
-            Box() {
+            Box{
                 // basicMarquee создаёт автопрокрутку!
-                Text(text = text, Modifier.basicMarquee(iterations = Int.MAX_VALUE, animationMode = MarqueeAnimationMode.Immediately, delayMillis = 1000),) }
+                // Серьезно так легко, я искал это, а тут одна строчка :(
+                Text(
+                    text = text,
+                    modifier = Modifier.basicMarquee(
+                        iterations = Int.MAX_VALUE,
+                        animationMode = MarqueeAnimationMode.Immediately,
+                        delayMillis = 1000),
+                    fontSize = 12.sp
+                    )
+            }
         }
     }
 }

@@ -17,6 +17,7 @@ import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.MatrixRain
 import com.example.walletapp.appScreens.mainScreens.QrScreen
+import com.example.walletapp.appScreens.mainScreens.SettingsScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
 import com.example.walletapp.appViewModel.appViewModel
@@ -57,6 +58,7 @@ fun AppActivity(
         when(selectedTabIndex){
             0 -> MainPagesActivity(
                 viewModel = viewModel,
+                onSettingsClick = {switchToPage(7)},
                 onQRClick = {switchToPage(1)},
                 onShareClick = {switchToPage(2)},
                 onSignersClick = {switchToPage(3)},
@@ -86,6 +88,7 @@ fun AppActivity(
 
             6 -> MatrixRain()
 
+            7 -> SettingsScreen()
         }
     }
 }

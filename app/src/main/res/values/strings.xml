@@ -44,6 +44,13 @@
     <string name="create_pin_code">Придумайте ПИН-код</string>
     <string name="repeat_pin_code">Повторите ПИН-код</string>
 
+    //for ALL TEXTFIELD
+    <string name="name">Имя</string>
+    <string name="Address">Адрес</string>
+    <string name="email">Эл. почта</string>
+    <string name="phone">Номер телефона</string>
+
+
     //resources OLD
     <string name="app_package_name">com.app.wallet2</string>
     <string name="preferens_file_name">Wallet</string>

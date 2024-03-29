@@ -1,7 +1,6 @@
 package com.example.walletapp.registrationScreens
 
 import android.widget.Toast
-import androidx.camera.core.impl.utils.ContextUtil.getApplicationContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -33,9 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavHostController
+import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
+import com.example.walletapp.Server.GetMyAddr
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
@@ -44,10 +45,8 @@ import org.web3j.crypto.MnemonicUtils
 import org.web3j.crypto.WalletUtils
 
 @Composable
-fun WriteSeedPhraseScreen(navHostController: NavHostController) {
+fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appViewModel) {
     val isContinueEnabled = remember { mutableStateOf(false) }
-    //val ps = PasswordStorageHelper(LocalContext.current)
-
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -78,7 +77,8 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController) {
                 top.linkTo(textHeader.bottom, margin = paddingColumn)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-            }
+            },
+            viewModel
         )
 
         Text(
@@ -111,8 +111,9 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController) {
 }
 
 @Composable
-fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifier) {
+fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifier, viewModel: appViewModel) {
     val userPhrases = remember { mutableStateListOf(*Array(12) { "" }) }
+    val context = LocalContext.current
 val con=LocalContext.current
     @Composable
     fun WordInputBox(index: Int) {
@@ -136,11 +137,12 @@ val con=LocalContext.current
                         {// проверка на валидность не прошла, всё плохо и ключи из этих слов сгенерить не получится
                             Toast.makeText(con, R.string.toast_write_seed_phrase, Toast.LENGTH_SHORT).show(); isContinueEnabled.value = false; return@TextField }
                         // ну раз мы добрались досюда, значит всё круто. Создаём ключи по фразе:
-                       val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on", mnemonic)
+                        val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on", mnemonic)
                         // Сохраняем эти ключи в наше шифрохранилище
-                       val ps = PasswordStorageHelper(con)
-                       ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
-                       ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
+                        val ps = PasswordStorageHelper(con)
+                        ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
+                        ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
+                        viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context)))
                         // всё хорошо, активируем кнопку шо мол можно идти дальше
                         isContinueEnabled.value = true
                     }

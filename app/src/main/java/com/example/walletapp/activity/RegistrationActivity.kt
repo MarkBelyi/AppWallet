@@ -85,7 +85,7 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
 
             3 -> TapSeedPhraseScreen(navHostController = navHostController, viewModelReg = viewModelReg, viewModelApp = viewModelApp)
 
-            4 -> WriteSeedPhraseScreen(navHostController = navHostController)
+            4 -> WriteSeedPhraseScreen(navHostController = navHostController, viewModel = viewModelApp)
 
             5-> PinLockScreen(onAction = {
                 if (isAddClicked) {

@@ -99,8 +99,9 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
 
     //JSON Parsing
-    //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+    //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
     implementation("com.google.code.gson:gson:2.8.8")
+
 
     //LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
