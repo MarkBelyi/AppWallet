@@ -7,6 +7,9 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,22 +18,40 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.QR.generateQRCode
@@ -38,40 +59,63 @@ import com.example.walletapp.R
 import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.ui.theme.roundedShape
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShareAddress(){
+fun ShareAddress(
+    onBackClick: () -> Unit
+){
     val context = LocalContext.current
     val outputText = GetMyAddr(context = context)
     val qrImage = generateQRCode(outputText)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = colorScheme.background)
-            .padding(16.dp)
-    ){
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Share address", color = colorScheme.onBackground) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground,
+                    scrolledContainerColor = colorScheme.background
+                ),
+                navigationIcon = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(Icons.Rounded.ArrowBack, "Back")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 8.dp),
+            horizontalAlignment = Alignment.Start
+        ){
 
         Spacer(modifier = Modifier.weight(0.3f))
 
-        Text(
-            text = stringResource(R.string.this_is_ypkey),
-            color = colorScheme.onBackground,
-            fontSize = 12.sp,
-            modifier = Modifier.fillMaxWidth()
-        )
+        QuestionWithIcon()
 
-        Spacer(modifier = Modifier.weight(0.1f))
+        Spacer(modifier = Modifier.weight(0.05f))
 
-        Image(
-            bitmap = qrImage,
-            contentDescription = "QR Code",
+        Box(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .background(color = colorScheme.background)
-                .aspectRatio(1f)
-                .size(100.dp)
-        )
-
+                .fillMaxWidth()
+                .clip(roundedShape)
+                .background(Color.White)
+                .border(1.dp, colorScheme.onBackground, roundedShape)
+        ) {
+            Image(
+                bitmap = qrImage,
+                contentDescription = "QR Code",
+                modifier = Modifier
+                    .aspectRatio(1f)
+            )
+        }
 
         Spacer(modifier = Modifier.weight(0.1f))
 
@@ -122,6 +166,57 @@ fun ShareAddress(){
         }
 
         Spacer(modifier = Modifier.weight(0.4f))
-
+        }
     }
+}
+
+@Composable
+fun QuestionWithIcon(
+) {
+    val questionText = stringResource(id = R.string.why_i_need_this)
+    var showDialog by remember { mutableStateOf(false) }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        ClickableText(
+            text = AnnotatedString(questionText),
+            onClick = {showDialog = true},
+            style = TextStyle(
+                fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                color = colorScheme.onBackground
+            ),
+        )
+        IconButton(
+            onClick = { showDialog = true }
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = "Info",
+                tint = colorScheme.primary
+            )
+        }
+    }
+
+    if (showDialog) {
+        QuestionDialog(onDismiss = { showDialog = false })
+    }
+}
+
+@Composable
+fun QuestionDialog(onDismiss: () -> Unit){
+    AlertDialog(
+        onDismissRequest = { onDismiss()},
+        title = { Text(text = stringResource(id = R.string.my_public_key))},
+        text = { Text(text = stringResource(R.string.this_is_ypkey),)},
+        confirmButton = {
+            TextButton(
+                onClick = { onDismiss() }
+            ) {
+                Text("OK")
+            }
+        },
+        shape = roundedShape
+    )
 }

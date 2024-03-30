@@ -61,7 +61,7 @@ import org.json.JSONObject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit) {
+fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAddSignerClick: () -> Unit, onBackClick: () -> Unit) {
     var selectedNetworkId by remember { mutableStateOf<Int?>(null) }
 
     var selectingSignerIndex by remember { mutableStateOf<Int?>(null) }
@@ -102,11 +102,15 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit) {
             }
         }
     } else if (selectingSignerIndex != null) {
-        SignersScreen(viewModel = viewModel, onCurrentSignerClick = { address ->
-            selectedSignerAddress = address
-            signerKeys[selectingSignerIndex!!] = address
-            selectingSignerIndex = null
-        })
+        SignersScreen(viewModel = viewModel,
+            onCurrentSignerClick = { address ->
+                selectedSignerAddress = address
+                signerKeys[selectingSignerIndex!!] = address
+                selectingSignerIndex = null
+            },
+            onAddSignerClick = {onAddSignerClick()},
+            onBackClick = {onBackClick()}
+        )
     }
     else{
         Column(

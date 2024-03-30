@@ -270,6 +270,12 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
         repository.upsertSigner(signer)
     }
 
+    // Результат последнего сканирования QR-кода
+    fun addNewSignerFromQR(result: String) {
+        val newSigner = Signer(name = "Новый Подписант", address = result, email = "", type = 0, telephone = "")
+        insertSigner(newSigner)
+    }
+
     fun deleteSigner(signer: Signer) = viewModelScope.launch{
         repository.deleteSigner(signer)
     }

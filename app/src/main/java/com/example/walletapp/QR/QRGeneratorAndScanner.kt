@@ -1,9 +1,20 @@
 package com.example.walletapp.QR
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.example.walletapp.appScreens.mainScreens.BottomSheetContent
+import com.example.walletapp.ui.theme.roundedShape
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 
@@ -24,3 +35,5 @@ fun generateQRCode(text: String, size: Int = 500): ImageBitmap {
     }
     return bmp.asImageBitmap()
 }
+
+

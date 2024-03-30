@@ -1,29 +1,55 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.ui.theme.roundedShape
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditSigner(
     viewModel: appViewModel,
     signerAddress: String,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     val signer by viewModel.getSignerAddress(signerAddress).observeAsState()
+    val focusManager = LocalFocusManager.current
 
     // Храним изменяемое состояние для каждого поля
     val nameState = remember { mutableStateOf("") }
@@ -41,55 +67,113 @@ fun EditSigner(
         typeState.value = signer?.type?.toString() ?: ""
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        TextField(
-            value = nameState.value,
-            onValueChange = { nameState.value = it },
-            label = { Text("Имя") }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextField(
-            value = addressState.value,
-            onValueChange = { addressState.value = it },
-            label = { Text("Адрес") }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-
-        TextField(
-            value = emailState.value,
-            onValueChange = { emailState.value = it },
-            label = { Text("Email") }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextField(
-            value = telephoneState.value,
-            onValueChange = { telephoneState.value = it },
-            label = { Text("Номер телефона") }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            // Обработка нажатия на кнопку "Сохранить"
-            val updatedSigner = signer?.copy(
-                name = nameState.value,
-                address = addressState.value,
-                email = emailState.value,
-                telephone = telephoneState.value
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Edit Signer", color = MaterialTheme.colorScheme.onBackground) },
+                //modifier = Modifier.shadow(elevation = 10.dp),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    scrolledContainerColor = MaterialTheme.colorScheme.background
+                ),
+                navigationIcon = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(Icons.Rounded.ArrowBack, "Back")
+                    }
+                }
             )
-            if (updatedSigner != null) {
-                viewModel.updateSigner(updatedSigner)
-            }
-            onSaveClick()
+        }
+    ) { padding ->
 
-        }) {
-            Text("Сохранить")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 8.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            CustomOutlinedTextField(
+                value = nameState.value,
+                onValueChange = { nameState.value = it },
+                placeholder = "Name",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = {
+                    focusManager.moveFocus(FocusDirection.Down) // Переход к следующему элементу
+                })
+            )
+
+            CustomOutlinedTextField(
+                value = addressState.value,
+                onValueChange = { addressState.value = it },
+                placeholder = "Address",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = {
+                    focusManager.moveFocus(FocusDirection.Down) // Переход к следующему элементу
+                })
+            )
+
+            CustomOutlinedTextField(
+                value = emailState.value,
+                onValueChange = { emailState.value = it },
+                placeholder = "Email",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = {
+                    focusManager.moveFocus(FocusDirection.Down) // Переход к следующему элементу
+                })
+            )
+
+            CustomOutlinedTextField(
+                value = telephoneState.value,
+                onValueChange = { telephoneState.value = it },
+                placeholder = "Phone Number",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    // Действие для кнопки "Done"
+                    focusManager.clearFocus() // Скрывает клавиатуру
+                    val updatedSigner = signer?.copy(
+                        name = nameState.value,
+                        address = addressState.value,
+                        email = emailState.value,
+                        telephone = telephoneState.value
+                    )
+                    if (updatedSigner != null) {
+                        viewModel.updateSigner(updatedSigner)
+                    }
+                    onSaveClick()
+                })
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            ElevatedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp, max = 64.dp),
+                shape = roundedShape,
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                onClick = {
+                // Обработка нажатия на кнопку "Сохранить"
+                val updatedSigner = signer?.copy(
+                    name = nameState.value,
+                    address = addressState.value,
+                    email = emailState.value,
+                    telephone = telephoneState.value
+                )
+                if (updatedSigner != null) {
+                    viewModel.updateSigner(updatedSigner)
+                }
+                onSaveClick()
+
+            }) {
+                Text("Save")
+            }
         }
     }
 }

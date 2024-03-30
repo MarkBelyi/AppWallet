@@ -45,6 +45,12 @@
     <string name="create_pin_code">Create a PIN-code</string>
     <string name="repeat_pin_code">Repeat a PIN-code</string>
 
+    <string name="name">Name</string>
+    <string name="Address">Address</string>
+    <string name="email">Email</string>
+    <string name="phone">Phone number</string>
+    <string name="why_i_need_this">Why i need this?</string>
+
 
     //Resources OLD
     <string name="app_package_name">com.app.wallet2</string>

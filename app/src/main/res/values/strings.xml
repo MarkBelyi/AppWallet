@@ -49,6 +49,7 @@
     <string name="Address">Адрес</string>
     <string name="email">Эл. почта</string>
     <string name="phone">Номер телефона</string>
+    <string name="why_i_need_this">Зачем мне это нужно?</string>
 
 
     //resources OLD
