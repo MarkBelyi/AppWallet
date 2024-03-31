@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Electronic approval",
+    "description": "Use the application solely for approving requests.",
+    "type": "SWITCH",
+    "prefsKey": "electronic_approval",
+    "explanation": "In this mode, the application will take on a simplified appearance, sufficient only for approving requests from other users. Cryptocurrency operations will be unavailable."
+  },
+  {
+    "name": "Continuous authorization",
+    "description": "Require authorization for every access to the application.",
+    "type": "CHECKBOX",
+    "prefsKey": "continuous_authorization"
+  }
+
+]

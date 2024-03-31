@@ -8,38 +8,36 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
-import com.google.gson.reflect.TypeToken
+import com.example.walletapp.parse.jsonArray
+import java.io.IOException
+import java.io.InputStream
+import java.util.Locale
 
 
 data class Element(
     val name: String,
     val description: String,
     val type: ElementType,
-    val prefsKey: String
+    val prefsKey: String,
+    val explanation: String
 )
 
-enum class ElementType {
-    @SerializedName("CHECKBOX") CHECKBOX,
-    @SerializedName("SWITCH") SWITCH
-}
+enum class ElementType { CHECKBOX, SWITCH }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen() {
-
-
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
-    val gson = Gson()
-    val jsonStr = context.assets.open("settings.json").bufferedReader().use { it.readText() }
+  //  val gson = Gson()
+    val jsonStr = loadSetsFromAssets(context) //context.assets.open("settings.json").bufferedReader().use { it.readText() }
 
 
     // Десериализация JSON строки в список элементов
-    val type = object : TypeToken<List<Element>>() {}.type
-    val settingsItems: List<Element> = gson.fromJson(jsonStr, type)
+    //val type = object : TypeToken<List<Element>>() {}.type
+    //val settingsItems: List<Element> = gson.fromJson(jsonStr, type)
 
+    // Вариант решения без использования библиотеки. Даёт больше вольностей.
+val settingsItems=getListFromStr(jsonStr)
 
 
     Scaffold { padding ->
@@ -96,6 +94,38 @@ fun SettingItem(
     }
 }
 
+/**Грузит настройки. Что не находит заполняет "".
+ * По умолчанию ставит:
+ * type = CHECKBOX.
+ * prefsKey = SNoKeyStub */
+fun getListFromStr(ss:String):List<Element>
+{
+    val jarr = jsonArray(ss)
+    val gg = mutableListOf<Element>()
+    for (i in 0 until jarr.length())
+    {val j = jarr.getJSONObject(i)
+        gg.add(
+            Element(
+            j.optString("name", ""),
+            j.optString("description",""),
+            ElementType.valueOf(j.optString("type","CHECKBOX")),
+            j.optString("prefsKey","SNoKeyStub"),
+            j.optString("explanation","")
+            )
+        )
+    }
+    return gg
+}
 
 
+fun loadSetsFromAssets(context: Context, language:String=Locale.getDefault().language): String {
+    val inputStream: InputStream
+    return try {
+        inputStream = context.assets.open("$language/settings.json")
+        inputStream.bufferedReader().use { it.readText() }
+    } catch (e: IOException) { e.printStackTrace(); // не смогли прочитать, пробуем вариант иглиша:
+        if (language!="en") loadSetsFromAssets(context,"en") // дефолтный en обязан быть, остальные языки по желанию (нынче просят ru,es,fr)
+        else return "[]" // ваще ничё нет, даже английского - всё плохо, грустно уходим!
+         }
+}
 
