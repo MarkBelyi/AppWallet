@@ -43,12 +43,14 @@ val myMod = Modifier // просто для примера использова�
 fun Wallet(viewModel: appViewModel) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val networks by viewModel.allNetworks.observeAsState(initial = emptyList())
+    //val networks by viewModel.allNetworks.observeAsState(initial = emptyList())
+    val wallets by viewModel.allWallets.observeAsState(initial = emptyList())
+
 
     Button(
         onClick = {
             coroutineScope.launch {
-                viewModel.addNetworks(context)
+                viewModel.addWallets(context)
             }
         },
         modifier = Modifier
@@ -61,12 +63,13 @@ fun Wallet(viewModel: appViewModel) {
     Spacer(modifier = Modifier.height(16.dp))
 
     LazyColumn {
-        items(networks) { network ->
-            NetworkItem(network = network)
+        items(wallets) { wallet ->
+            WalletItem(wallet = wallet)
         }
     }
 }
 
+/*
 @Composable
 fun NetworkItem(network: Networks) {
     Column(modifier = Modifier
@@ -80,3 +83,83 @@ fun NetworkItem(network: Networks) {
         }
     }
 }
+*/
+
+/*
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WalletItem(wallet: Wallets){
+    Card(
+        onClick = {},
+        shape = roundedShape,
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surface,
+            contentColor = colorScheme.onBackground
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 8.dp
+        )
+
+    ){
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(16.dp)
+        ) {
+            Text(
+                text = wallet.name,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onBackground,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                minLines = 1,
+            )
+
+        }
+
+    }
+
+}
+*/
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WalletItem(wallet: Wallets) {
+    Card(
+        onClick = {},
+        shape = MaterialTheme.shapes.medium, // Используйте medium из MaterialTheme.shapes для roundedShape, если вы не определили roundedShape
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surface, // Адаптируйте colorScheme к MaterialTheme.colorScheme, если не определено отдельно
+            contentColor = colorScheme.onSurface
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 8.dp
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "ID: ${wallet.wallet_id}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text("Network: ${wallet.network}", style = MaterialTheme.typography.bodyMedium)
+            Text("Flags: ${wallet.myFlags}", style = MaterialTheme.typography.bodyMedium)
+            Text("Type: ${wallet.wallet_type}", style = MaterialTheme.typography.bodyMedium)
+            Text("Name: ${wallet.name}", style = MaterialTheme.typography.bodyMedium)
+            Text("Info: ${wallet.info}", style = MaterialTheme.typography.bodyMedium)
+            Text("Address: ${wallet.addr}", style = MaterialTheme.typography.bodyMedium)
+            Text("Address Info: ${wallet.addr_info ?: "N/A"}", style = MaterialTheme.typography.bodyMedium)
+            Text("UNID: ${wallet.myUNID}", style = MaterialTheme.typography.bodyMedium)
+            Text("Tokens: ${wallet.tokenShortNames}", style = MaterialTheme.typography.bodyMedium)
+            Text("Signers List: ${wallet.slist}", style = MaterialTheme.typography.bodyMedium)
+            Text("Min Signers Count: ${wallet.minSignersCount}", style = MaterialTheme.typography.bodyMedium)
+            Text("Group ID: ${wallet.group_id}", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+
+

@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.example.walletapp.R
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
@@ -77,7 +76,7 @@ fun Home(
     var qrScanResult by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
-    var preventSecondBottomSheetReopening by remember { mutableStateOf(false) }
+    val preventSecondBottomSheetReopening by remember { mutableStateOf(false) }
     var openQRBottomSheet by remember { mutableStateOf(false) } // QR
     var openSecondBottomSheet by remember { mutableStateOf(false) } // Выбор после QR
     val qrBottomSheetState = rememberModalBottomSheetState(
@@ -122,13 +121,13 @@ fun Home(
         ModalBottomSheet(
             shape = roundedShape,
             containerColor = colorScheme.surface,
-            sheetState = secondBottomSheetState, // Корректное использование secondBottomSheetState
+            sheetState = secondBottomSheetState,
             onDismissRequest = { openSecondBottomSheet = false }
         ) {
 
             SecondBottomSheetContent(
                 viewModel = viewModel,
-                qrResult = qrScanResult, // Передайте qrScanResult как параметр
+                qrResult = qrScanResult,
                 context = context,
                 onHideButtonClick = {
                     scope.launch {
@@ -231,14 +230,14 @@ fun ActionCell(
             Spacer(Modifier.height(8.dp))
             Box{
                 // basicMarquee создаёт автопрокрутку!
-                // Серьезно так легко, я искал это, а тут одна строчка :(
                 Text(
                     text = text,
                     modifier = Modifier.basicMarquee(
                         iterations = Int.MAX_VALUE,
                         animationMode = MarqueeAnimationMode.Immediately,
                         delayMillis = 1000),
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
+                    color = colorScheme.onSurface
                     )
             }
         }
@@ -263,9 +262,9 @@ fun SecondBottomSheetContent(
 ) {
     Column(
         modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp)
-        .height(IntrinsicSize.Min)
+            .fillMaxWidth()
+            .padding(16.dp)
+            .height(IntrinsicSize.Min)
     )
     {
         ElevatedButton(

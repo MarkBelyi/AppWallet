@@ -40,6 +40,9 @@
 
     <string name="default_name_of_signer">My current public key</string>
 
+    //Scaffold
+    <string name="create_wallet_title">Create wallet</string>
+
     <string name="password_saved">Password saved</string>
     <string name="using_pin_code">Use a PIN-code</string>
     <string name="create_pin_code">Create a PIN-code</string>
@@ -50,6 +53,14 @@
     <string name="email">Email</string>
     <string name="phone">Phone number</string>
     <string name="why_i_need_this">Why i need this?</string>
+    <string name="default_name_wallet">Wallet\'s name</string>
+    <string name="select_blockchain">Select blockchain network</string>
+    <string name="new_signer">New signer</string>
+
+    <string name="cybersecurity_title">Security Warning</string>
+    <string name="cybersecurity_body">Do not take screenshots or use screen recording apps while your mnemonic phrase is displayed. This could compromise the security of your wallet.</string>
+    <string name="Understand">Understand</string>
+
 
 
     //Resources OLD

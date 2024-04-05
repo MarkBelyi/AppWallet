@@ -202,6 +202,31 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
     }
 }
 
+
+// Когда пользователь будет сканировать экран то мы ему запретим,
+// но пока оно не работает,
+// потому что как это контролировать я не знаю
+@Composable
+fun ShowSecurityWarningDialog(showDialog: Boolean, onDismiss: () -> Unit) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { onDismiss() },
+            title = { Text(
+                text = stringResource(id = R.string.cybersecurity_title),
+                color = colorScheme.onBackground
+            ) },
+            text = {
+                Text(text = stringResource(id = R.string.cybersecurity_body))
+            },
+            confirmButton = {
+                TextButton(onClick = { onDismiss() }) {
+                    Text("Понятно")
+                }
+            }
+        )
+    }
+}
+
 @Composable
 fun DividerWithText(text: String, modifier: Modifier) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {

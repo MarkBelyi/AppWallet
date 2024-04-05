@@ -2,19 +2,24 @@ package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -26,11 +31,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,30 +57,21 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import com.example.walletapp.DataBase.Entities.Networks
-import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
-import com.example.walletapp.Server.GetAPIString
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAddSignerClick: () -> Unit, onBackClick: () -> Unit) {
+fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClick: () -> Unit) {
     var selectedNetworkId by remember { mutableStateOf<Int?>(null) }
-
     var selectingSignerIndex by remember { mutableStateOf<Int?>(null) }
-    var selectedSignerAddress by remember { mutableStateOf<String?>(null) }
-
-    var isQrScannerActive by remember { mutableStateOf(false) }
     var selectingSignerIndexQR by remember { mutableStateOf<Int?>(null) }
-
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val networks by viewModel.allNetworks.observeAsState(initial = emptyList())
@@ -81,7 +83,78 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAdd
     val signerKeys = remember { mutableStateListOf<String>("") }
     var requiredSigners by remember { mutableStateOf(1f) }
 
+    val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var openQRBottomSheet by remember { mutableStateOf(false) }
 
+    val signerBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var openSignerBottomSheet by remember { mutableStateOf(false) }
+
+
+    if(openQRBottomSheet){
+        ModalBottomSheet(
+            shape = roundedShape,
+            containerColor = colorScheme.surface,
+            sheetState = qrBottomSheetState,
+            onDismissRequest = { openQRBottomSheet = false },
+            dragHandle = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            }
+        ) {
+            BottomSheetContent(
+                onQRScanned = { result ->
+                    if (selectingSignerIndexQR != null) {
+                        signerKeys[selectingSignerIndexQR!!] = result
+                    }
+                    openQRBottomSheet = false
+                }
+            )
+        }
+    }
+
+    if(openSignerBottomSheet){
+        ModalBottomSheet(
+            shape = roundedShape,
+            containerColor = colorScheme.surface,
+            sheetState = signerBottomSheetState,
+            onDismissRequest = { openSignerBottomSheet = false },
+            dragHandle = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            }
+        ) {
+            val signers by viewModel.allSigners.observeAsState(initial = emptyList())
+            LazyColumn(
+                contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                items(signers) { signer ->
+                    SignerItem(
+                        signer = signer,
+                        viewModel = viewModel,
+                        onClick = {
+                            if (selectingSignerIndex != null) {
+                                signerKeys[selectingSignerIndex!!] = signer.address
+                                openSignerBottomSheet = false
+                            }
+                        }
+                    )
+                }
+
+            }
+        }
+    }
 
     LaunchedEffect(networks) {
         if (networks.isEmpty()) {
@@ -89,43 +162,42 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAdd
                 viewModel.addNetworks(context)
             }
         }
-        if (networks.isNotEmpty() && selectedNetwork.isEmpty()) {
-            selectedNetwork = networks.first().network_name
-        }
     }
 
-    if (isQrScannerActive) {
-        QrScreen { result ->
-            if (selectingSignerIndexQR != null) {
-                signerKeys[selectingSignerIndexQR!!] = result
-                isQrScannerActive = false
-            }
+
+
+
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.create_wallet_title),
+                        color = colorScheme.onBackground
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground,
+                    scrolledContainerColor = colorScheme.background
+                ),
+                navigationIcon = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(Icons.Rounded.ArrowBack, "Back")
+                    }
+                }
+            )
         }
-    } else if (selectingSignerIndex != null) {
-        SignersScreen(viewModel = viewModel,
-            onCurrentSignerClick = { address ->
-                selectedSignerAddress = address
-                signerKeys[selectingSignerIndex!!] = address
-                selectingSignerIndex = null
-            },
-            onAddSignerClick = {onAddSignerClick()},
-            onBackClick = {onBackClick()}
-        )
-    }
-    else{
+    )  { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(colorScheme.background)
-                .padding(16.dp),
+                .padding(padding)
+                .padding(start = 8.dp, end = 8.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-
-            Text(
-                text = "Выберите сеть блокчейна",
-                maxLines = 1,
-                color = colorScheme.onBackground
-            )
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
@@ -135,8 +207,15 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAdd
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TextField(
-                    value = selectedNetwork.ifEmpty { "" },
-                    onValueChange = { },
+                    value = selectedNetwork,
+                    onValueChange = {},
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.select_blockchain),
+                            maxLines = 1,
+                            color = Color.Gray
+                        )
+                    },
                     readOnly = true,
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
@@ -182,7 +261,12 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAdd
                 onValueChange = { walletNameText = it },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Название кошелька") },
+                placeholder = {
+                    Text(
+                        text = stringResource(id = R.string.default_name_wallet),
+                        color = Color.Gray
+                    )
+                },
                 shape = roundedShape,
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = colorScheme.onBackground,
@@ -190,17 +274,21 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAdd
                     focusedContainerColor = colorScheme.surface,
                     unfocusedContainerColor = colorScheme.surface,
                     focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    unfocusedIndicatorColor = Color.Transparent,
                 )
             )
 
             Text(
-                text = "Подписанты",
+                text = stringResource(id = R.string.signers),
                 maxLines = 1,
                 color = colorScheme.onBackground
             )
 
-            LazyColumn(modifier = Modifier.weight(1f)) {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 8.dp, bottom = 8.dp),
+            ) {
                 items(signerKeys.size) { index ->
                     SignerRow(
                         index = index,
@@ -208,10 +296,11 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAdd
                         numberOfSigner = numberOfSigner,
                         onSignerIconClick = {
                             selectingSignerIndex = index
+                            openSignerBottomSheet = true
                         },
                         onQrScanClick = {
                             selectingSignerIndexQR = index
-                            isQrScannerActive = true
+                            openQRBottomSheet = true
                         }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -223,15 +312,12 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAdd
                 fontSize = 14.sp
             )
 
-            Slider(
-                value = requiredSigners,
-                onValueChange = { newSigners ->
-                    requiredSigners = newSigners.coerceIn(1f, signerKeys.size.toFloat())
-                },
-                valueRange = 1f..numberOfSigner.toFloat(),
-                steps = numberOfSigner - 1,
-                modifier = Modifier
-                    .fillMaxWidth()
+            RequiredSignersSelector(
+                numberOfSigners = signerKeys.size,
+                requiredSigners = requiredSigners.toInt(),
+                onRequiredSignersChange = { newRequiredSigners ->
+                    requiredSigners = newRequiredSigners.toFloat()
+                }
             )
 
             ElevatedButton(
@@ -266,7 +352,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAdd
                 enabled = walletNameText.isNotEmpty() && signerKeys.all { it.isNotEmpty() } && requiredSigners <= signerKeys.size,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(45.dp),
+                    .height(48.dp),
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = colorScheme.primary,
                     contentColor = colorScheme.onPrimary
@@ -279,8 +365,13 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onAdd
 }
 
 @Composable
-fun SignerRow(index: Int, signerKeys: MutableList<String>, numberOfSigner: Int, onSignerIconClick: (Int) -> Unit, onQrScanClick: (Int) -> Unit) {
-
+fun SignerRow(
+    index: Int,
+    signerKeys: MutableList<String>,
+    numberOfSigner: Int,
+    onSignerIconClick: (Int) -> Unit,
+    onQrScanClick: (Int) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -288,9 +379,15 @@ fun SignerRow(index: Int, signerKeys: MutableList<String>, numberOfSigner: Int, 
         OutlinedTextField(
             value = signerKeys[index],
             onValueChange = { signerKeys[index] = it },
+            placeholder = {
+                Text(
+                    text = stringResource(id = R.string.new_signer),
+                    color = Color.Gray
+                )
+            },
             singleLine = true,
             modifier = Modifier.weight(1f),
-            shape = roundedShape,
+            shape = MaterialTheme.shapes.medium,
             colors = TextFieldDefaults.colors(
                 focusedTextColor = colorScheme.onBackground,
                 unfocusedTextColor = colorScheme.onBackground,
@@ -299,11 +396,9 @@ fun SignerRow(index: Int, signerKeys: MutableList<String>, numberOfSigner: Int, 
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             )
-
         )
-        IconButton(onClick = {
-            onQrScanClick(index)
-        }) {
+
+        IconButton(onClick = { onQrScanClick(index) }) {
             Icon(
                 painter = painterResource(id = R.drawable.qr_code_scanner),
                 contentDescription = "QR",
@@ -311,9 +406,8 @@ fun SignerRow(index: Int, signerKeys: MutableList<String>, numberOfSigner: Int, 
                 modifier = Modifier.scale(1.2f)
             )
         }
-        IconButton(onClick = {
-            onSignerIconClick(index)
-        }) {
+
+        IconButton(onClick = { onSignerIconClick(index) }) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = "Choose Signer",
@@ -322,9 +416,102 @@ fun SignerRow(index: Int, signerKeys: MutableList<String>, numberOfSigner: Int, 
             )
         }
     }
-    if (index == signerKeys.lastIndex && signerKeys.size < numberOfSigner) {
-        IconButton(onClick = { signerKeys.add("") }) {
-            Icon(Icons.Filled.Add, "Добавить подписанта")
+
+    fun addSigner() {
+        signerKeys.add("")
+    }
+    fun removeSigner(index: Int) {
+        signerKeys.removeAt(index)
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    if (index == signerKeys.lastIndex) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OutlinedButton(
+                onClick = { removeSigner(index) },
+                enabled = signerKeys.size > 1, // Disable if this is the only signer left
+                modifier = Modifier.weight(1f),
+                shape = roundedShape,
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 8.dp,
+                    pressedElevation = 16.dp,
+                    disabledElevation = 8.dp
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.background,
+                    contentColor = colorScheme.onBackground,
+                    disabledContainerColor = Color.LightGray,
+                    disabledContentColor = Color.DarkGray
+                )
+            ) {
+                Text(
+                    text = "-",
+                    modifier = Modifier.scale(1.5f)
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            OutlinedButton(
+                onClick = { addSigner() },
+                shape = roundedShape,
+                enabled = signerKeys.size < numberOfSigner, // Disable if the max number of signers is reached
+                modifier = Modifier.weight(1f),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 8.dp,
+                    pressedElevation = 16.dp,
+                    disabledElevation = 8.dp
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.background,
+                    contentColor = colorScheme.onBackground,
+                    disabledContainerColor = Color.LightGray,
+                    disabledContentColor = Color.DarkGray
+                )
+            ) {
+                Text(
+                    text = "+",
+                    modifier = Modifier.scale(1.5f)
+                    )
+            }
+        }
+    }
+}
+
+@Composable
+fun RequiredSignersSelector(
+    numberOfSigners: Int,
+    requiredSigners: Int,
+    onRequiredSignersChange: (Int) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Button(
+            onClick = {
+                if (requiredSigners > 1) onRequiredSignersChange(requiredSigners - 1)
+            },
+            shape = roundedShape,
+            enabled = requiredSigners > 1
+        ) {
+            Text("-")
+        }
+        Text(
+            text = "$requiredSigners из $numberOfSigners",
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Button(
+            onClick = {
+                if (requiredSigners < numberOfSigners) onRequiredSignersChange(requiredSigners + 1)
+            },
+            shape = roundedShape,
+            enabled = requiredSigners < numberOfSigners
+        ) {
+            Text("+")
         }
     }
 }

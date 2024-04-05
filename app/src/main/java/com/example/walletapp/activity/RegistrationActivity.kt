@@ -73,7 +73,8 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                     } else {
                         switchToPage(5)
                     }
-                }
+                },
+                viewModel = viewModelApp
             )
                 // создаём ключи
             2 -> CreateSeedPhraseScreen(
@@ -93,7 +94,15 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                 } else {
                     switchToPage(2)
                 }
-            })
+            },
+               onBiometricAuthenticated = {
+                   if (isAddClicked) {
+                       switchToPage(4)
+                   } else {
+                       switchToPage(2)
+                   }
+               }
+            )
         }
     }
 

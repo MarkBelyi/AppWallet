@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">H2K Wallet</string>
+    <string name="app_name">H2KWallet</string>
 
     //button
     <string name="create_button">Создать Ключ</string>
@@ -43,6 +43,10 @@
     <string name="using_pin_code">Использовать ПИН-код</string>
     <string name="create_pin_code">Придумайте ПИН-код</string>
     <string name="repeat_pin_code">Повторите ПИН-код</string>
+    <string name="new_signer">Новый подписант</string>
+
+    //Scaffold
+    <string name="create_wallet_title">Создание кошелька</string>
 
     //for ALL TEXTFIELD
     <string name="name">Имя</string>
@@ -50,6 +54,12 @@
     <string name="email">Эл. почта</string>
     <string name="phone">Номер телефона</string>
     <string name="why_i_need_this">Зачем мне это нужно?</string>
+    <string name="default_name_wallet">Имя кошелька</string>
+    <string name="select_blockchain">Выберите сеть блокчейна</string>
+    
+    <string name="cybersecurity_title">Предупреждение о безопасности</string>
+    <string name="cybersecurity_body">Не делайте скриншоты и не используйте приложения для записи экрана, пока отображается ваша мнемоническая фраза. Это может поставить под угрозу безопасность вашего кошелька.</string>
+    <string name="Understand">Понятно</string>
 
 
     //resources OLD

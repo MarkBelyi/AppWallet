@@ -95,38 +95,3 @@ fun BalansItem(balans: Balans) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun WalletItem(wallet: Wallets){
-    Card(
-        onClick = {},
-        shape = roundedShape,
-        colors = CardDefaults.cardColors(
-            containerColor = colorScheme.primary,
-            contentColor = colorScheme.onBackground
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 8.dp
-        )
-
-    ){
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(16.dp)
-        ) {
-            Text(
-                text = wallet.name,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = colorScheme.onPrimary,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                minLines = 1,
-            )
-
-        }
-
-    }
-
-}

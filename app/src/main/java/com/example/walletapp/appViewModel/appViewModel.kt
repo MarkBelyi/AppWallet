@@ -1,8 +1,11 @@
 package com.example.walletapp.appViewModel
 
 import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,6 +22,8 @@ import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.Server.GetAPIString
 import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
+import com.example.walletapp.parse.parseWallets
+import com.example.walletapp.registrationScreens.AuthMethod
 import com.example.walletapp.repository.AppRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +33,15 @@ import org.json.JSONObject
 
 class appViewModel(private val repository: AppRepository) : ViewModel() {
 
+    //Settigns
+    private val _selectedAuthMethod = MutableLiveData<AuthMethod>(AuthMethod.PASSWORD)
+    val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
+
+    // метод для обновления метода аутентификации
+    fun updateAuthMethod(authMethod: AuthMethod) {
+        _selectedAuthMethod.value = authMethod
+    }
+
     // Wallets
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
 
@@ -35,8 +49,10 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
         repository.insertWallet(wallet)
     }
 
-    fun addWallets(wallets: List<Wallets>) = viewModelScope.launch {
-        repository.addWallets(wallets)
+    fun addWallets(context: Context) = viewModelScope.launch {
+        val jsonString = GetAPIString(context, "wallets")
+        val loadedWallets = parseWallets(jsonString)
+        repository.addWallets(loadedWallets)
     }
 
     fun deleteWallet(wallet: Wallets) = viewModelScope.launch {
@@ -63,64 +79,7 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
             fillWallets(context)
         // Нужно подождать пару минут и кошель появится уже и в блокчейне если всё ОК.
     }
-    /*suspend fun fillWallets(context: Context) {
-        var ss: String = GetAPIString(context, "wallets_2")
-        if (ss.isEmpty()) return
-        if (ss == "{}") ss = "[]"
-        val jarr = JSONArray(ss)
-        val gg = mutableListOf<Wallets>()
-        for (i in 0 until jarr.length()) {
-            val j = jarr.getJSONObject(i)
-            gg.add(Wallets(
-                j.getInt("wallet_id"),
-                j.getInt("network"),
-                j.optString("myFlags", ""),
-                j.optInt("wallet_type", 0),
-                j.optString("name", ""),
-                j.optString("info", ""),
-                j.optString("addr", ""),
-                j.optString("addr_info", ""),
-                j.optString("myUNID", ""),
-                j.optString("tokenShortNames", "")
-            ))
-        }
-        repository.addWallets(gg)
-
-        withContext(Dispatchers.IO) {
-            *//*for (wallet in gg) {
-                val tokenStrings = wallet.tokenShortNames.split(";").filter { it.isNotBlank() }
-
-                if (tokenStrings.isEmpty()) {
-                    // Добавляем записи с пустыми значениями токенов и балансов для данного кошелька
-                    repository.insertToken(Tokens(wallet.network, "", wallet.addr))
-                    repository.insertBalans(Balans(
-                        name = "",
-                        contract = "",
-                        addr = wallet.addr,
-                        network_id = wallet.network,
-                        amount = 0.0,
-                        price = 0.0
-                    ))
-                } else {
-                    for (tokenString in tokenStrings) {
-                        val parts = tokenString.trim().split(" ")
-                        if (parts.size >= 2) {
-                            val amount = parts[0].toDoubleOrNull() ?: 0.0
-                            val tokenName = parts[1]
-                            // Добавляем информацию о токенах и балансах, если строка токенов не пустая
-                            repository.insertToken(Tokens(wallet.network, tokenName, wallet.addr))
-                            repository.insertBalans(Balans(
-                                name = tokenName,
-                                contract = "", // Здесь должен быть реальный адрес контракта, если известен
-                                addr = wallet.addr,
-                                network_id = wallet.network,
-                                amount = amount,
-                                price = 0.0 // Цену необходимо получить или рассчитать
-                            ))
-                        }
-                    }
-                }
-            }*//*
+     /*
             gg.forEach { wallet ->
                 if (wallet.tokenShortNames.isBlank()) {
                     // Если список токенов пуст, добавляем пустой токен и баланс для данного кошелька
@@ -162,12 +121,24 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
         }
         repository.addWallets(gg) // allWallets обновится с триггера в базе
         viewModelScope.launch { withContext(Dispatchers.IO) {
-            for (i in gg) {
-                val k = i.tokenShortNames.split(";")
-                for (t in k)//0.543210029602051 CH2K;0.2 MATIC
-                    repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
-                //TODO("Балансы нужно тоже сразу распихать по базе балансов. Справишься? ")
-            }}}
+            gg.forEach { wallet ->
+                if (wallet.tokenShortNames.isBlank()) {
+                    // Если список токенов пуст, добавляем пустой токен и баланс для данного кошелька
+                    repository.insertToken(Tokens(wallet.network, "", wallet.addr))
+                    //repository.insertBalans(Balans("", "", wallet.addr, wallet.network, 0.0, 0.0))
+                } else {
+                    wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
+                        val parts = token.split(" ")
+                        //val amount = parts[0].toDoubleOrNull() ?: 0.0
+                        val name = parts.getOrNull(1) ?: ""
+
+                        repository.insertToken(Tokens(wallet.network, name, wallet.addr))
+                        //repository.insertBalans(Balans(name, "", wallet.addr, wallet.network, amount, 0.0))
+                    }
+                }
+            }
+        }
+    }
     }
 
     /*suspend fun fillWallets(context: Context) {

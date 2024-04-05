@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.parse.jsonArray
+import com.example.walletapp.registrationScreens.AuthMethod
 import java.io.IOException
 import java.io.InputStream
 import java.util.Locale
@@ -26,6 +27,16 @@ enum class ElementType { CHECKBOX, SWITCH }
 
 @Composable
 fun SettingsScreen() {
+
+    /*if (appViewModel.selectedAuthMethod.value == AuthMethod.PASSWORD) {
+        // Пользователь выбрал пароль
+    } else {
+        // Пользователь выбрал пин-код
+    }*/
+
+
+
+
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
   //  val gson = Gson()
@@ -128,4 +139,6 @@ fun loadSetsFromAssets(context: Context, language:String=Locale.getDefault().lan
         else return "[]" // ваще ничё нет, даже английского - всё плохо, грустно уходим!
          }
 }
+
+
 

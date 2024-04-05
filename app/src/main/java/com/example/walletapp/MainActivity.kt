@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -36,7 +37,7 @@ class MainApplication : Application(){
     }
 }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     //инициализируем viewModel
     private val appViewModel: appViewModel by viewModels {
         AppViewModelFactory((application as MainApplication).repository)
@@ -66,6 +67,7 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("App") {
                         AppActivity(
+                            navHostController = navController,
                             activity = this@MainActivity,
                             viewModel = appViewModel)
                     }

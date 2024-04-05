@@ -76,6 +76,11 @@ fun SignersScreen(
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            item {
+                AddSignerCard(
+                    onClick = { onAddSignerClick() }
+                )
+            }
             items(signers) { signer ->
                 SignerItem(
                     signer = signer,
@@ -85,11 +90,7 @@ fun SignersScreen(
                     }
                 )
             }
-            item {
-                AddSignerCard(
-                    onClick = { onAddSignerClick() }
-                )
-            }
+
         }
 
     }

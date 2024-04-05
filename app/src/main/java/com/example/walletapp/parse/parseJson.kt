@@ -1,6 +1,7 @@
 package com.example.walletapp.parse
 
 import com.example.walletapp.DataBase.Entities.Networks
+import com.example.walletapp.DataBase.Entities.Wallets
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
@@ -70,4 +71,9 @@ fun parseNetworks(ss: String): List<Networks> {
             j.optString("status","1").toInt()))
     }
     return gg
+}
+
+fun parseWallets(jsonString: String): List<Wallets> {
+    val type = object : TypeToken<List<Wallets>>() {}.type
+    return Gson().fromJson(jsonString, type)
 }

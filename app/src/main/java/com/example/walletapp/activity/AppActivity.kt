@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
@@ -26,7 +27,8 @@ import com.example.walletapp.appViewModel.appViewModel
 @Composable
 fun AppActivity(
     activity: Activity,
-    viewModel: appViewModel
+    viewModel: appViewModel,
+    navHostController: NavHostController
 ){
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var selectedSignerAddress by remember { mutableStateOf("") }
@@ -95,7 +97,6 @@ fun AppActivity(
             5 -> CreateWalletScreen(
                 viewModel = viewModel,
                 onCreateClick = {switchToPage(0)},
-                onAddSignerClick = {switchToPage(8)},
                 onBackClick = {switchToPage(0)}
             )
 

@@ -28,13 +28,19 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.R
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.elements.checkbox.PasswordFieldWithLabel
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 
+enum class AuthMethod {
+    PASSWORD,
+    PINCODE
+}
+
 @Composable
-fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit){
+fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit, viewModel: appViewModel){
     var showPasswordAlert by remember { mutableStateOf(false) }
     var passwordAlertMessage by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
@@ -42,7 +48,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit){
     val focusManager = LocalFocusManager.current
     val passwordErrorMessage = stringResource(id = R.string.alert_password_message)
 
-    //Работа с сохраненем пароля
+    //Работа с сохранением пароля
     val context = LocalContext.current
     val ps = PasswordStorageHelper(context)
     val isPasswordValid = checkPasswordsMatch(passwordValue, repeatPasswordValue)
@@ -95,6 +101,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit){
             labelColor = colorScheme.onBackground,
             onImeAction = {
                 // Вызываем функцию проверки пароля, если пароль валиден
+                viewModel.updateAuthMethod(AuthMethod.PASSWORD)
                 if (isPasswordValid(passwordValue)) {
                     ps.setData("MyPassword", passwordValue.toByteArray())
                     onNextAction()
@@ -116,7 +123,11 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit){
 
         ClickedText(
             text = stringResource(id = R.string.using_pin_code),
-            onClick = onPinCodeClick
+            onClick = {
+                onPinCodeClick()
+                viewModel.updateAuthMethod(AuthMethod.PINCODE)
+            }
+
         )
 
         Spacer(modifier = Modifier.weight(0.05f))
@@ -125,6 +136,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit){
             text = stringResource(id = R.string.button_continue),
             enabled = isPasswordValid,
             onClick = {
+                viewModel.updateAuthMethod(AuthMethod.PASSWORD)
                 if (isPasswordValid(passwordValue)) {
                     Toast.makeText(context, R.string.password_saved, Toast.LENGTH_SHORT).show()
                     ps.setData("MyPassword", passwordValue.toByteArray())
