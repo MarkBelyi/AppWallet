@@ -5,7 +5,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -25,13 +28,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
@@ -41,6 +47,7 @@ import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 import org.web3j.crypto.Credentials
@@ -60,10 +67,12 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: Regi
 
 
     ConstraintLayout(
+
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorScheme.background)
+            .background(color = colorScheme.surface)
             .padding(paddingColumn)
+
     ) {
         val (title, tapArea, continueButton) = createRefs()
 
@@ -71,26 +80,29 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: Regi
             text = stringResource(id = R.string.tap_seed_phrase),
             style = TextStyle(
                 fontSize = typography.titleLarge.fontSize,
-                color = colorScheme.onBackground
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onSurface
             ),
             textAlign = TextAlign.Center,
             modifier = Modifier.constrainAs(title) {
-                top.linkTo(parent.top, margin = 16.dp)
+                top.linkTo(parent.top, margin = 32.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }
         )
 
         Tap(
-            mnemonicList,
-            isContinueEnabled,
-            viewModelReg,
+            wordsList = mnemonicList,
+            isContinueEnabled = isContinueEnabled,
+            viewModel = viewModelReg,
             modifier = Modifier.constrainAs(tapArea) {
-                top.linkTo(title.bottom, margin = 16.dp)
+                top.linkTo(title.bottom, margin = 32.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
+                bottom.linkTo(continueButton.top, margin = 32.dp)
                 width = Dimension.fillToConstraints
             }
+
         )
 
         CustomButton(
@@ -112,10 +124,9 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: Regi
             },
             enabled = isContinueEnabled.value,
             modifier = Modifier.constrainAs(continueButton) {
-                top.linkTo(tapArea.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom, margin = 16.dp)
+                bottom.linkTo(parent.bottom, margin = 32.dp)
             }
         )
     }
@@ -162,24 +173,35 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
 
     @Composable
     fun WordBox(word: String?, onClick: () -> Unit) {
-        val textColor = if (word in initiallyBottomWords) colorScheme.primary else colorScheme.onBackground
+        val textColor = if (word in initiallyBottomWords) colorScheme.secondary else colorScheme.onSurface
         Box(
             modifier = Modifier
-                .border(1.5.dp, colorScheme.onBackground, roundedShape)
-                .clip(roundedShape)
-                .background(colorScheme.surface)
                 .aspectRatio(2f)
-                .padding(8.dp)
+                .border(
+                    width = 0.5.dp,
+                    color = colorScheme.onSurfaceVariant,
+                    shape = newRoundedShape
+                )
+                .shadow(
+                    elevation = 4.dp,
+                    shape = newRoundedShape,
+                    clip = true
+                )
+                .background(
+                    color = colorScheme.background
+                )
+                .padding(1.dp)
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
             word?.let {
                 Text(
                     text = it,
+                    color = textColor,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Light,
                     textAlign = TextAlign.Center,
-                    color = textColor
+                    maxLines = 1
                 )
             }
         }
@@ -187,25 +209,42 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
 
     @Composable
     fun SmallWordBox(word: String?, onClick: () -> Unit) {
-        val textColor = if (word in initiallyBottomWords) colorScheme.primary else colorScheme.onBackground
-        Box(
+        val textColor = if (word in initiallyBottomWords) colorScheme.secondary else colorScheme.onSurface
+
+        BoxWithConstraints(
+
             modifier = Modifier
-                .border(0.75.dp, colorScheme.onBackground, roundedShape)
-                .clip(roundedShape)
-                .background(colorScheme.surface)
-                .padding(6.dp)
+                .border(
+                    width = 0.5.dp,
+                    color = colorScheme.secondary,
+                    shape = newRoundedShape
+                )
+                .shadow(
+                    elevation = 4.dp,
+                    shape = newRoundedShape,
+                    clip = true
+                )
+                .background(
+                    color = colorScheme.background,
+                    shape = newRoundedShape
+                )
+                .clip(newRoundedShape)
+                .padding(horizontal = 8.dp, vertical = 8.dp)
                 .clickable(enabled = word in availableWords, onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
+
             word?.let {
                 Text(
                     text = it,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Light,
                     textAlign = TextAlign.Center,
-                    color = textColor
+                    color = textColor,
+                    maxLines = 1
                 )
             }
+
         }
     }
 
@@ -219,7 +258,9 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
             columns = GridCells.Fixed(3),
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
+
         ) {
             items(12) { index ->
                 val word = displayedWords[index]
@@ -234,7 +275,7 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
         availableWords.chunked(4).forEach { wordRow ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 wordRow.forEach { word ->
                     SmallWordBox(word = word, onClick = {

@@ -12,13 +12,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.MatrixRain
-import com.example.walletapp.appScreens.mainScreens.QrScreen
 import com.example.walletapp.appScreens.mainScreens.SettingsScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
@@ -27,8 +25,7 @@ import com.example.walletapp.appViewModel.appViewModel
 @Composable
 fun AppActivity(
     activity: Activity,
-    viewModel: appViewModel,
-    navHostController: NavHostController
+    viewModel: appViewModel
 ){
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var selectedSignerAddress by remember { mutableStateOf("") }
@@ -70,11 +67,6 @@ fun AppActivity(
                 onModalBottomSheetClick = {switchToPage(6)},
                 onMatrixClick= {switchToPage(6)}
             )
-
-            /*1 -> QrScreen(onScanResult = { *//*result ->
-                // Переходим на страницу подписантов с результатом сканирования
-                switchToPage(3, qrResult = result)*//*
-            })*/
 
             2 -> ShareAddress(
                 onBackClick = {switchToPage(0)}

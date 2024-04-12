@@ -27,6 +27,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,10 +45,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.appScreens.mainScreens.Home
 import com.example.walletapp.appScreens.mainScreens.Sign
 import com.example.walletapp.appScreens.mainScreens.Wallet
+import com.example.walletapp.appScreens.mainScreens.WalletDetailScreen
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.markAsVisitedApp
 
@@ -65,7 +68,6 @@ enum class Actions{
     settings,
     QR
 }
-
 @Composable
 fun MainPagesActivity(
     viewModel: appViewModel,
@@ -118,6 +120,8 @@ fun MainPagesActivity(
     }
 
 }
+
+
 
 
 val actionItems = listOf(

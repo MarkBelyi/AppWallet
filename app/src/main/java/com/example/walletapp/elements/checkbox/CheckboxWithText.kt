@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun CheckboxWithText(
@@ -33,16 +34,17 @@ fun CheckboxWithText(
                 onCheckedChange(it)
             },
             modifier = Modifier
-                .scale(1.3f),
+                .scale(1.2f),
             colors = CheckboxDefaults.colors(
-                checkedColor = colorScheme.primary,
-                checkmarkColor = colorScheme.background,
+                checkedColor = colorScheme.background,
+                checkmarkColor = colorScheme.primary,
                 uncheckedColor = colorScheme.primary
             ),
         )
         Text(
             text = text,
-            color = colorScheme.onBackground
+            fontWeight = FontWeight.Light,
+            color = colorScheme.onSurface
         )
     }
 }

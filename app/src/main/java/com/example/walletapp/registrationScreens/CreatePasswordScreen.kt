@@ -2,6 +2,7 @@ package com.example.walletapp.registrationScreens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,15 +23,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.elements.checkbox.PasswordFieldWithLabel
 import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.ui.theme.gradientColors
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 
@@ -54,27 +59,44 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit, v
     val isPasswordValid = checkPasswordsMatch(passwordValue, repeatPasswordValue)
 
 
+
+
+
     if (showPasswordAlert) {
         AlertDialog(
             onDismissRequest = { showPasswordAlert = false },
-            title = { Text(stringResource(id = R.string.error_password)) },
-            text = { Text(passwordAlertMessage) },
+            title = { Text(
+                text = stringResource(id = R.string.error_password),
+                fontWeight = FontWeight.Bold,
+                color = colorScheme.onSurface
+            ) },
+            text = { Text(
+                text = passwordAlertMessage,
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
+            ) },
             confirmButton = {
                 TextButton(
-                    onClick = { showPasswordAlert = false }
+                    onClick = { showPasswordAlert = false },
                 ) {
-                    Text("OK")
+                    Text(
+                        text = "OK",
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.onSurfaceVariant
+                    )
                 }
             },
-            shape = roundedShape
+            shape = newRoundedShape
         )
     }
+
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorScheme.background)
+            .background(color = colorScheme.surface)
             .padding(paddingColumn)
     ){
 
@@ -86,7 +108,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit, v
                 passwordValue = newValue
             },
             passwordValue = passwordValue,
-            labelColor = colorScheme.onBackground,
+            labelColor = colorScheme.onSurface,
             onImeAction = { focusManager.moveFocus(FocusDirection.Down) }
         )
 
@@ -98,8 +120,9 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit, v
                 repeatPasswordValue = newValue
             },
             passwordValue = repeatPasswordValue,
-            labelColor = colorScheme.onBackground,
-            onImeAction = {
+            labelColor = colorScheme.onSurface,
+            onImeAction = {}
+            /*onImeAction = {
                 // Вызываем функцию проверки пароля, если пароль валиден
                 viewModel.updateAuthMethod(AuthMethod.PASSWORD)
                 if (isPasswordValid(passwordValue)) {
@@ -109,7 +132,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit, v
                     passwordAlertMessage = passwordErrorMessage
                     showPasswordAlert = true
                 }
-            }
+            }*/
         )
 
         Spacer(modifier = Modifier.weight(0.05f))
@@ -178,9 +201,14 @@ fun CustomButton(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp, max = 64.dp)
-            .padding(top = 5.dp, bottom = 5.dp),
+            .padding(top = 5.dp, bottom = 5.dp)
+            .shadow(
+                elevation = 16.dp,
+                shape = newRoundedShape,
+                clip = true
+            ),
         enabled = enabled,
-        shape = roundedShape,
+        shape = newRoundedShape,
         colors = ButtonDefaults.elevatedButtonColors(
             containerColor = colorScheme.primary,
             contentColor = colorScheme.onPrimary,
@@ -188,7 +216,10 @@ fun CustomButton(
             disabledContentColor = colorScheme.onPrimaryContainer
         )
     ) {
-        Text(text = text)
+        Text(
+            text = text,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
@@ -197,10 +228,14 @@ fun ClickedText(
     text: String,
     onClick: () -> Unit
 ){
-    TextButton(onClick = onClick) {
+    TextButton(
+        onClick = onClick,
+        shape = newRoundedShape
+    ) {
         Text(
             text = text,
-            color = colorScheme.onBackground
+            color = colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Light
         )
     }
 

@@ -20,6 +20,8 @@ import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appViewModel.AppViewModelFactory
 import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.registrationScreens.CreatePasswordScreen
+import com.example.walletapp.registrationScreens.NewUserScreenColumn
 import com.example.walletapp.repository.AppRepository
 import com.example.walletapp.ui.theme.WalletAppTheme
 
@@ -63,16 +65,15 @@ class MainActivity : AppCompatActivity() {
                             activity = this@MainActivity,
                             navHostController = navController,
                             viewModelReg = registrationViewModel,
-                            viewModelApp = appViewModel)
+                            viewModelApp = appViewModel
+                        )
                     }
                     composable("App") {
                         AppActivity(
-                            navHostController = navController,
                             activity = this@MainActivity,
                             viewModel = appViewModel)
                     }
                 }
-
             }
         }
     }

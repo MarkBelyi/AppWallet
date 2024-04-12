@@ -1,5 +1,6 @@
 package com.cri.wallet.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -7,10 +8,14 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.walletapp.DataBase.Entities.Tokens
+import com.example.walletapp.DataBase.Entities.Wallets
 
 
 @Dao
 interface TokensDAO {
+
+    @Query("SELECT * FROM Tokens")
+    fun getLiveTokens(): LiveData<List<Tokens>>
     @Query("SELECT * FROM Tokens WHERE network_id IN (:network_id)")
     suspend fun getAllForNets(network_id:List<Int>): List<Tokens>
 

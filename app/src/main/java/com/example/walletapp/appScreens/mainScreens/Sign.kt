@@ -55,7 +55,7 @@ fun WalletsAndBalancesScreen(viewModel: appViewModel) {
             )
         }
         items(wallets) { wallet ->
-            WalletItem(wallet = wallet)
+            WalletItem(wallet = wallet){}
         }
 
         item {

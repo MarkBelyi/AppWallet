@@ -1,12 +1,6 @@
 package com.example.walletapp.appViewModel
 
 import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,24 +16,31 @@ import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.Server.GetAPIString
 import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
+import com.example.walletapp.parse.parseTokens
 import com.example.walletapp.parse.parseWallets
 import com.example.walletapp.registrationScreens.AuthMethod
 import com.example.walletapp.repository.AppRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import org.json.JSONObject
 
 class appViewModel(private val repository: AppRepository) : ViewModel() {
 
     //Settigns
-    private val _selectedAuthMethod = MutableLiveData<AuthMethod>(AuthMethod.PASSWORD)
-    val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
+    private val _selectedAuthMethod = MutableLiveData(AuthMethod.PASSWORD)
 
     // метод для обновления метода аутентификации
     fun updateAuthMethod(authMethod: AuthMethod) {
         _selectedAuthMethod.value = authMethod
+    }
+
+    //Tokens
+    val allTokens: LiveData<List<Tokens>> = repository.allTokens.asLiveData()
+    fun addTokens(context: Context) = viewModelScope.launch {
+        val jsonString = GetAPIString(context, "tokens")
+        val loadedTokens = parseTokens(jsonString)
+        repository.addTokens(loadedTokens)
     }
 
     // Wallets
@@ -50,7 +51,7 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
     }
 
     fun addWallets(context: Context) = viewModelScope.launch {
-        val jsonString = GetAPIString(context, "wallets")
+        val jsonString = GetAPIString(context, "wallets_2")
         val loadedWallets = parseWallets(jsonString)
         repository.addWallets(loadedWallets)
     }

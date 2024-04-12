@@ -2,6 +2,10 @@
 <resources>
     <string name="app_name">H2K Wallet</string>
 
+    //Greetings....
+    <string name="hello">Hello!</string>
+
+
     <!-- Button -->
     <string name="create_button">Create Key</string>
     <string name="add_button">Add Key</string>

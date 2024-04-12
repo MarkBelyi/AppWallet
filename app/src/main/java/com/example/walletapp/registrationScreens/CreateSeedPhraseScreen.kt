@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -46,6 +47,7 @@ import com.example.walletapp.elements.checkbox.MnemonicPhraseGrid
 import com.example.walletapp.elements.checkbox.MnemonicTitleWithIcon
 import com.example.walletapp.elements.checkbox.ShareMnemonicPhrase
 import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 import org.web3j.crypto.Credentials
@@ -97,7 +99,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
                     .heightIn(min = 56.dp, max = 64.dp)
                     .padding(top = 5.dp, bottom = 5.dp)
                     .constrainAs(buttonRef) {
-                        bottom.linkTo(parent.bottom, margin = 16.dp)
+                        bottom.linkTo(parent.bottom, margin = 32.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
@@ -118,7 +120,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
        // Заголовок
         MnemonicTitleWithIcon(
             modifier = Modifier.constrainAs(titleRef) { // Применяем ограничения
-                top.linkTo(parent.top, margin = 8.dp)
+                top.linkTo(parent.top, margin = 32.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }
@@ -141,7 +143,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
         DividerWithText(
             text = stringResource(id = R.string.or),
             modifier = Modifier.constrainAs(dividerRef) {
-                top.linkTo(phraseGridRef.bottom, margin = 8.dp)
+                top.linkTo(phraseGridRef.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }
@@ -152,7 +154,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
             onShared = { viewModelReg.isPhraseSent = true },
             launcher = launcher,
             modifier = Modifier.constrainAs(sharePhraseRef) {
-                top.linkTo(dividerRef.bottom, margin = 8.dp)
+                top.linkTo(dividerRef.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }
@@ -185,7 +187,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
             onClick = {
                 if (isPhraseSaved && isPhraseSent){
                     //имея эту фразу можно создать ключевую пару:
-                    val restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on" , mnemonic)
+                    val restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("Cancer killing me" , mnemonic)
                     ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                     ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
                     viewModelApp.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context)))
@@ -230,9 +232,9 @@ fun ShowSecurityWarningDialog(showDialog: Boolean, onDismiss: () -> Unit) {
 @Composable
 fun DividerWithText(text: String, modifier: Modifier) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        Divider(modifier = Modifier.weight(1f), color = colorScheme.onBackground)
-        Text(text = text, style = typography.bodyMedium, fontSize = 16.sp, modifier = Modifier.padding(horizontal = paddingColumn), color = colorScheme.onBackground)
-        Divider(modifier = Modifier.weight(1f), color = colorScheme.onBackground)
+        Divider(modifier = Modifier.weight(1f), color = colorScheme.onSurface)
+        Text(text = text, style = typography.bodyMedium, fontSize = 16.sp, modifier = Modifier.padding(horizontal = paddingColumn), color = colorScheme.onSurface)
+        Divider(modifier = Modifier.weight(1f), color = colorScheme.onSurface)
     }
 }
 
@@ -250,10 +252,19 @@ fun ShowWarningDialog(showDialog: Boolean, onDismiss: () -> Unit, onAgree: () ->
     if (showDialog) {
        AlertDialog(
             onDismissRequest = { onDismiss() },
-            title = { Text(stringResource(id = R.string.attention)) },
+            title = {
+                Text(
+                    text = stringResource(id = R.string.attention),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface
+                ) },
             text = {
                 Column {
-                    Text(stringResource(id = R.string.seed_phrase_alert_text))
+                    Text(
+                        text = stringResource(id = R.string.seed_phrase_alert_text),
+                        fontWeight = FontWeight.Light,
+                        color = colorScheme.onSurface
+                        )
                     TextField(
                         value = agreementText,
                         onValueChange = { agreementText = it },
@@ -280,7 +291,7 @@ fun ShowWarningDialog(showDialog: Boolean, onDismiss: () -> Unit, onAgree: () ->
                     Text(stringResource(id = R.string.agree))
                 }
             },
-            shape = roundedShape
+            shape = newRoundedShape
         )
     }
 }

@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.parse.jsonArray
-import com.example.walletapp.registrationScreens.AuthMethod
+import com.example.walletapp.ui.theme.roundedShape
 import java.io.IOException
 import java.io.InputStream
 import java.util.Locale
@@ -25,30 +27,21 @@ data class Element(
 
 enum class ElementType { CHECKBOX, SWITCH }
 
+
+
+
+
+
 @Composable
 fun SettingsScreen() {
 
-    /*if (appViewModel.selectedAuthMethod.value == AuthMethod.PASSWORD) {
-        // Пользователь выбрал пароль
-    } else {
-        // Пользователь выбрал пин-код
-    }*/
-
-
-
-
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
-  //  val gson = Gson()
+    //  val gson = Gson()
     val jsonStr = loadSetsFromAssets(context) //context.assets.open("settings.json").bufferedReader().use { it.readText() }
 
 
-    // Десериализация JSON строки в список элементов
-    //val type = object : TypeToken<List<Element>>() {}.type
-    //val settingsItems: List<Element> = gson.fromJson(jsonStr, type)
-
-    // Вариант решения без использования библиотеки. Даёт больше вольностей.
-val settingsItems=getListFromStr(jsonStr)
+    val settingsItems=getListFromStr(jsonStr)
 
 
     Scaffold { padding ->

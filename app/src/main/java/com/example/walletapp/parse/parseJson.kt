@@ -1,7 +1,9 @@
 package com.example.walletapp.parse
 
 import com.example.walletapp.DataBase.Entities.Networks
+import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
+import com.example.walletapp.Server.GetAPIString
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
@@ -73,7 +75,52 @@ fun parseNetworks(ss: String): List<Networks> {
     return gg
 }
 
-fun parseWallets(jsonString: String): List<Wallets> {
-    val type = object : TypeToken<List<Wallets>>() {}.type
-    return Gson().fromJson(jsonString, type)
+/**Принимает строку и пытается сделать из неё List<Wallets>, для обновления при заходе на страницу кошельков, и обработка на пустоту*/
+fun parseWallets(ss: String): List<Wallets> {
+    if (ss.isEmpty()) {
+        return emptyList() // Возвращает пустой список, если ss пусто
+    }
+    val jsonString = if (ss == "{}") "[]" else ss
+    val jarr = JSONArray(jsonString)
+    val gg = mutableListOf<Wallets>()
+    for (i in 0 until jarr.length())
+    {val j = jarr.getJSONObject(i)
+        gg.add(Wallets(j["wallet_id"].toString().toInt(),
+            j["network"].toString().toInt(),
+            j.optString("myFlags", ""),
+            j.optString("wallet_type","0").toInt(),
+            j.optString("name",""),
+            j.optString("info",""),
+            j.optString("addr",""),
+            j.optString("addr_info",""),
+            j.optString("myUNID",""),
+            j.optString("tokenShortNames","")))
+    }
+    return gg
+}
+
+
+fun parseTokens(ss: String): List<Tokens> {
+    if (ss.isEmpty()) {
+        return emptyList() // Возвращает пустой список, если ss пусто
+    }
+    val jsonString = if (ss == "{}") "[]" else ss
+    val jarr = JSONArray(jsonString)
+    val tokensList = mutableListOf<Tokens>()
+    for (i in 0 until jarr.length()) {
+        val j = jarr.getJSONObject(i)
+        tokensList.add(Tokens(
+            network_id = j["network"].toString().toInt(),
+            name = j.optString("token", ""),
+            addr = j.optString("addr", ""),
+            myFlags = j.optString("myFlags", ""),
+            decimals = j.optString("decimals", "6").toInt(),
+            info = j.optString("info", ""),
+            c = 0f, // Значения по умолчанию, поскольку JSON с сервака не содержит соответствующих данных
+            cMin = 0f,
+            cMax = 0f,
+            cBase = 0f
+        ))
+    }
+    return tokensList
 }

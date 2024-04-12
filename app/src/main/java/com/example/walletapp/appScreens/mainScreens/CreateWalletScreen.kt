@@ -344,7 +344,6 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                     ss+="\"info\":\""+walletNameText+"\"" // Имя кошелька
                     // Когда ss набит инфой, шлём его на сервер:
                     viewModel.createWallet(context,ss)
-
                 }
                     onCreateClick()
                 },
@@ -358,7 +357,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                     contentColor = colorScheme.onPrimary
                 )
             ) {
-                Text("Создать кошелек")
+                Text(text = stringResource(id = R.string.createWallet))
             }
         }
     }
@@ -431,10 +430,10 @@ fun SignerRow(
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.fillMaxWidth()
         ) {
-            OutlinedButton(
+            TextButton(
                 onClick = { removeSigner(index) },
                 enabled = signerKeys.size > 1, // Disable if this is the only signer left
-                modifier = Modifier.weight(1f),
+                //modifier = Modifier.weight(1f),
                 shape = roundedShape,
                 elevation = ButtonDefaults.buttonElevation(
                     defaultElevation = 8.dp,
@@ -449,16 +448,16 @@ fun SignerRow(
                 )
             ) {
                 Text(
-                    text = "-",
-                    modifier = Modifier.scale(1.5f)
+                    text = "Add",
+                    //modifier = Modifier.scale(1.5f)
                 )
             }
             Spacer(Modifier.width(8.dp))
-            OutlinedButton(
+            TextButton(
                 onClick = { addSigner() },
                 shape = roundedShape,
                 enabled = signerKeys.size < numberOfSigner, // Disable if the max number of signers is reached
-                modifier = Modifier.weight(1f),
+                //modifier = Modifier.weight(1f),
                 elevation = ButtonDefaults.buttonElevation(
                     defaultElevation = 8.dp,
                     pressedElevation = 16.dp,
@@ -472,8 +471,8 @@ fun SignerRow(
                 )
             ) {
                 Text(
-                    text = "+",
-                    modifier = Modifier.scale(1.5f)
+                    text = "Remove",
+                    //modifier = Modifier.scale(1.5f)
                     )
             }
         }

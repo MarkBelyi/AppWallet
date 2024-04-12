@@ -13,19 +13,19 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\santa\.android\avd\Small_Phone_for_Testing.avd" />
+                  <value value="C:\Users\santa\.android\avd\Small_Phone_for_testing_api_34.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-04-03T04:44:55.256277300Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-04-12T07:18:20.750039800Z" />
           <runningDeviceTargetsSelectedWithDialog>
             <Target>
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="SERIAL_NUMBER" />
-                  <value value="3200f8394fdca529" />
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\santa\.android\avd\Small_Phone_for_testing_api_34.avd" />
                 </Key>
               </deviceKey>
             </Target>
@@ -36,7 +36,7 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\santa\.android\avd\Small_Phone_for_Testing.avd" />
+                  <value value="C:\Users\santa\.android\avd\Small_Phone_for_testing_api_34.avd" />
                 </Key>
               </deviceKey>
             </Target>

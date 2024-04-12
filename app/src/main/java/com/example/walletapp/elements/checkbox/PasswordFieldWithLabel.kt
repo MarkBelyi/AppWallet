@@ -24,12 +24,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.R
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
@@ -50,7 +52,8 @@ fun PasswordFieldWithLabel(
     ) {
         Text(
             text = labelText,
-            style = TextStyle(color = labelColor)
+            style = TextStyle(color = labelColor),
+            fontWeight = FontWeight.Light
         )
 
         Spacer(modifier = Modifier.height(5.dp))
@@ -62,7 +65,11 @@ fun PasswordFieldWithLabel(
                     onValueChange(it)
                 }
             },
-            label = { Text(stringResource(id = R.string.password_name)) },
+            placeholder = { Text(
+                text = stringResource(id = R.string.password_name),
+                color = colorScheme.scrim,
+                fontWeight = FontWeight.Normal
+            ) },
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
@@ -73,11 +80,11 @@ fun PasswordFieldWithLabel(
                     onImeAction() // Вызываем переданную функцию, когда пользователь нажимает "Done"
                 }
             ),
-            textStyle = TextStyle(color = colorScheme.onBackground),
+            textStyle = TextStyle(color = colorScheme.onSurface),
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 56.dp, max = 72.dp),
-            shape = roundedShape,
+            shape = newRoundedShape,
             singleLine = true,
             trailingIcon = {
                 IconButton(onClick = {
@@ -88,7 +95,7 @@ fun PasswordFieldWithLabel(
                     Icon(
                         painter = image,
                         contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
-                        tint = colorScheme.onBackground
+                        tint = colorScheme.onSurfaceVariant
                     )
                 }
             },

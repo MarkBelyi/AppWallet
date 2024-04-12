@@ -1,77 +1,81 @@
 package com.example.walletapp.ui.theme
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-//Пример записи цветов
-//val Purple80 = Color(0xFFD0BCFF)
 
-//Старые цвета
+// Здесь можно менять цвета для того, чтобы менять гредиент, почему именно градиент,
+// по моему мнению так приложение перестанет быть скучным
+// но это только мое мнение
+// возможно старым пользователям это не нужно
 
-/*val Primary = Color(0xFFB24D4E)
-val OnPrimary = Color.White
-val PrimaryContainerDark = Color(0xFF805356)
-val OnPrimaryContainerDark = Color(0xFFFFDAD4) // Kept the same for contrast
-val InversePrimary = Color(0xFFfedbd0) // Kept the same for contrast
-val Secondary = Color(0xFFB89C97)
-val OnSecondary = Color.Black
-val SecondaryContainerDark = Color(0xFF8F756F)
-val OnSecondaryContainerDark = Color(0xFFD7C1B8) // Kept the same for contrast
-val TertiaryDark = Color(0xFFB0A19A)
-val OnTertiaryDark = Color.Black
-val TertiaryContainerDark = Color(0xFF857370)
-val OnTertiaryContainerDark = Color(0xFFCBB8A2) // Kept the same for contrast
-val BackgroundDark = Color(0xFF353535)
-val OnBackgroundDark = Color(0xFFE0E0E0)
-val SurfaceDark = Color(0xFF4A4A4A)
-val OnSurfaceDark = Color(0xFFE0E0E0)
-val SurfaceVariantDark = Color(0xFF6C6767)
-val OnSurfaceVariantDark = Color(0xFFC4C4C4)
-val SurfaceTintDark = Color(0xFFA31621) // Kept the original primary color
-val InverseSurfaceDark = Color.White
-val InverseOnSurfaceDark = Color(0xFF2C2C2C)
-val ErrorDark = Color(0xFFD6858B)
-val OnErrorDark = Color.Black
-val ErrorContainerDark = Color(0xFFA37075)
-val OnErrorContainerDark = Color(0xFFFCD5D7) // Kept the same for contrast
-val OutlineDark = Color(0xFFA1A1A1)
-val OutlineVariantDark = Color(0xFFBDBDBD)
-val ScrimDark = Color(0x80000000) // Kept the same for overlay
+val gradientColors = listOf(
+    Color(0xFF6A85B6), // Фиолетовый
+    Color(0xFFF67280), // Розовый
+    Color(0xFFFFC6A9), // Оранжевый
+    Color(0xFFFFE6E6)  // Белый для затухания к краям
+)
+// Задний фон (Градиентный, хехе) Меняемся в красоту а то красный мне уже глаза выжигает
+// хоть Modifier и определен по другому
+// но все же дополнительные настройки ему можно давать
+// надеюсь сложности это не вызовет
+val gradient = Modifier
+    .fillMaxSize()
+    .background(Brush.linearGradient(gradientColors))
 
-val PrimaryContainerLight = Color(0xFFF8D1D3)
-val OnPrimaryContainerLight = Color(0xFF410E0B) // Kept the same for contrast
-val SecondaryLight = Color(0xFFD1A8A3)
-val OnSecondaryLight = Color.White
-val SecondaryContainerLight = Color(0xFFE3D0CC)
-val OnSecondaryContainerLight = Color(0xFF311B06) // Kept the same for contrast
-val TertiaryLight = Color(0xFFD3BEB9)
-val OnTertiaryLight = Color.White
-val TertiaryContainerLight = Color(0xFFE8DAD6)
-val OnTertiaryContainerLight = Color(0xFF2C190B) // Kept the same for contrast
-val BackgroundLight = Color(0xFFFFF6F6)
-val OnBackgroundLight = Color(0xFF1C1C1C)
-val SurfaceLight = Color(0xFFFFFBFB)
-val OnSurfaceLight = Color(0xFF1C1C1C)
-val SurfaceVariantLight = Color(0xFFF4EDEB)
-val OnSurfaceVariantLight = Color(0xFF534340)
-val SurfaceTintLight = Color(0xFFA31621) // Kept the original primary color
-val InverseSurfaceLight = Color(0xFF2C2C2C)
-val InverseOnSurfaceLight = Color.White
-val ErrorLight = Color(0xFFF4B3B8)
-val OnErrorLight = Color.White
-val ErrorContainerLight = Color(0xFFF8D1D6)
-val OnErrorContainerLight = Color(0xFF370005) // Kept the same for contrast
-val OutlineLight = Color(0xFFD1D1D1)
-val OutlineVariantLight = Color(0xFFE0E0E0)
-val ScrimLight = Color(0x80000000) // Kept the same for overlay*/
 
+// Новые цвета
+// Если все же не выбирать градиент то тогда обычный задний фон
+val Background = Color(0xFFFDFDFD)
+val onBackground = Color(0xFF000000)
+
+// Основной цвет
+val Main = Color(0xFF4C44AA)
+// Текст на основном тексте
+val onMain = Color(0xFFFDFDFD)
+
+// Выключенная кнопка, то етсть выключенный основной цвет
+val disabledMain = Main.copy(alpha = 0.4f)
+// Текст на этом выключенном основном цвете
+val onDisabledMain = Color(0xFFFDFDFD)
+
+// Все всплывающие окна снизу и необходимые карточки, но не диалоговые окна их не надо сюда приплетать
+// Диалоговые окна должны быть синего цвета
+val Surface = Color(0xFFFDFDFD)
+// Текст на этом Surface
+val onSurface = Color(0xFF0E194D)
+//Текст который будет выделенным по сути он только один хы
+val selectedText = Color(0xFF6A6DD8)
+
+val inputText = Color(0xFFA6A6A6)
+
+val secondButton = Color(0xFFFD6E74)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Старые цвета
 // Основной цвет
 val PrimaryBase = Color(0xFFA31621)
 
 // Светлая Тема
-val PrimaryLight = PrimaryBase
-val OnPrimaryLight = Color.White
-val PrimaryContainerLight = PrimaryBase.copy(alpha = 0.4f)
-val OnPrimaryContainerLight = Color.White
+val PrimaryLight = PrimaryBase //+
+val OnPrimaryLight = Color.White //+
+val PrimaryContainerLight = PrimaryBase.copy(alpha = 0.4f) //+
+val OnPrimaryContainerLight = Color.White //+
 val SecondaryLight = PrimaryBase.copy(alpha = 0.6f)
 val OnSecondaryLight = Color.White
 val SecondaryContainerLight = PrimaryBase.copy(alpha = 0.4f)

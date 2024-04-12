@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">H2KWallet</string>
 
+    //Greetings....
+    <string name="hello">Здравствуйте!</string>
+
     //button
     <string name="create_button">Создать Ключ</string>
     <string name="add_button">Добавить Ключи</string>
@@ -60,6 +63,7 @@
     <string name="cybersecurity_title">Предупреждение о безопасности</string>
     <string name="cybersecurity_body">Не делайте скриншоты и не используйте приложения для записи экрана, пока отображается ваша мнемоническая фраза. Это может поставить под угрозу безопасность вашего кошелька.</string>
     <string name="Understand">Понятно</string>
+
 
 
     //resources OLD

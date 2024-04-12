@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -18,12 +19,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.Dimension
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
@@ -68,6 +71,7 @@ fun MnemonicCells(
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
+        contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(itemSpacing),
         horizontalArrangement = Arrangement.spacedBy(itemSpacing)
@@ -76,20 +80,34 @@ fun MnemonicCells(
             Box(
                 modifier = Modifier
                     .aspectRatio(2f)
-                    .border(1.5.dp, colorScheme.onBackground, roundedShape)
-                    .clip(roundedShape)
-                    .background(colorScheme.surface)
+                    .border(
+                        width = 0.5.dp,
+                        color = colorScheme.onSurfaceVariant,
+                        shape = newRoundedShape
+                    )
+                    .shadow(
+                        elevation = 4.dp,
+                        shape = newRoundedShape,
+                        clip = true
+                    )
+                    .background(
+                        color = colorScheme.background
+                    )
                     .padding(1.dp),
+
                 contentAlignment = Alignment.Center
+
             ) {
+
                 Text(
                     text = word,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Light,
                     textAlign = TextAlign.Center,
-                    color = colorScheme.onBackground,
+                    color = colorScheme.onSurface,
                     maxLines = 1
                 )
+
             }
         }
     }

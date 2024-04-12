@@ -5,12 +5,14 @@ import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,11 +29,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -40,6 +44,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.walletapp.R
 import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.roundedShape
 
 
@@ -111,34 +116,44 @@ fun PinLockScreen(onAction: () -> Unit, onBiometricAuthenticated: () -> Unit) {
             handlePinEntry(pinCode.value)
         }
     }
+
     Column(
+
         modifier = Modifier
             .fillMaxSize()
             .background(colorScheme.background)
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
+
     )  {
-        Spacer(modifier = Modifier.height(48.dp))
+
+        Spacer(modifier = Modifier.weight(1f))
+
+
         val textResource = if (entryState.value == EntryState.ENTERING_FIRST) {
             R.string.create_pin_code // "Create PIN-code"
         } else {
             R.string.repeat_pin_code // "Repeat PIN-code"
         }
+
+
         Text(
             text = stringResource(id = textResource),
-            color = colorScheme.onBackground,
+            color = colorScheme.onSurface,
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
             fontSize = 24.sp
         )
-        Spacer(modifier = Modifier.height(8.dp))
+
+        Spacer(modifier = Modifier.weight(0.5f))
 
         PinDots(pinNumber = pinCode.value)
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.weight(0.5f))
 
         RegNumPad(
             onNumberClick = { number ->
@@ -154,7 +169,10 @@ fun PinLockScreen(onAction: () -> Unit, onBiometricAuthenticated: () -> Unit) {
             onBIOClick = {
                 authenticateWithBiometrics(context)
             }*/
+
         )
+
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -165,7 +183,7 @@ fun PinDot(isFiled: Boolean) {
             .padding(8.dp)
             .size(16.dp)
             .background(
-                color = if (isFiled) colorScheme.primary else Color.LightGray,
+                color = if (isFiled) colorScheme.primary else colorScheme.scrim,
                 shape = CircleShape
             )
     )
@@ -212,8 +230,7 @@ fun RegNumPad(
             )
         }
         RegNumPadRow(
-            listOf
-                (
+            listOf(
                  "0", "Backspace"
             ),
             onNumberClick,
@@ -231,18 +248,23 @@ fun RegNumPadRow(
     onBackspaceClick: () -> Unit,
     buttonSize: Dp
 ) {
+
     Row(
+
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
+
     ) {
+
         Spacer(modifier = Modifier.weight(1f))
+
         numbers.forEach { number ->
             RegNumPadButton(
                 number = number,
                 iconId = when (number) {
-                    "Backspace" -> R.drawable.backspace
+                    "Backspace" -> R.drawable.backspac_200
                     else -> null
                 },
                 onNumberClick = onNumberClick,
@@ -250,6 +272,7 @@ fun RegNumPadRow(
                 buttonSize = buttonSize
             )
         }
+
     }
 }
 
@@ -266,7 +289,7 @@ fun RegNumPadButton(
         modifier = Modifier
             .width(buttonSize)
             .height(buttonSize * 10 / 15)
-            .background(color = Color.Transparent, shape = roundedShape)
+            .clip(shape = newRoundedShape)
             .padding(4.dp)
             .clickable {
                 when (number) {
@@ -278,15 +301,17 @@ fun RegNumPadButton(
         if (iconId != null) {
             Icon(
                 painter = painterResource(id = iconId),
-                tint = colorScheme.onBackground,
+                tint = colorScheme.primary,
                 contentDescription = null,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier
+                    .size(32.dp)
             )
         } else {
             Text(
                 text = number,
-                color = colorScheme.onBackground,
+                color = colorScheme.onSurface,
                 fontSize = 32.sp,
+                fontWeight = FontWeight.Light,
                 textAlign = TextAlign.Center
             )
         }
@@ -352,12 +377,14 @@ fun AppNumPadButton(
             Icon(
                 painter = painterResource(id = iconId),
                 contentDescription = null,
+                tint = colorScheme.primary,
                 modifier = Modifier.size(32.dp)
             )
         } else {
             Text(
                 text = number,
                 fontSize = 32.sp,
+                color = colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
         }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,10 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +41,7 @@ import com.example.walletapp.R
 import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 import org.web3j.crypto.Credentials
@@ -59,12 +63,13 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appVi
             text = stringResource(id = R.string.tap_seed_phrase),
             style = TextStyle(
                 fontSize = typography.titleLarge.fontSize,
-                color = colorScheme.onBackground
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onSurface
             ),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .constrainAs(textHeader) {
-                    top.linkTo(parent.top, margin = paddingColumn)
+                    top.linkTo(parent.top, margin = 32.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     width = Dimension.fillToConstraints
@@ -72,25 +77,27 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appVi
         )
 
         Write(
-            isContinueEnabled,
+            isContinueEnabled = isContinueEnabled,
             modifier = Modifier.constrainAs(writeComponent) {
-                top.linkTo(textHeader.bottom, margin = paddingColumn)
+                top.linkTo(textHeader.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             },
-            viewModel
+            viewModel = viewModel
         )
 
         Text(
             text = stringResource(id = R.string.seed_phrase_paste),
             style = TextStyle(
-                fontSize = 16.sp,
-                color = colorScheme.onBackground
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
             ),
             textAlign = TextAlign.Start,
             modifier = Modifier
+                .padding(8.dp)
                 .constrainAs(instructionText) {
-                    top.linkTo(writeComponent.bottom, margin = 10.dp)
+                    top.linkTo(writeComponent.bottom, margin = 32.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     width = Dimension.fillToConstraints
@@ -102,9 +109,10 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appVi
             onClick = { navHostController.navigate("App") },
             enabled = /*isContinueEnabled.value*/ false,
             modifier = Modifier.constrainAs(continueButton) {
-                top.linkTo(instructionText.bottom, margin = 10.dp)
+                //top.linkTo(instructionText.bottom, margin = 10.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
+                bottom.linkTo(parent.bottom, margin = 32.dp)
             }
         )
     }
@@ -119,6 +127,12 @@ val con=LocalContext.current
     fun WordInputBox(index: Int) {
         TextField(
             value = userPhrases[index],
+            textStyle = TextStyle(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Light,
+            ),
+            maxLines = 1,
+            shape = newRoundedShape,
             onValueChange = { newValue ->
                 if (newValue.contains(" ")) {
                     val words = newValue.split(" ").filterNot { it.isBlank() }
@@ -150,11 +164,25 @@ val con=LocalContext.current
             },
             modifier = modifier
                 .aspectRatio(2f)
-                .border(1.5.dp, colorScheme.onBackground, roundedShape)
-                .clip(roundedShape)
+                .border(
+                    width = 0.5.dp,
+                    color = colorScheme.onSurfaceVariant,
+                    shape = newRoundedShape
+                )
+                .shadow(
+                    elevation = 4.dp,
+                    shape = newRoundedShape,
+                    clip = true
+                )
+                .background(
+                    color = colorScheme.background
+                )
+                .padding(1.dp)
                 .background(colorScheme.background),
             singleLine = true,
             colors = TextFieldDefaults.colors(
+                focusedTextColor = colorScheme.onSurface,
+                unfocusedTextColor = colorScheme.onSurface,
                 focusedContainerColor = colorScheme.surface,
                 unfocusedContainerColor = colorScheme.surface,
                 cursorColor = colorScheme.onSurface,
@@ -170,6 +198,7 @@ val con=LocalContext.current
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {

@@ -20,8 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.example.walletapp.R
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.roundedShape
 
 
@@ -41,7 +43,8 @@ fun MnemonicTitleWithIcon(
             text = stringResource(id = R.string.seed_phrase_name),
             style = TextStyle(
                 fontSize = typography.titleLarge.fontSize,
-                color = colorScheme.onBackground
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onSurface
             ),
             textAlign = TextAlign.Center
         )
@@ -51,7 +54,7 @@ fun MnemonicTitleWithIcon(
             Icon(
                 imageVector = Icons.Outlined.Info,
                 contentDescription = "Info",
-                tint = colorScheme.primary
+                tint = colorScheme.onSurfaceVariant
             )
         }
     }
@@ -65,20 +68,27 @@ fun MnemonicTitleWithIcon(
 fun SeedPhraseDialog(onDismiss: () -> Unit){
     AlertDialog(
         onDismissRequest = { onDismiss()},
-        //title = { Text("Мнемоническая фраза") },
-        title = { Text(text = stringResource(id = R.string.seed_phrase_name))},
-        /*text = { Text("Мнемоническая фраза - это 12 слов, " +
-                "помогающие восстановить ваш секретный ключ в случае утери. " +
-                "Воспользовавшись ею, любой человек может заполучить ваш ключ, " +
-                "поэтому рекомендуется её никому не показывать и никуда не пересылать.") },*/
-        text = { Text(text = stringResource(id = R.string.help1_mnemo))},
+        title = { Text(
+            text = stringResource(id = R.string.seed_phrase_name),
+            fontWeight = FontWeight.Bold,
+            color = colorScheme.onSurface
+        ) },
+        text = { Text(
+            text = stringResource(id = R.string.help1_mnemo),
+            fontWeight = FontWeight.Light,
+            color = colorScheme.onSurface
+        )},
         confirmButton = {
             TextButton(
                 onClick = { onDismiss() }
             ) {
-                Text("OK")
+                Text(
+                    text = "OK",
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurfaceVariant
+                )
             }
         },
-        shape = roundedShape
+        shape = newRoundedShape
     )
 }

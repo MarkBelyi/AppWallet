@@ -76,17 +76,13 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                 },
                 viewModel = viewModelApp
             )
-                // создаём ключи
+               // создаём ключи
             2 -> CreateSeedPhraseScreen(
                 onNextClick = {switchToPage(3)},
                 navHostController = navHostController,
                 viewModelReg = viewModelReg,
                 viewModelApp = viewModelApp
             )
-
-            3 -> TapSeedPhraseScreen(navHostController = navHostController, viewModelReg = viewModelReg, viewModelApp = viewModelApp)
-
-            4 -> WriteSeedPhraseScreen(navHostController = navHostController, viewModel = viewModelApp)
 
             5-> PinLockScreen(onAction = {
                 if (isAddClicked) {
@@ -95,14 +91,18 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                     switchToPage(2)
                 }
             },
-               onBiometricAuthenticated = {
-                   if (isAddClicked) {
-                       switchToPage(4)
-                   } else {
-                       switchToPage(2)
-                   }
-               }
+                onBiometricAuthenticated = {
+                    if (isAddClicked) {
+                        switchToPage(4)
+                    } else {
+                        switchToPage(2)
+                    }
+                }
             )
+
+            3 -> TapSeedPhraseScreen(navHostController = navHostController, viewModelReg = viewModelReg, viewModelApp = viewModelApp)
+
+            4 -> WriteSeedPhraseScreen(navHostController = navHostController, viewModel = viewModelApp)
         }
     }
 

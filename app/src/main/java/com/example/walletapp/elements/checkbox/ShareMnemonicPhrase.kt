@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.R
@@ -37,9 +38,11 @@ fun ShareMnemonicPhrase(randomSeedPhrases: List<String>, onShared: () -> Unit, l
                 onShared()
             }
     ) {
+
         Text(
             text = stringResource(id = R.string.send_mnem),
-            style = TextStyle(fontSize = 16.sp, color = colorScheme.onBackground)
+            fontWeight = FontWeight.Light,
+            style = TextStyle(fontSize = 16.sp, color = colorScheme.onSurface)
         )
 
         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
@@ -49,5 +52,6 @@ fun ShareMnemonicPhrase(randomSeedPhrases: List<String>, onShared: () -> Unit, l
             contentDescription = "Share",
             tint = colorScheme.primary
         )
+
     }
 }

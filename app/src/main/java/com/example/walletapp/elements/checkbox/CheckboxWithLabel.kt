@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 
 @Composable
@@ -37,13 +38,13 @@ fun CheckboxWithLabel(
                 .scale(1.5f),
             colors = CheckboxDefaults.colors(
                 checkedColor = colorScheme.primary,
-                checkmarkColor = colorScheme.background,
-                uncheckedColor = colorScheme.primary
+                checkmarkColor = colorScheme.surface,
+                uncheckedColor = colorScheme.primaryContainer
             ),
         )
         ClickableTextWithLink(
             text = text,
-            link = "https://lab.oris.space/"
+            link = ""//нужно поставить сюда ссылочку на нужный документ
         )
     }
 }
@@ -57,7 +58,7 @@ fun ClickableTextWithLink(
     val annotatedString = buildAnnotatedString {
         append(text.substring(0, 18))  // Добавление текста до 18-го символа без стиля
 
-        withStyle(style = SpanStyle(color = Color.Blue)) { // Применение синего цвета начиная с 18-го символа
+        withStyle(style = SpanStyle(color = colorScheme.onSurfaceVariant)) { // Применение синего цвета начиная с 18-го символа
             append(text.substring(18))
         }
 
@@ -71,7 +72,10 @@ fun ClickableTextWithLink(
 
     ClickableText(
         text = annotatedString,
-        style = TextStyle(color = colorScheme.onBackground),
+        style = TextStyle(
+            color = colorScheme.onSurface,
+            fontWeight = FontWeight.Light
+        ),
         onClick = { offset ->
             annotatedString.getStringAnnotations("URL", offset, offset)
                 .firstOrNull()?.let { annotation ->
