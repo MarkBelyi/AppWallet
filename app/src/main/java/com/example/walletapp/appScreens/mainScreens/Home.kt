@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -52,8 +53,11 @@ import androidx.constraintlayout.compose.Dimension
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -64,15 +68,16 @@ fun Home(
     viewModel: appViewModel,
 
     onSettingsClick: () -> Unit,
-    //onQRClick: () -> Unit,
     onShareClick: () -> Unit,
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit,
-    onModalBottomSheetClick: () -> Unit,
     onMatrixClick: () -> Unit
 ) {
 
+
+
     val context  = LocalContext.current
+
     var qrScanResult by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
@@ -95,7 +100,7 @@ fun Home(
     // Правильное использование sheetState для первого BottomSheet
     if (openQRBottomSheet) {
         ModalBottomSheet(
-            shape = roundedShape,
+            shape = topRoundedShape,
             containerColor = colorScheme.surface,
             sheetState = qrBottomSheetState, // Использование qrBottomSheetState здесь
             onDismissRequest = { openQRBottomSheet = false },
@@ -144,13 +149,15 @@ fun Home(
         }
     }
 
+
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorScheme.background)
+            .background(color = colorScheme.surface)
             .padding(paddingColumn)
     ) {
-        val (gridRef) = createRefs()
+        val (gridRef, button, text) = createRefs()
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
@@ -159,7 +166,6 @@ fun Home(
                 Actions.shareMyAddr -> onShareClick()
                 Actions.signers -> onSignersClick()
                 Actions.createWallet -> onCreateWalletClick()
-                Actions.history -> onModalBottomSheetClick()
                 else -> onMatrixClick()
             }
         }, modifier = Modifier.constrainAs(gridRef) {
@@ -168,6 +174,33 @@ fun Home(
             end.linkTo(parent.end)
             width = Dimension.fillToConstraints
         })
+
+
+
+        var password by remember { mutableStateOf("") }
+        val ps = PasswordStorageHelper(context)
+
+        Button(onClick = {
+            val passwordBytes = ps.getData("MyPassword") ?: byteArrayOf()
+            password = String(passwordBytes, Charsets.UTF_8)
+        },
+        modifier = Modifier.constrainAs(button){
+            top.linkTo(gridRef.bottom, margin = 32.dp)
+        }
+        ) {
+            Text(text = "Сменить пароль")
+        }
+
+        // Текст для отображения пароля под кнопкой
+        Text(text = password,
+            modifier = Modifier.constrainAs(text){
+                top.linkTo(button.bottom, margin = 16.dp)
+            }
+        )
+
+
+
+
     }
 }
 

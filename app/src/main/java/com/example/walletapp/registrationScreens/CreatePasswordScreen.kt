@@ -228,6 +228,7 @@ fun ClickedText(
     text: String,
     onClick: () -> Unit
 ){
+
     TextButton(
         onClick = onClick,
         shape = newRoundedShape

@@ -17,22 +17,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
+
 
 @Composable
 fun Wallet(viewModel: appViewModel) {
-
     val wallets by viewModel.allWallets.observeAsState(initial = emptyList())
+    val context = LocalContext.current
     var selectedWallet by remember { mutableStateOf<Wallets?>(null) }
+
+    LaunchedEffect(wallets) {
+        viewModel.addWallets(context)
+    }
 
     if (selectedWallet == null) {
         WalletsList(wallets, onWalletClick = { wallet ->
@@ -53,7 +60,7 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit) {
     ) {
         if(wallets.isEmpty()){
             item{
-                Text(text = "У вас нет активных кошельков", color = colorScheme.onBackground)
+                Text(text = "У вас нет активных кошельков", color = colorScheme.onSurface)
             }
         }
         else{
@@ -75,14 +82,15 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
             if (!isAddressEmpty) onWalletClick(wallet)
         },
         modifier = Modifier
-            .fillMaxWidth(),
-        shape = roundedShape,
+            .fillMaxWidth()
+        ,
+        shape = newRoundedShape,
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface,
             contentColor = colorScheme.onSurface
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
+            defaultElevation = 2.dp
         )
     ) {
         Column(
@@ -101,7 +109,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                 Text("Кошелек создается", style = MaterialTheme.typography.bodySmall)
             } else {
                 // Прочая информация о кошельке
-                Text("Address: ${wallet.addr}", style = MaterialTheme.typography.bodySmall)
+                Text("Address:\n${wallet.addr}", style = MaterialTheme.typography.bodySmall)
                 Text("Token: ${wallet.tokenShortNames}", style = MaterialTheme.typography.bodySmall)
             }
             Spacer(Modifier.height(4.dp))

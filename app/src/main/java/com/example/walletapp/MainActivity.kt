@@ -8,6 +8,23 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -24,6 +41,7 @@ import com.example.walletapp.registrationScreens.CreatePasswordScreen
 import com.example.walletapp.registrationScreens.NewUserScreenColumn
 import com.example.walletapp.repository.AppRepository
 import com.example.walletapp.ui.theme.WalletAppTheme
+import kotlinx.coroutines.launch
 
 class MainApplication : Application(){
     var isInBackground=false // Применяется для понимания что приложение перешло в фоновый режим работы
@@ -45,16 +63,21 @@ class MainActivity : AppCompatActivity() {
         AppViewModelFactory((application as MainApplication).repository)
     }
 
+    private val showAuthSheet = mutableStateOf(false)
+
+
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) (application as MainApplication).isInBackground = true // Приложение перешло в фоновый режим работы
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             WalletAppTheme {
+
                 val registrationViewModel: RegistrationViewModel by viewModels()
                 val navController = rememberNavController()
                 val startDestination = if (hasVisitedApp()) "App" else "Registration"
@@ -74,9 +97,12 @@ class MainActivity : AppCompatActivity() {
                             viewModel = appViewModel)
                     }
                 }
+                
             }
         }
     }
+
+
 
     override fun onResume() {
         super.onResume()
@@ -85,11 +111,13 @@ class MainActivity : AppCompatActivity() {
             (application as MainApplication).isInBackground=false}
     }
 
+    fun requestAuth(){
+        // TODO: тут сопсна можно спросить у юзера биометрию или пароль
+    }
+
+
 }
 
-fun requestAuth(){
-    // TODO: тут сопсна можно спросить у юзера биометрию или пароль 
-}
 
 fun Context.markAsVisitedApp() {
     val sharedPrefs = getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
@@ -100,8 +128,6 @@ fun Context.hasVisitedApp(): Boolean {
     val sharedPrefs = getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
     return sharedPrefs.getBoolean("VisitedApp", false)
 }
-
-
 
 
 

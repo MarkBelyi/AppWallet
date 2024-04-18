@@ -165,8 +165,8 @@ fun PinLockScreen(onAction: () -> Unit, onBiometricAuthenticated: () -> Unit) {
                 if (pinCode.value.isNotEmpty()) {
                     pinCode.value = pinCode.value.dropLast(1)
                 }
-            }/*,
-            onBIOClick = {
+            },
+           /* onBIOClick = {
                 authenticateWithBiometrics(context)
             }*/
 

@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -30,14 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
@@ -49,10 +49,8 @@ import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
-import com.example.walletapp.ui.theme.roundedShape
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.WalletUtils
-
 
 
 @Composable
@@ -75,6 +73,36 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: Regi
 
     ) {
         val (title, tapArea, continueButton) = createRefs()
+
+        @Composable
+        fun CustomButton(
+            text: String,
+            enabled: Boolean,
+            onClick: () -> Unit
+        ) {
+            ElevatedButton(
+                onClick = onClick,
+                modifier = Modifier
+                    .constrainAs(continueButton) {
+                        bottom.linkTo(parent.bottom, margin = 32.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp, max = 64.dp)
+                    .padding(top = 5.dp, bottom = 5.dp),
+                enabled = enabled,
+                shape = newRoundedShape,
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary,
+                    disabledContainerColor = colorScheme.primaryContainer,
+                    disabledContentColor = colorScheme.onPrimaryContainer
+                )
+            ) {
+                Text(text = text)
+            }
+        }
 
         Text(
             text = stringResource(id = R.string.tap_seed_phrase),
@@ -122,12 +150,7 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: Regi
                     )
                 )
             },
-            enabled = isContinueEnabled.value,
-            modifier = Modifier.constrainAs(continueButton) {
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom, margin = 32.dp)
-            }
+            enabled = isContinueEnabled.value
         )
     }
 }

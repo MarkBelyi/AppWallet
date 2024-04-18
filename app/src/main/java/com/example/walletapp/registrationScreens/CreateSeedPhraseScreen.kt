@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -75,7 +76,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorScheme.background)
+            .background(color = colorScheme.surface)
             .padding(paddingColumn)
     ) {
         var isPhraseSent by viewModelReg::isPhraseSent
@@ -95,16 +96,16 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
             ElevatedButton(
                 onClick = onClick,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 56.dp, max = 64.dp)
-                    .padding(top = 5.dp, bottom = 5.dp)
                     .constrainAs(buttonRef) {
                         bottom.linkTo(parent.bottom, margin = 32.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    },
+                    }
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp, max = 64.dp)
+                    .padding(top = 5.dp, bottom = 5.dp),
                 enabled = enabled,
-                shape = roundedShape,
+                shape = newRoundedShape,
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = colorScheme.primary,
                     contentColor = colorScheme.onPrimary,

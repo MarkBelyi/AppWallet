@@ -3,6 +3,7 @@ package com.example.walletapp.appScreens
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,11 +17,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -34,10 +37,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,6 +58,9 @@ import com.example.walletapp.appScreens.mainScreens.Wallet
 import com.example.walletapp.appScreens.mainScreens.WalletDetailScreen
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.markAsVisitedApp
+import com.example.walletapp.ui.theme.gradient
+import com.example.walletapp.ui.theme.newRoundedShape
+import com.example.walletapp.ui.theme.topRoundedShape
 
 enum class Actions{
     send,
@@ -72,11 +80,9 @@ enum class Actions{
 fun MainPagesActivity(
     viewModel: appViewModel,
     onSettingsClick: () -> Unit,
-    //onQRClick: () -> Unit,
     onShareClick : () -> Unit,
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit,
-    onModalBottomSheetClick: () ->Unit,
     onMatrixClick:()->Unit
 ){
 
@@ -91,11 +97,9 @@ fun MainPagesActivity(
     }
 
     Scaffold(
-        containerColor = colorScheme.background,
         bottomBar = {
             AppBottomBar(bottomBarTabs, currentRoute, navController::navigate)
         }
-
     ) { padding ->
         NavHost(navController, startDestination = BottomBarTab.Home.route, Modifier.padding(padding)) {
             composable(BottomBarTab.Wallet.route) {
@@ -105,11 +109,9 @@ fun MainPagesActivity(
                 Home(
                     viewModel,
                     onSettingsClick,
-                    //onQRClick,
                     onShareClick,
                     onSignersClick,
                     onCreateWalletClick,
-                    onModalBottomSheetClick,
                     onMatrixClick
                 )
             }
@@ -156,7 +158,13 @@ fun AppBottomBar(
     navigateToRoute: (String) -> Unit
 ) {
     NavigationBar(
-        containerColor = Color.Transparent
+        containerColor = colorScheme.surface,
+        modifier = Modifier
+            .shadow(
+                elevation = 32.dp,
+                shape = topRoundedShape,
+                clip = true
+            ),
     ) {
         bottomBarTabs.forEach { screen ->
             val isSelected = currentRoute == screen.route
@@ -165,11 +173,18 @@ fun AppBottomBar(
                     Icon(
                         painter = painterResource(id = screen.icon),
                         contentDescription = screen.label,
-                        tint = if (isSelected) colorScheme.primary else Color.LightGray,
+                        tint = if (isSelected) colorScheme.primary else colorScheme.primaryContainer,
                         modifier = Modifier.scale(1.2f)
                     )
                 },
-                label = { Text(screen.label) },
+                label = { Text(
+                    text = screen.label,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = colorScheme.primary
+                    )
+                ) },
                 selected = currentRoute == screen.route,
                 alwaysShowLabel = false,
                 onClick = {
@@ -178,11 +193,8 @@ fun AppBottomBar(
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = colorScheme.primary,
-                    unselectedIconColor = colorScheme.secondary,
                     selectedTextColor = colorScheme.primary,
-                    unselectedTextColor = colorScheme.secondary,
-                    indicatorColor = colorScheme.background
+                    indicatorColor = colorScheme.surface
                 )
             )
         }
@@ -194,58 +206,6 @@ sealed class BottomBarTab(val route: String, val icon: Int, val label: String) {
     object Home : BottomBarTab("home", R.drawable.home, "Главная")
     object Subscriptions : BottomBarTab("subscriptions", R.drawable.sign, "Запросы")
 }
-
-/*@Composable
-fun BottomBarTabs_2(
-    tabs: List<BottomBarTab>,
-    selectedTab: Int,
-    onTabSelected: (BottomBarTab) -> Unit
-) {
-    CompositionLocalProvider(
-        LocalTextStyle provides LocalTextStyle.current.copy(
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-        ),
-        LocalContentColor provides Color.White
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            for (tab in tabs) {
-                val alpha by animateFloatAsState(
-                    targetValue = if (selectedTab == tabs.indexOf(tab)) 1f else .35f,
-                    label = "alpha"
-                )
-                val scale by animateFloatAsState(
-                    targetValue = if (selectedTab == tabs.indexOf(tab)) 1f else .98f,
-                    visibilityThreshold = .000001f,
-                    animationSpec = spring(
-                        stiffness = Spring.StiffnessLow,
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                    ),
-                    label = "scale"
-                )
-                Column(
-                    modifier = Modifier
-                        .scale(scale)
-                        .alpha(alpha)
-                        .fillMaxHeight()
-                        .weight(1f)
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-                                onTabSelected(tab)
-                            }
-                        },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Icon(painter = painterResource(id = tab.icon), contentDescription = "tab ${tab.title}")
-                    Text(text = tab.title)
-                }
-            }
-        }
-    }
-}*/
 
 
 

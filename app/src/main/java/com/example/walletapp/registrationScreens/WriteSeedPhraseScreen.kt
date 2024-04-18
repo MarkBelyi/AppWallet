@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -58,6 +61,36 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appVi
             .padding(paddingColumn)
     ) {
         val (textHeader, writeComponent, instructionText, continueButton) = createRefs()
+
+        @Composable
+        fun CustomButton(
+            text: String,
+            enabled: Boolean,
+            onClick: () -> Unit
+        ) {
+            ElevatedButton(
+                onClick = onClick,
+                modifier = Modifier
+                    .constrainAs(continueButton) {
+                        bottom.linkTo(parent.bottom, margin = 32.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp, max = 64.dp)
+                    .padding(top = 5.dp, bottom = 5.dp),
+                enabled = enabled,
+                shape = newRoundedShape,
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary,
+                    disabledContainerColor = colorScheme.primaryContainer,
+                    disabledContentColor = colorScheme.onPrimaryContainer
+                )
+            ) {
+                Text(text = text)
+            }
+        }
 
         Text(
             text = stringResource(id = R.string.tap_seed_phrase),
@@ -107,13 +140,7 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appVi
         CustomButton(
             text = stringResource(id = R.string.button_continue),
             onClick = { navHostController.navigate("App") },
-            enabled = /*isContinueEnabled.value*/ false,
-            modifier = Modifier.constrainAs(continueButton) {
-                //top.linkTo(instructionText.bottom, margin = 10.dp)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom, margin = 32.dp)
-            }
+            enabled = isContinueEnabled.value,
         )
     }
 }

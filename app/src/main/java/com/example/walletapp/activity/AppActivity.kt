@@ -60,11 +60,9 @@ fun AppActivity(
             0 -> MainPagesActivity(
                 viewModel = viewModel,
                 onSettingsClick = {switchToPage(7)},
-                //onQRClick = {switchToPage(1)},
                 onShareClick = {switchToPage(2)},
                 onSignersClick = {switchToPage(3)},
                 onCreateWalletClick = {switchToPage(5)},
-                onModalBottomSheetClick = {switchToPage(6)},
                 onMatrixClick= {switchToPage(6)}
             )
 

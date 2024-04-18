@@ -30,9 +30,17 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
     //Settigns
     private val _selectedAuthMethod = MutableLiveData(AuthMethod.PASSWORD)
 
+    // LiveData exposed to the UI
+    private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
+
     // метод для обновления метода аутентификации
     fun updateAuthMethod(authMethod: AuthMethod) {
         _selectedAuthMethod.value = authMethod
+    }
+
+    // Function to get the current authentication method as LiveData
+    fun getData(): LiveData<AuthMethod> {
+        return selectedAuthMethod
     }
 
     //Tokens
