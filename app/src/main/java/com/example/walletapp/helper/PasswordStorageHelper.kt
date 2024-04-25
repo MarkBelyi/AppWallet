@@ -52,13 +52,13 @@ class PasswordStorageHelper(context: Context) {
         } catch (ex: Exception) {
             Toast.makeText(context, ex.message!!, Toast.LENGTH_LONG).show()
             Toast.makeText(context, "BAD NEWS!! Crypto SDK needed.", Toast.LENGTH_LONG).show()
-          //  Log.e(tag, "PasswordStorage initialisation error:" + ex.message, ex);
+            //  Log.e(tag, "PasswordStorage initialisation error:" + ex.message, ex);
         }
 
-      /*  if (isInitialized != true && passwordStorage is PasswordStorageHelperSDK18) { // ну а шо ещё остаётся
-            passwordStorage = PasswordStorageHelperSDK16();
-            passwordStorage?.init(context);
-        }*/
+        /*  if (isInitialized != true && passwordStorage is PasswordStorageHelperSDK18) { // ну а шо ещё остаётся
+              passwordStorage = PasswordStorageHelperSDK16();
+              passwordStorage?.init(context);
+          }*/
     }
 
 
@@ -72,6 +72,20 @@ class PasswordStorageHelper(context: Context) {
 
     fun remove(key: String?) {
         passwordStorage?.remove(key ?: "")
+    }
+
+    fun getPassword(key: String): String? {
+        val encryptedPassword = getData(key)
+        return encryptedPassword?.let { String(it) }
+    }
+
+    fun savePin(pin: String) {
+        setData("MyPin", pin.toByteArray())
+    }
+
+    fun getPin(): String? {
+        val encryptedPin = getData("MyPin")
+        return encryptedPin?.let { String(it) }
     }
 
     private interface PasswordStorageInterface {

@@ -4,6 +4,25 @@
     //Greetings....
     <string name="hello">Здравствуйте!</string>
 
+    //action itmems
+    <string name="action_transfer">Перевести</string>
+    <string name="action_receive">Получить</string>
+    <string name="action_history">История</string>
+    <string name="action_create_wallet">Создать кошелек</string>
+    <string name="action_buy_crypto">Купить</string>
+    <string name="action_exchange_crypto">Обменять</string>
+    <string name="action_share_my_address">Поделиться</string>
+    <string name="action_signers">Подписанты</string>
+    <string name="action_co_signer">Соподписант</string>
+    <string name="action_support">Поддержка</string>
+    <string name="action_settings">Настройки</string>
+    <string name="action_qr">QR</string>
+    
+    //BottomBar
+    <string name="wallet_name">Кошелек</string>
+    <string name="home">Главная</string>
+    <string name="requests">Запросы</string>
+
     //button
     <string name="create_button">Создать Ключ</string>
     <string name="add_button">Добавить Ключи</string>

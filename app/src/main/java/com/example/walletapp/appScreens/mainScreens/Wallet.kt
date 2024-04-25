@@ -1,5 +1,6 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,8 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.newRoundedShape
-
 
 @Composable
 fun Wallet(viewModel: appViewModel) {
@@ -82,16 +81,15 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
             if (!isAddressEmpty) onWalletClick(wallet)
         },
         modifier = Modifier
-            .fillMaxWidth()
-        ,
-        shape = newRoundedShape,
-        colors = CardDefaults.cardColors(
+            //.background(brush = gradientCell, shape = roundedShape, alpha = 0.2f)
+            .fillMaxWidth(),
+        /*colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface,
             contentColor = colorScheme.onSurface
-        ),
-        elevation = CardDefaults.cardElevation(
+        ),*/
+        /*elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
-        )
+        )*/
     ) {
         Column(
             modifier = Modifier

@@ -6,6 +6,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,7 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.R
 import com.example.walletapp.elements.checkbox.CheckboxWithLabel
-import com.example.walletapp.ui.theme.gradient
+import com.example.walletapp.ui.theme.gradientDarkTheme
+import com.example.walletapp.ui.theme.gradientLightTheme
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
@@ -55,19 +56,22 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
         isVisible = true
     }
 
-
-
     var termsAccepted by remember { mutableStateOf(false) }
+
+    val back = if (isSystemInDarkTheme()) {
+        gradientDarkTheme// Темная версия заднего фона
+    } else {
+        gradientLightTheme // Светлая версия логотипа
+    }
 
     Column(
 
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = gradient
+        modifier = back
 
     ) {
 
         Spacer(modifier = Modifier.weight(0.3f))
-
 
         // Это будет логотипом
         Box(
@@ -79,11 +83,15 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
                 .aspectRatio(1f)
 
         ) {
+            val logoRes = if (isSystemInDarkTheme()) {
+                R.drawable.newlogodark
+            } else {
+                R.drawable.newlogo
+            }
 
             // Logo
-            // Потом сюда свое лого поставить нужно, у меня мало времени
             Image(
-                painter = painterResource(id = R.drawable.newlogo),
+                painter = painterResource(id = logoRes),
                 contentDescription = "Logo",
                 modifier = Modifier
                     .fillMaxSize()
@@ -99,20 +107,15 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
         AnimatedVisibility(
             visible = isVisible,
             enter = slideInVertically(
-                // Откуда начинается анимация
                 initialOffsetY = { fullHeight -> fullHeight / 2 },
-                // Более плавная анимация с помощью tween
                 animationSpec = spring()
 
             ),
             exit = slideOutVertically(
-                // Куда заканчивается анимация
                 targetOffsetY = { fullHeight -> fullHeight / 2 },
-                // Более плавная анимация с помощью tween
                 animationSpec = spring()
             )
         ) {
-            // Нижняя белая панель, самым оптимизированный способом
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -193,12 +196,7 @@ fun CustomButton(textResource: Int, onClick: () -> Unit, enabled: Boolean) {
         enabled = enabled,
         modifier = Modifier
             .fillMaxWidth(0.75f)
-            .heightIn(min = 48.dp, max = 64.dp)
-            .shadow(
-                elevation = 16.dp,
-                shape = newRoundedShape,
-                clip = true
-            ),
+            .heightIn(min = 48.dp, max = 64.dp),
         shape = newRoundedShape,
         colors = ButtonDefaults.elevatedButtonColors(
             containerColor = colorScheme.primary,
@@ -206,7 +204,6 @@ fun CustomButton(textResource: Int, onClick: () -> Unit, enabled: Boolean) {
             disabledContainerColor = colorScheme.primaryContainer,
             disabledContentColor = colorScheme.onPrimaryContainer
         )
-
     ) {
 
         Text(

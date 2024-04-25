@@ -148,7 +148,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit, v
             text = stringResource(id = R.string.using_pin_code),
             onClick = {
                 onPinCodeClick()
-                viewModel.updateAuthMethod(AuthMethod.PINCODE)
+                viewModel.updateAuthMethod(AuthMethod.PINCODE, context = context)
             }
 
         )
@@ -159,7 +159,7 @@ fun CreatePasswordScreen(onNextAction: () -> Unit, onPinCodeClick: () -> Unit, v
             text = stringResource(id = R.string.button_continue),
             enabled = isPasswordValid,
             onClick = {
-                viewModel.updateAuthMethod(AuthMethod.PASSWORD)
+                viewModel.updateAuthMethod(AuthMethod.PASSWORD, context = context)
                 if (isPasswordValid(passwordValue)) {
                     Toast.makeText(context, R.string.password_saved, Toast.LENGTH_SHORT).show()
                     ps.setData("MyPassword", passwordValue.toByteArray())

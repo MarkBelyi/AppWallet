@@ -1,15 +1,53 @@
 [
   {
-    "name": "Электронное Одобрение",
-    "description": "Использовать приложение только для подписания запросов",
-    "type": "SWITCH",
-    "prefsKey": "electronic_approval",
-    "explanation": "В этом режиме приложение примет упрощённый вид, достаточный лишь для подписания запросов от других пользователей. Операции с криптовалютами будут недоступны."
+    "header": "Дополнительные настройки",
+    "items": [
+      {
+        "name": "Электронное Одобрение",
+        "description": "Использовать приложение только для подписания запросов",
+        "type": "SWITCH",
+        "prefsKey": "electronic_approval"
+      },
+      {
+        "name": "Постоянная Авторизация",
+        "description": "Требовать авторизацию при каждом обращении к приложению",
+        "type": "CHECKBOX",
+        "prefsKey": "continuous_authorization"
+      },
+      {
+        "name": "Показывать тестовые сети",
+        "description": "BitcoinTest, TronTest, EthereumTest...",
+        "type": "CHECKBOX",
+        "prefsKey": "show_test_networks"
+      }
+    ]
   },
   {
-    "name": "Постоянная Авторизация",
-    "description": "Требовать авторизацию при каждом обращении к приложению",
-    "prefsKey": "continuous_authorization"
+    "header": "Ключи",
+    "items": [
+      {
+        "name": "Импортировать секретный ключ",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "import_secret_key"
+      },
+      {
+        "name": "Экспортировать секретный ключ",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "export_secret_key"
+      }
+    ]
+  },
+  {
+    "header": "Пароль",
+    "items": [
+      {
+        "name": "Сменить пароль",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "change_password"
+      }
+    ]
   }
-
 ]

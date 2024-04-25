@@ -31,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.walletapp.DataBase.DataBase
+import com.example.walletapp.Settings.AuthModalBottomSheet
 import com.example.walletapp.activity.AppActivity
 import com.example.walletapp.activity.RegistrationActivity
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
@@ -65,13 +66,6 @@ class MainActivity : AppCompatActivity() {
 
     private val showAuthSheet = mutableStateOf(false)
 
-
-    override fun onTrimMemory(level: Int) {
-        super.onTrimMemory(level)
-        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) (application as MainApplication).isInBackground = true // Приложение перешло в фоновый режим работы
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -97,8 +91,13 @@ class MainActivity : AppCompatActivity() {
                             viewModel = appViewModel)
                     }
                 }
-                
+
+                // Включаем AuthModalBottomSheet в основной тематический контент
+                if (showAuthSheet.value) {
+                    AuthModalBottomSheet(showAuthSheet, onAuthenticated = { showAuthSheet.value = false }, viewModel = appViewModel)
+                }
             }
+            requestAuth()
         }
     }
 
@@ -111,8 +110,37 @@ class MainActivity : AppCompatActivity() {
             (application as MainApplication).isInBackground=false}
     }
 
-    fun requestAuth(){
-        // TODO: тут сопсна можно спросить у юзера биометрию или пароль
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+            (application as MainApplication).isInBackground = true
+        }
+    }
+
+
+    //Пример использования настройки
+    fun Context.setContinuousAuthorizationEnabled(enabled: Boolean) {
+        val sharedPrefs = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+        with(sharedPrefs.edit()) {
+            putBoolean("continuous_authorization", enabled)
+            apply()
+        }
+    }
+
+    private fun requestAuth() {
+        val sharedPreferences = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+        val requireContinuousAuth = sharedPreferences.getBoolean("continuous_authorization", false)
+        if (requireContinuousAuth) {
+            showAuthSheet.value = true
+        }
+    }
+
+
+
+    // Функция для определения, требуется ли повторная аутентификация
+    private fun someConditionForReAuthentication(): Boolean {
+        // Пример условия, вы можете определить свои собственные правила
+        return true
     }
 
 

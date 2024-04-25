@@ -6,11 +6,13 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +24,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,10 +43,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -53,14 +58,11 @@ import androidx.constraintlayout.compose.Dimension
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.helper.PasswordStorageHelper
-import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,36 +75,27 @@ fun Home(
     onCreateWalletClick: () -> Unit,
     onMatrixClick: () -> Unit
 ) {
-
-
-
     val context  = LocalContext.current
 
     var qrScanResult by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
     val preventSecondBottomSheetReopening by remember { mutableStateOf(false) }
-    var openQRBottomSheet by remember { mutableStateOf(false) } // QR
-    var openSecondBottomSheet by remember { mutableStateOf(false) } // Выбор после QR
-    val qrBottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
-    val secondBottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    var openQRBottomSheet by remember { mutableStateOf(false) }
+    var openSecondBottomSheet by remember { mutableStateOf(false) }
+    val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val secondBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(openSecondBottomSheet && !preventSecondBottomSheetReopening) {
         if (openSecondBottomSheet) {
             secondBottomSheetState.show()
         }
     }
-
-    // Правильное использование sheetState для первого BottomSheet
     if (openQRBottomSheet) {
         ModalBottomSheet(
             shape = topRoundedShape,
             containerColor = colorScheme.surface,
-            sheetState = qrBottomSheetState, // Использование qrBottomSheetState здесь
+            sheetState = qrBottomSheetState,
             onDismissRequest = { openQRBottomSheet = false },
             dragHandle = {
                 Column(
@@ -121,10 +114,9 @@ fun Home(
             )
         }
     }
-
     if (openSecondBottomSheet) {
         ModalBottomSheet(
-            shape = roundedShape,
+            shape = topRoundedShape,
             containerColor = colorScheme.surface,
             sheetState = secondBottomSheetState,
             onDismissRequest = { openSecondBottomSheet = false }
@@ -154,10 +146,10 @@ fun Home(
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorScheme.surface)
+            .background(color = colorScheme.inverseSurface)
             .padding(paddingColumn)
     ) {
-        val (gridRef, button, text) = createRefs()
+        val (gridRef) = createRefs()
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
@@ -172,54 +164,29 @@ fun Home(
             top.linkTo(parent.top)
             start.linkTo(parent.start)
             end.linkTo(parent.end)
+            bottom.linkTo(parent.bottom)
             width = Dimension.fillToConstraints
         })
-
-
-
-        var password by remember { mutableStateOf("") }
-        val ps = PasswordStorageHelper(context)
-
-        Button(onClick = {
-            val passwordBytes = ps.getData("MyPassword") ?: byteArrayOf()
-            password = String(passwordBytes, Charsets.UTF_8)
-        },
-        modifier = Modifier.constrainAs(button){
-            top.linkTo(gridRef.bottom, margin = 32.dp)
-        }
-        ) {
-            Text(text = "Сменить пароль")
-        }
-
-        // Текст для отображения пароля под кнопкой
-        Text(text = password,
-            modifier = Modifier.constrainAs(text){
-                top.linkTo(button.bottom, margin = 16.dp)
-            }
-        )
-
-
-
-
     }
 }
 
 
 @Composable
 fun ActionGrid(
-    actionItems: List<Triple<String, Int, Actions>>,
+    actionItems: List<Triple<Int, Int, Actions>>,
     onItemClick: (Actions) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val columns = 4
+    val columns = 3
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
-        modifier = modifier.background(color = Color.White, shape = roundedShape),
+        modifier = modifier
+            .background(color = colorScheme.surface, shape = roundedShape),
     ) {
         items(actionItems) { actionItem ->
             ActionCell(
-                text = actionItem.first,
+                text = stringResource(actionItem.first),
                 imageVector = actionItem.second,
                 onClick = { onItemClick(actionItem.third) },
             )
@@ -239,10 +206,11 @@ fun ActionCell(
     Card(
         onClick = onClick,
         modifier = Modifier
-            .aspectRatio(1f),
+            .aspectRatio(1.4f),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
+            containerColor = colorScheme.surface
         ),
+        shape = roundedShape,
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         interactionSource = interactionSource
     ) {
@@ -250,27 +218,37 @@ fun ActionCell(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 8.dp)
-        ) {
-            Box(modifier = Modifier.padding(8.dp)){
+                .fillMaxSize() // Заполняет весь доступный размер
+                .aspectRatio(1f)
+        )  {
+            Box(
+                contentAlignment = Alignment.Center
+            ){
                 Icon(
                     painter = painterResource(id = imageVector),
                     contentDescription = text,
-                    modifier = Modifier.scale(1.2f),
+                    modifier = Modifier
+                        .scale(1.4f),
                     tint = colorScheme.primary
-                ) }
+                )
+            }
             Spacer(Modifier.height(8.dp))
-            Box{
+            Box(
+                contentAlignment = Alignment.Center
+            ){
                 // basicMarquee создаёт автопрокрутку!
                 Text(
                     text = text,
-                    modifier = Modifier.basicMarquee(
+                    maxLines = 2,
+                    /*modifier = Modifier.basicMarquee(
                         iterations = Int.MAX_VALUE,
                         animationMode = MarqueeAnimationMode.Immediately,
-                        delayMillis = 1000),
-                    fontSize = 12.sp,
-                    color = colorScheme.onSurface
+                        delayMillis = 1000),*/
+                    style = TextStyle(
+                        color = colorScheme.onSurface,
+                        fontWeight = FontWeight.Light,
+                        fontSize = 12.sp
+                        )
                     )
             }
         }
@@ -279,10 +257,10 @@ fun ActionCell(
 
 @Composable
 fun BottomSheetContent(
-    onQRScanned: (String) -> Unit, // Добавьте этот коллбек
+    onQRScanned: (String) -> Unit,
 ) {
     QrScreen(onScanResult = { result ->
-        onQRScanned(result) // Вызовите коллбек с результатом сканирования
+        onQRScanned(result)
     })
 }
 

@@ -1,16 +1,53 @@
 [
   {
-    "name": "Electronic approval",
-    "description": "Use the application solely for approving requests.",
-    "type": "SWITCH",
-    "prefsKey": "electronic_approval",
-    "explanation": "In this mode, the application will take on a simplified appearance, sufficient only for approving requests from other users. Cryptocurrency operations will be unavailable."
+    "header": "Additional Settings",
+    "items": [
+      {
+        "name": "Electronic Approval",
+        "description": "Use the app only for signing requests",
+        "type": "SWITCH",
+        "prefsKey": "electronic_approval"
+      },
+      {
+        "name": "Continuous Authorization",
+        "description": "Require authorization at each access to the application",
+        "type": "CHECKBOX",
+        "prefsKey": "continuous_authorization"
+      },
+      {
+        "name": "Show Test Networks",
+        "description": "BitcoinTest, TronTest, EthereumTest...",
+        "type": "CHECKBOX",
+        "prefsKey": "show_test_networks"
+      }
+    ]
   },
   {
-    "name": "Continuous authorization",
-    "description": "Require authorization for every access to the application.",
-    "type": "CHECKBOX",
-    "prefsKey": "continuous_authorization"
+    "header": "Keys",
+    "items": [
+      {
+        "name": "Import Secret Key",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "import_secret_key"
+      },
+      {
+        "name": "Export Secret Key",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "export_secret_key"
+      }
+    ]
+  },
+  {
+    "header": "Password",
+    "items": [
+      {
+        "name": "Change Password",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "change_password"
+      }
+    ]
   }
-
 ]

@@ -37,9 +37,9 @@ fun CheckboxWithLabel(
             modifier = Modifier
                 .scale(1.5f),
             colors = CheckboxDefaults.colors(
-                checkedColor = colorScheme.primary,
-                checkmarkColor = colorScheme.surface,
-                uncheckedColor = colorScheme.primaryContainer
+                checkedColor = colorScheme.surface,
+                checkmarkColor = colorScheme.primary,
+                uncheckedColor = colorScheme.primary
             ),
         )
         ClickableTextWithLink(

@@ -27,16 +27,20 @@ import org.json.JSONObject
 
 class appViewModel(private val repository: AppRepository) : ViewModel() {
 
-    //Settigns
-    private val _selectedAuthMethod = MutableLiveData(AuthMethod.PASSWORD)
-
+    private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     // LiveData exposed to the UI
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
 
-    // метод для обновления метода аутентификации
-    fun updateAuthMethod(authMethod: AuthMethod) {
+    fun updateAuthMethod(authMethod: AuthMethod, context: Context) {
+        val prefs = context.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE)
+        prefs.edit().putString("AuthMethod", authMethod.name).apply()
         _selectedAuthMethod.value = authMethod
     }
+
+    // Получение текущего метода аутентификации из SharedPreferences
+    fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
+
+    // метод для обновления метода аутентификации
 
     // Function to get the current authentication method as LiveData
     fun getData(): LiveData<AuthMethod> {
