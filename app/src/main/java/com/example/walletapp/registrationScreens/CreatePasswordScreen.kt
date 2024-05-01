@@ -2,7 +2,6 @@ package com.example.walletapp.registrationScreens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -34,10 +32,8 @@ import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.elements.checkbox.PasswordFieldWithLabel
 import com.example.walletapp.helper.PasswordStorageHelper
-import com.example.walletapp.ui.theme.gradientColors
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
-import com.example.walletapp.ui.theme.roundedShape
 
 enum class AuthMethod {
     PASSWORD,
@@ -201,12 +197,7 @@ fun CustomButton(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp, max = 64.dp)
-            .padding(top = 5.dp, bottom = 5.dp)
-            .shadow(
-                elevation = 16.dp,
-                shape = newRoundedShape,
-                clip = true
-            ),
+            .padding(top = 5.dp, bottom = 5.dp),
         enabled = enabled,
         shape = newRoundedShape,
         colors = ButtonDefaults.elevatedButtonColors(

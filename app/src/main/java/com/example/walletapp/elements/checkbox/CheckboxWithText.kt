@@ -36,7 +36,7 @@ fun CheckboxWithText(
             modifier = Modifier
                 .scale(1.2f),
             colors = CheckboxDefaults.colors(
-                checkedColor = colorScheme.background,
+                checkedColor = colorScheme.surface,
                 checkmarkColor = colorScheme.primary,
                 uncheckedColor = colorScheme.primary
             ),

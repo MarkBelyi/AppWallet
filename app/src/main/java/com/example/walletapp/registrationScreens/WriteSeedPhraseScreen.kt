@@ -26,7 +26,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -46,7 +45,6 @@ import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
-import com.example.walletapp.ui.theme.roundedShape
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.MnemonicUtils
 import org.web3j.crypto.WalletUtils
@@ -57,7 +55,7 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appVi
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorScheme.background)
+            .background(color = colorScheme.surface)
             .padding(paddingColumn)
     ) {
         val (textHeader, writeComponent, instructionText, continueButton) = createRefs()
@@ -148,8 +146,7 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appVi
 @Composable
 fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifier, viewModel: appViewModel) {
     val userPhrases = remember { mutableStateListOf(*Array(12) { "" }) }
-    val context = LocalContext.current
-val con=LocalContext.current
+    val con=LocalContext.current
     @Composable
     fun WordInputBox(index: Int) {
         TextField(
@@ -183,7 +180,7 @@ val con=LocalContext.current
                         val ps = PasswordStorageHelper(con)
                         ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                         ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
-                        viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context)))
+                        viewModel.insertSigner(Signer(name = con.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(con)))
                         // всё хорошо, активируем кнопку шо мол можно идти дальше
                         isContinueEnabled.value = true
                     }

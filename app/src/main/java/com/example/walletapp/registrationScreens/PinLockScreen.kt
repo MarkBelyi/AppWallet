@@ -2,17 +2,14 @@ package com.example.walletapp.registrationScreens
 
 import android.content.Context
 import android.widget.Toast
-import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -43,10 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.walletapp.R
-import com.example.walletapp.R.string.hello
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.newRoundedShape
-import com.example.walletapp.ui.theme.roundedShape
 
 
 enum class EntryState {
@@ -92,38 +86,6 @@ fun PinLockScreen(onAction: () -> Unit, onBiometricAuthenticated: () -> Unit) {
         }
     }
 
-    fun authenticateWithBiometrics(context: Context) {
-        val biometricPrompt = BiometricPrompt(
-            context as FragmentActivity,
-            ContextCompat.getMainExecutor(context),
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    Toast.makeText(context, "Authentication error: $errString", Toast.LENGTH_SHORT)
-                        .show()
-                }
-
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-                    Toast.makeText(context, "Authentication succeeded!", Toast.LENGTH_SHORT).show()
-                    onBiometricAuthenticated()
-                }
-
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
-                    Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show()
-                }
-            })
-
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Biometric login for My App")
-            .setSubtitle("Log in using your biometric credential")
-            .setNegativeButtonText("Use account password")
-            .build()
-
-        biometricPrompt.authenticate(promptInfo)
-    }
-
     LaunchedEffect(pinCode.value) {
         if (pinCode.value.length == 4) {
             handlePinEntry(pinCode.value)
@@ -134,7 +96,7 @@ fun PinLockScreen(onAction: () -> Unit, onBiometricAuthenticated: () -> Unit) {
 
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.background)
+            .background(colorScheme.surface)
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -178,11 +140,7 @@ fun PinLockScreen(onAction: () -> Unit, onBiometricAuthenticated: () -> Unit) {
                 if (pinCode.value.isNotEmpty()) {
                     pinCode.value = pinCode.value.dropLast(1)
                 }
-            },
-            /* onBIOClick = {
-                 authenticateWithBiometrics(context)
-             }*/
-
+            }
         )
 
         Spacer(modifier = Modifier.weight(1f))

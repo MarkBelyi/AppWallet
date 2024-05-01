@@ -211,7 +211,7 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
                     clip = true
                 )
                 .background(
-                    color = colorScheme.background
+                    color = colorScheme.surface
                 )
                 .padding(1.dp)
                 .clickable(onClick = onClick),
@@ -248,7 +248,7 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
                     clip = true
                 )
                 .background(
-                    color = colorScheme.background,
+                    color = colorScheme.surface,
                     shape = newRoundedShape
                 )
                 .clip(newRoundedShape)

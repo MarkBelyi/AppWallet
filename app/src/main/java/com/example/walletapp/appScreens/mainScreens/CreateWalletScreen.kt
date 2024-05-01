@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
@@ -32,7 +29,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -357,7 +353,9 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                     contentColor = colorScheme.onPrimary
                 )
             ) {
-                Text(text = stringResource(id = R.string.createWallet))
+                Text(
+                    text = stringResource(id = R.string.createWallet)
+                )
             }
         }
     }
@@ -432,8 +430,7 @@ fun SignerRow(
         ) {
             TextButton(
                 onClick = { removeSigner(index) },
-                enabled = signerKeys.size > 1, // Disable if this is the only signer left
-                //modifier = Modifier.weight(1f),
+                enabled = signerKeys.size > 1,
                 shape = roundedShape,
                 elevation = ButtonDefaults.buttonElevation(
                     defaultElevation = 8.dp,
@@ -448,16 +445,16 @@ fun SignerRow(
                 )
             ) {
                 Text(
-                    text = "Add",
-                    //modifier = Modifier.scale(1.5f)
+                    text = "remove",
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.Normal
                 )
             }
             Spacer(Modifier.width(8.dp))
             TextButton(
                 onClick = { addSigner() },
                 shape = roundedShape,
-                enabled = signerKeys.size < numberOfSigner, // Disable if the max number of signers is reached
-                //modifier = Modifier.weight(1f),
+                enabled = signerKeys.size < numberOfSigner,
                 elevation = ButtonDefaults.buttonElevation(
                     defaultElevation = 8.dp,
                     pressedElevation = 16.dp,
@@ -471,9 +468,10 @@ fun SignerRow(
                 )
             ) {
                 Text(
-                    text = "Remove",
-                    //modifier = Modifier.scale(1.5f)
-                    )
+                    text = "add",
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.Normal
+                )
             }
         }
     }

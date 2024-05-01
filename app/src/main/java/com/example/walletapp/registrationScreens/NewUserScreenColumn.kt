@@ -8,7 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -67,14 +65,15 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
     Column(
 
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = back
+        modifier = //back
+        Modifier.fillMaxSize().background(color = colorScheme.background)
 
     ) {
 
         Spacer(modifier = Modifier.weight(0.3f))
 
         // Это будет логотипом
-        Box(
+        /*Box(
 
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -83,23 +82,26 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit){
                 .aspectRatio(1f)
 
         ) {
-            val logoRes = if (isSystemInDarkTheme()) {
-                R.drawable.newlogodark
-            } else {
-                R.drawable.newlogo
-            }
 
-            // Logo
-            Image(
-                painter = painterResource(id = logoRes),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .scale(1.5f)
-                    .aspectRatio(1f)
-            )
 
+        }*/
+
+        val logoRes = if (isSystemInDarkTheme()) {
+            R.drawable.safina_rgb_white
+        } else {
+            R.drawable.safina_rgb_dark
         }
+
+        // Logo
+        Image(
+            painter = painterResource(id = logoRes),
+            contentDescription = "Logo",
+            modifier = Modifier
+                //.fillMaxSize()
+                .fillMaxWidth(fraction = 0.5f)
+                .scale(1.5f)
+                .aspectRatio(1f)
+        )
 
         Spacer(modifier = Modifier.weight(0.2f))
 
@@ -208,7 +210,7 @@ fun CustomButton(textResource: Int, onClick: () -> Unit, enabled: Boolean) {
 
         Text(
             text = stringResource(textResource),
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
 
     }

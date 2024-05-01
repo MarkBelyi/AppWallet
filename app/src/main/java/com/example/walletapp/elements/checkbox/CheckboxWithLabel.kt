@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -38,8 +37,8 @@ fun CheckboxWithLabel(
                 .scale(1.5f),
             colors = CheckboxDefaults.colors(
                 checkedColor = colorScheme.surface,
-                checkmarkColor = colorScheme.primary,
-                uncheckedColor = colorScheme.primary
+                uncheckedColor = colorScheme.primaryContainer,
+                checkmarkColor = colorScheme.primary
             ),
         )
         ClickableTextWithLink(
@@ -74,7 +73,7 @@ fun ClickableTextWithLink(
         text = annotatedString,
         style = TextStyle(
             color = colorScheme.onSurface,
-            fontWeight = FontWeight.Light
+            fontWeight = FontWeight.Light,
         ),
         onClick = { offset ->
             annotatedString.getStringAnnotations("URL", offset, offset)
