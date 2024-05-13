@@ -30,7 +30,8 @@ class MainApplication : Application(){
             database.networksDao(),
             database.walletsDao(),
             database.tokensDao(),
-            database.balansDAO()
+            database.balansDAO(),
+            database.TxDAO()
         )
     }
 }
@@ -64,7 +65,8 @@ class MainActivity : AppCompatActivity() {
                     composable("App") {
                         AppActivity(
                             activity = this@MainActivity,
-                            viewModel = appViewModel)
+                            viewModel = appViewModel
+                        )
                     }
                 }
 

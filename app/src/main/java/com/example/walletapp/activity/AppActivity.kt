@@ -17,6 +17,7 @@ import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.MatrixRain
+import com.example.walletapp.appScreens.mainScreens.SendingScreens
 import com.example.walletapp.appScreens.mainScreens.SettingsScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
@@ -63,7 +64,14 @@ fun AppActivity(
                 onShareClick = {switchToPage(2)},
                 onSignersClick = {switchToPage(3)},
                 onCreateWalletClick = {switchToPage(5)},
-                onMatrixClick= {switchToPage(6)}
+                onMatrixClick= {switchToPage(6)},
+                onSend = {switchToPage(1)}
+            )
+
+            1 -> SendingScreens(
+                viewModel = viewModel,
+                //onCreateClick = {switchToPage(5)},
+                onBackClick = {switchToPage(0)}
             )
 
             2 -> ShareAddress(

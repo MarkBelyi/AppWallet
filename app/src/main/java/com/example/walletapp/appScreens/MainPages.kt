@@ -53,7 +53,8 @@ fun MainPagesActivity(
     onShareClick : () -> Unit,
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit,
-    onMatrixClick:()->Unit
+    onMatrixClick:() -> Unit,
+    onSend: () -> Unit
 ){
 
     val navController = rememberNavController()
@@ -67,13 +68,14 @@ fun MainPagesActivity(
     }
 
     Scaffold(
+        containerColor = colorScheme.surface,
         bottomBar = {
             AppBottomBar(bottomBarTabs, currentRoute, navController::navigate)
         }
     ) { padding ->
         NavHost(navController, startDestination = BottomBarTab.Home.route, Modifier.padding(padding)) {
             composable(BottomBarTab.Wallet.route) {
-                Wallet(viewModel)
+                Wallet(viewModel, onCreateWalletClick)
             }
             composable(BottomBarTab.Home.route) {
                 Home(
@@ -82,7 +84,8 @@ fun MainPagesActivity(
                     onShareClick,
                     onSignersClick,
                     onCreateWalletClick,
-                    onMatrixClick
+                    onMatrixClick,
+                    onSend
                 )
             }
             composable(BottomBarTab.Subscriptions.route) {

@@ -1,10 +1,12 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,14 +26,20 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.DataBase.Entities.Wallets
+import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.registrationScreens.ClickedText
 
 @Composable
-fun Wallet(viewModel: appViewModel) {
+fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
     val wallets by viewModel.allWallets.observeAsState(initial = emptyList())
     val context = LocalContext.current
     var selectedWallet by remember { mutableStateOf<Wallets?>(null) }
@@ -43,23 +51,36 @@ fun Wallet(viewModel: appViewModel) {
     if (selectedWallet == null) {
         WalletsList(wallets, onWalletClick = { wallet ->
             selectedWallet = wallet
-        })
+        }, onCreateClick = onCreateClick
+            )
     } else {
         WalletDetailScreen(wallet = selectedWallet!!) {
             selectedWallet = null
         }
+
     }
 }
 
 @Composable
-fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit) {
+fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCreateClick: () -> Unit) {
     LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorScheme.inverseSurface),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if(wallets.isEmpty()){
-            item{
-                Text(text = "У вас нет активных кошельков", color = colorScheme.onSurface)
+            items(1){
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Text(text = stringResource(id = R.string.no_wallets), color = colorScheme.onSurface, modifier = Modifier.fillMaxSize(), textAlign = TextAlign.Center)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    ClickedText(text = stringResource(id = R.string.createWallet), onClick = onCreateClick)
+                }
             }
         }
         else{
@@ -76,44 +97,40 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
     val isAddressEmpty = wallet.addr.isEmpty()
 
     Card(
+        border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surface
+        ),
         onClick = {
             // Если адрес не пуст, обрабатываем нажатие
             if (!isAddressEmpty) onWalletClick(wallet)
         },
         modifier = Modifier
-            //.background(brush = gradientCell, shape = roundedShape, alpha = 0.2f)
-            .fillMaxWidth(),
-        /*colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surface,
-            contentColor = colorScheme.onSurface
-        ),*/
-        /*elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )*/
+            .fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
         ) {
             Text(
-                text = "Wallet Name: ${wallet.info}",
+                text = stringResource(id = R.string.name_of_wallet) + wallet.info,
                 style = MaterialTheme.typography.titleMedium,
-                color = colorScheme.onSurfaceVariant
+                color = colorScheme.onSurface
             )
             Spacer(Modifier.height(4.dp))
 
             // Отображаем различный текст в зависимости от того, пустой ли адрес кошелька
             if (isAddressEmpty) {
-                Text("Кошелек создается", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.pending_wallet), fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface, style = MaterialTheme.typography.bodyMedium)
             } else {
                 // Прочая информация о кошельке
-                Text("Address:\n${wallet.addr}", style = MaterialTheme.typography.bodySmall)
-                Text("Token: ${wallet.tokenShortNames}", style = MaterialTheme.typography.bodySmall)
+                Text(text = stringResource(id = R.string.Address)+ ": \n${wallet.addr}", fontWeight = FontWeight.Light, color = colorScheme.onSurface, style = MaterialTheme.typography.bodySmall)
+                Text(text = stringResource(id = R.string.token) + wallet.tokenShortNames, fontWeight = FontWeight.Light, color = colorScheme.onSurface, style = MaterialTheme.typography.bodySmall)
             }
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(8.dp))
             Divider(color = colorScheme.onSurface.copy(alpha = 0.1f))
             Spacer(Modifier.height(4.dp))
-            Text("Min Signers Count: ${wallet.minSignersCount}", style = MaterialTheme.typography.bodySmall)
+            Text(text = stringResource(id = R.string.min_signers_count) + "${wallet.minSignersCount}", fontWeight = FontWeight.Light, color = colorScheme.onSurface, style = MaterialTheme.typography.bodySmall)
         }
     }
 }

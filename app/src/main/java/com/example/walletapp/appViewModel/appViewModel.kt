@@ -1,6 +1,7 @@
 package com.example.walletapp.appViewModel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,9 +12,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
+import com.example.walletapp.DataBase.Entities.TX
 import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
+import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
+import com.example.walletapp.Server.Getsign
 import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
 import com.example.walletapp.parse.parseTokens
@@ -23,29 +27,36 @@ import com.example.walletapp.repository.AppRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
+import java.io.IOException
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
+
 
 class appViewModel(private val repository: AppRepository) : ViewModel() {
-
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
-    // LiveData exposed to the UI
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
-
     fun updateAuthMethod(authMethod: AuthMethod, context: Context) {
         val prefs = context.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE)
         prefs.edit().putString("AuthMethod", authMethod.name).apply()
         _selectedAuthMethod.value = authMethod
     }
-
-    // Получение текущего метода аутентификации из SharedPreferences
     fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
-
-    // метод для обновления метода аутентификации
-
-    // Function to get the current authentication method as LiveData
     fun getData(): LiveData<AuthMethod> {
         return selectedAuthMethod
     }
+
+
 
     //Tokens
     val allTokens: LiveData<List<Tokens>> = repository.allTokens.asLiveData()
@@ -55,8 +66,157 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
         repository.addTokens(loadedTokens)
     }
 
-    // Wallets
+    // Wallets and Tx
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
+    val allTX: LiveData<List<TX>> = repository.allTX.asLiveData()
+
+
+
+    fun fetchAndStoreTransactions(context: Context) = viewModelScope.launch {
+        val apiResponse = GetAPIString(context, "tx_by_ec")
+        if (apiResponse.isNotEmpty()) {
+            try {
+                val transactions = JSONArray(apiResponse)
+                val txList = mutableListOf<TX>()
+                for (i in 0 until transactions.length()) {
+                    val txJson = transactions.getJSONObject(i)
+                    val tokenParts = txJson.optString("token", "").split(":::")
+                    val networkToken = tokenParts[0]
+                    val tokenId = tokenParts.getOrElse(1) { "" }.split("###")[0]
+
+                    val tx = TX(
+                        unid = txJson.optString("unid", ""),
+                        id = 0, // Assuming `id` is not provided by the response; check if needs to be parsed differently
+                        tx = "", // Assuming real transaction hash ('tx') not provided
+                        network = networkToken.toIntOrNull() ?: 0, // Ensure to parse the network ID correctly
+                        token = tokenId,
+                        to_addr = txJson.optString("to_addr", ""),
+                        tx_value = txJson.optString("tx_value", "0").replace(",", "").toDouble(),
+                        init_ts = txJson.optInt("init_ts", 0),
+                        // Set other fields as necessary or use default values
+                        minsign = 1, // Default value; adjust if the server sends this information
+                        // Default values for all other fields not provided by the server
+                    )
+                    txList.add(tx)
+                }
+                repository.insertAllTransactions(txList)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    var selectedWallet: MutableLiveData<Wallets> = MutableLiveData()
+    var selectedToken: MutableLiveData<Balans> = MutableLiveData()
+
+    fun selectWallet(wallet: Wallets) {
+        selectedWallet.value = wallet
+    }
+
+    fun selectToken(token: Balans) {
+        selectedToken.value = token
+    }
+
+    fun getBalansForTokenAddress(tokenAddr: String): LiveData<List<Balans>> = liveData {
+        emit(repository.getAllBalansByAddr(tokenAddr))
+    }
+
+    private val _transactionStatus = MutableLiveData<String>()
+    val transactionStatus: LiveData<String> = _transactionStatus
+
+    fun sendTransaction(token: Balans, wallet: Wallets, address: String, amount: Double, context: Context) = viewModelScope.launch {
+        val symbols = DecimalFormatSymbols(Locale.getDefault()).apply {
+            decimalSeparator = '.'
+        }
+
+        val formatter = DecimalFormat("0.00", symbols)
+        val formattedAmount = formatter.format(amount)
+
+        val transactionDetails = JSONObject().apply {
+            put("token", "${token.network_id}:::${token.name}###${wallet.name}")
+            put("info", wallet.info)
+            put("value", formattedAmount)
+            put("toAddress", address)
+        }
+
+
+        val jsonString = transactionDetails.toString()
+        val modifiedString = jsonString.substring(1, jsonString.length - 1)
+        println("Transaction Details: $modifiedString")
+        val rsva = Getsign(context, modifiedString)
+        val requestBody = jsonString.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        val request = Request.Builder()
+            .url(context.getString(R.string.base_url) + "ece/tx")
+            .addHeader("x-app-ec-from", rsva[3])
+            .addHeader("x-app-ec-sign-r", rsva[0])
+            .addHeader("x-app-ec-sign-s", rsva[1])
+            .addHeader("x-app-ec-sign-v", rsva[2])
+            .method("POST", requestBody)
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                println("Transaction failed: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                if (!response.isSuccessful || responseBody.isNullOrEmpty()) {
+                    println("Transaction Failed")
+                    return
+                }
+
+                val jsonResponse = JSONObject(responseBody)
+                if (jsonResponse.has("ERROR")) {
+                    println("Transaction Failed with Error")
+                } else if (jsonResponse.has("tx_unid")) {
+                    val transactionId = jsonResponse.getString("tx_unid")
+                    println("Transaction Successful: ID $transactionId")
+                    viewModelScope.launch {
+                        val  tx = TX(
+                            unid = transactionId,
+                            tx = "", // Assuming the real transaction hash is not available yet
+                            network = token.network_id,
+                            token = token.name,
+                            to_addr = address,
+                            info = wallet.info,
+                            tx_value = formattedAmount.toDouble(),
+                            from = wallet.name // Assuming 'from' is the wallet name
+                        )
+                        repository.insertTransaction(tx)
+                        println("Transaction ID saved to database successfully.")
+                    }
+                }
+            }
+        })
+    }
+    fun signTransaction(context: Context, txUnid: String) = viewModelScope.launch {
+        val api = "tx_sign/$txUnid"
+        try {
+            val response = GetAPIString(context, api, mes = "", POST = true)
+            Log.d("TransactionRequest", "Response for signing transaction $txUnid: $response")
+        } catch (e: Exception) {
+            Log.e("TransactionError", "Error signing transaction $txUnid", e)
+        }
+    }
+
+    fun rejectTransaction(context: Context, txUnid: String, reason: String) = viewModelScope.launch {
+        val message = JSONObject().apply {
+            put("ec_reject", reason)
+        }.toString()
+        val modifiedMessage = message.substring(1, message.length - 1)
+        val api = "tx_reject/$txUnid"
+        try {
+            val response = GetAPIString(context, api, mes = modifiedMessage, POST = true)
+            Log.d("TransactionRequest", "Response for rejecting transaction $txUnid: $response")
+        } catch (e: Exception) {
+            Log.e("TransactionError", "Error rejecting transaction $txUnid with reason $reason", e)
+        }
+    }
+
 
     fun insertWallet(wallet: Wallets) = viewModelScope.launch {
         repository.insertWallet(wallet)
@@ -66,7 +226,25 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
         val jsonString = GetAPIString(context, "wallets_2")
         val loadedWallets = parseWallets(jsonString)
         repository.addWallets(loadedWallets)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                loadedWallets.forEach { wallet ->
+                    // Check if tokenShortNames is not blank
+                    if (wallet.tokenShortNames.isNotBlank()) {
+                        wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
+                            val parts = token.split(" ")
+                            val amount = parts[0].toDoubleOrNull() ?: 0.0
+                            val name = parts.getOrNull(1) ?: ""
+
+                            repository.insertToken(Tokens(wallet.network, name, wallet.addr))
+                            repository.insertBalans(Balans(name, "", wallet.addr, wallet.network, amount, 0.0))
+                        }
+                    }
+                }
+            }
+        }
     }
+
 
     fun deleteWallet(wallet: Wallets) = viewModelScope.launch {
         repository.deleteWallet(wallet)
@@ -92,26 +270,6 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
             fillWallets(context)
         // Нужно подождать пару минут и кошель появится уже и в блокчейне если всё ОК.
     }
-     /*
-            gg.forEach { wallet ->
-                if (wallet.tokenShortNames.isBlank()) {
-                    // Если список токенов пуст, добавляем пустой токен и баланс для данного кошелька
-                    repository.insertToken(Tokens(wallet.network, "", wallet.addr))
-                    repository.insertBalans(Balans("", "", wallet.addr, wallet.network, 0.0, 0.0))
-                } else {
-                    wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
-                        val parts = token.split(" ")
-                        val amount = parts[0].toDoubleOrNull() ?: 0.0
-                        val name = parts.getOrNull(1) ?: ""
-
-                        repository.insertToken(Tokens(wallet.network, name, wallet.addr))
-                        repository.insertBalans(Balans(name, "", wallet.addr, wallet.network, amount, 0.0))
-                    }
-                }
-            }
-
-        }
-    }*/
 
     suspend fun fillWallets(context: Context) {
         var ss: String  = GetAPIString(context, "wallets_2")
@@ -133,117 +291,7 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
                 j.optString("tokenShortNames","")))
         }
         repository.addWallets(gg) // allWallets обновится с триггера в базе
-        viewModelScope.launch { withContext(Dispatchers.IO) {
-            gg.forEach { wallet ->
-                if (wallet.tokenShortNames.isBlank()) {
-                    // Если список токенов пуст, добавляем пустой токен и баланс для данного кошелька
-                    repository.insertToken(Tokens(wallet.network, "", wallet.addr))
-                    //repository.insertBalans(Balans("", "", wallet.addr, wallet.network, 0.0, 0.0))
-                } else {
-                    wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
-                        val parts = token.split(" ")
-                        //val amount = parts[0].toDoubleOrNull() ?: 0.0
-                        val name = parts.getOrNull(1) ?: ""
-
-                        repository.insertToken(Tokens(wallet.network, name, wallet.addr))
-                        //repository.insertBalans(Balans(name, "", wallet.addr, wallet.network, amount, 0.0))
-                    }
-                }
-            }
-        }
     }
-    }
-
-    /*suspend fun fillWallets(context: Context) {
-        var ss: String  = GetAPIString(context, "wallets_2")
-        if (ss.isEmpty()) return;
-        if (ss == "{}") ss = "[]";
-        val jarr = jsonArray(ss)
-        val gg = mutableListOf<Wallets>()
-        for (i in 0 until jarr.length())
-        {val j = jarr.getJSONObject(i)
-            gg.add(Wallets(j["wallet_id"].toString().toInt(),
-                j["network"].toString().toInt(),
-                j.optString("myFlags", ""),
-                j.optString("wallet_type","0").toInt(),
-                j.optString("name",""),
-                j.optString("info",""),
-                j.optString("addr",""),
-                j.optString("addr_info",""),
-                j.optString("myUNID",""),
-                j.optString("tokenShortNames","")))
-        }
-        repository.addWallets(gg) // allWallets обновится с триггера в базе
-        viewModelScope.launch { withContext(Dispatchers.IO) {
-            for (i in gg) {
-                val k = i.tokenShortNames.split(";")
-                for (t in k) {//0.543210029602051 CH2K;0.2 MATIC
-                    repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
-                    if (k.isNotEmpty()) {
-                        k.forEach { tokenString ->
-                            val parts = tokenString.split(" ")
-                            if (parts.size >= 2) {
-                                val amount = parts[0].toDoubleOrNull()
-                                    ?: 0.0 // В случае ошибки парсинга ставим 0
-                                val name = parts[1]
-
-                                val balans = Balans(
-                                    name = name,
-                                    contract = "", //адрес контракта, его нужно будет здесь указать
-                                    addr = i.addr,
-                                    network_id = i.network,
-                                    amount = amount,
-                                    price = 0.0 // Логика для получения текущей цены токена
-                                )
-                                repository.insertBalans(balans)
-                            }
-                        }
-                    } else {
-                        // Создаем пустой объект Balans, если tokenShortNames была пустая
-                        val balans = Balans(
-                            name = "", // Пустое имя токена
-                            contract = "", // Пустой адрес контракта
-                            addr = i.addr,
-                            network_id = i.network,
-                            amount = 0.0, // Пустое количество токенов
-                            price = 0.0 // Пустая цена
-                        )
-                        repository.insertBalans(balans)
-                    }
-                }
-            }
-        }}
-    }*/
-
-    /*suspend fun fillWallets(context: Context) {
-        var ss: String  = GetAPIString(context, "wallets_2")
-        if (ss.isEmpty()) return;
-        if (ss == "{}") ss = "[]";
-        val jarr = jsonArray(ss)
-        val gg = mutableListOf<Wallets>()
-        for (i in 0 until jarr.length())
-        {val j = jarr.getJSONObject(i)
-            gg.add(Wallets(j["wallet_id"].toString().toInt(),
-                j["network"].toString().toInt(),
-                j.optString("myFlags", ""),
-                j.optString("wallet_type","0").toInt(),
-                j.optString("name",""),
-                j.optString("info",""),
-                j.optString("addr",""),
-                j.optString("addr_info",""),
-                j.optString("myUNID",""),
-                j.optString("tokenShortNames","")))
-        }
-        repository.addWallets(gg) // allWallets обновится с триггера в базе
-        viewModelScope.launch { withContext(Dispatchers.IO) {
-            for (i in gg) {
-                val k = i.tokenShortNames.split(";")
-                for (t in k) {//0.543210029602051 CH2K;0.2 MATIC
-                    repository.insertToken(Tokens(i.network, t.substringAfter(' ', ""), i.addr))
-                    TODO(Балансы тоже нужно распихать по базе)
-            }
-        }}
-    }*/
 
     //Определение
     val allSigners: LiveData<List<Signer>> = repository.allSigners.asLiveData()

@@ -11,7 +11,6 @@ import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,11 +30,11 @@ fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = wallet.info, color = colorScheme.onBackground) },
+                title = { Text(text = wallet.info, color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.background,
-                    titleContentColor = colorScheme.onBackground,
-                    scrolledContainerColor = colorScheme.background
+                    containerColor = colorScheme.surface,
+                    titleContentColor = colorScheme.onSurface,
+                    scrolledContainerColor = colorScheme.surface
                 ),
                 navigationIcon = {
                     IconButton(
@@ -45,7 +44,7 @@ fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
                             imageVector = Icons.Rounded.ArrowBack,
                             contentDescription = "Back",
                             modifier = Modifier.scale(1.2f),
-                            tint = colorScheme.onBackground)
+                            tint = colorScheme.onSurface)
                     }
                 }
             )

@@ -3,16 +3,12 @@ package com.example.walletapp.appScreens.mainScreens
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,9 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -73,7 +67,8 @@ fun Home(
     onShareClick: () -> Unit,
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit,
-    onMatrixClick: () -> Unit
+    onMatrixClick: () -> Unit,
+    onSend: () -> Unit
 ) {
     val context  = LocalContext.current
 
@@ -91,6 +86,7 @@ fun Home(
             secondBottomSheetState.show()
         }
     }
+
     if (openQRBottomSheet) {
         ModalBottomSheet(
             shape = topRoundedShape,
@@ -114,6 +110,7 @@ fun Home(
             )
         }
     }
+
     if (openSecondBottomSheet) {
         ModalBottomSheet(
             shape = topRoundedShape,
@@ -141,8 +138,6 @@ fun Home(
         }
     }
 
-
-
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -158,6 +153,7 @@ fun Home(
                 Actions.shareMyAddr -> onShareClick()
                 Actions.signers -> onSignersClick()
                 Actions.createWallet -> onCreateWalletClick()
+                Actions.send -> onSend()
                 else -> onMatrixClick()
             }
         }, modifier = Modifier.constrainAs(gridRef) {

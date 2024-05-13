@@ -7,12 +7,13 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.walletapp.DataBase.Entities.TX
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
 interface TxDAO {
     @Query("SELECT * FROM TX")
-    suspend fun getAll(): List<TX>
+    fun getAll(): Flow<List<TX>>
     @Query("SELECT COUNT(*) FROM TX")
     suspend fun getCount(): Int
 
@@ -21,7 +22,6 @@ interface TxDAO {
 
     @Query("SELECT * FROM TX WHERE tx = '' ")
     suspend fun getWhoHasNotTX(): List<TX>
-
 
     @Delete
     suspend fun deleteItem(item: TX)

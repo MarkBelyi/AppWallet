@@ -1,6 +1,5 @@
 package com.example.walletapp.appScreens.mainScreens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,17 +27,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -51,7 +45,6 @@ import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,12 +96,12 @@ fun AddSignerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Add Signer", color = colorScheme.onBackground) },
+                title = { Text(text = "Add Signer", color = colorScheme.onSurface) },
                 //modifier = Modifier.shadow(elevation = 10.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.background,
-                    titleContentColor = colorScheme.onBackground,
-                    scrolledContainerColor = colorScheme.background
+                    containerColor = colorScheme.surface,
+                    titleContentColor = colorScheme.onSurface,
+                    scrolledContainerColor = colorScheme.surface
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
@@ -212,10 +205,10 @@ fun CustomOutlinedTextField(
         singleLine = true,
         shape = roundedShape,
         colors = TextFieldDefaults.colors(
-            focusedTextColor = colorScheme.onBackground,
-            unfocusedTextColor = colorScheme.onBackground,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White
+            focusedTextColor = colorScheme.onSurface,
+            unfocusedTextColor = colorScheme.onSurface,
+            focusedContainerColor = colorScheme.surface,
+            unfocusedContainerColor = colorScheme.surface
         ),
         maxLines = 1,
         keyboardOptions = keyboardOptions,
@@ -245,10 +238,10 @@ fun CustomOutlinedTextFieldWithIcon(
         singleLine = true,
         shape = roundedShape,
         colors = TextFieldDefaults.colors(
-            focusedTextColor = colorScheme.onBackground,
-            unfocusedTextColor = colorScheme.onBackground,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White
+            focusedTextColor = colorScheme.onSurface,
+            unfocusedTextColor = colorScheme.onSurface,
+            focusedContainerColor = colorScheme.surface,
+            unfocusedContainerColor = colorScheme.surface
         ),
         maxLines = 1,
         keyboardOptions = keyboardOptions,

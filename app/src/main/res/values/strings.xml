@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">H2KWallet</string>
 
+    //Wallet
+    <string name="no_wallets">У вас нет активных кошельков!</string>
+    <string name="name_of_wallet">Имя кошелька:</string>
+    <string name="min_signers_count">Мин. количество подписантов:</string>
+    <string name="token">Токен:</string>
+
     //Greetings....
     <string name="hello">Здравствуйте!</string>
 

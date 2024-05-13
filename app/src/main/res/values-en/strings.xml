@@ -2,6 +2,12 @@
 <resources>
     <string name="app_name">H2K Wallet</string>
 
+    //Wallet
+    <string name="no_wallets">You have no active wallets!</string>
+    <string name="name_of_wallet">Wallet\'s name:</string>
+    <string name="min_signers_count">Min signers count: </string>
+    <string name="token">Token:</string>
+
     //Greetings....
     <string name="hello">Hello!</string>
 

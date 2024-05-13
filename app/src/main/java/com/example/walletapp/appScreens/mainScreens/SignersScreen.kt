@@ -52,13 +52,14 @@ fun SignersScreen(
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
 
     Scaffold(
+        containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Signers", color = colorScheme.onBackground) },
+                title = { Text(text = "Signers", color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.background,
-                    titleContentColor = colorScheme.onBackground,
-                    scrolledContainerColor = colorScheme.background
+                    containerColor = colorScheme.surface,
+                    titleContentColor = colorScheme.onSurface,
+                    scrolledContainerColor = colorScheme.surface
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
@@ -104,11 +105,7 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
         shape = roundedShape,
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface,
-            contentColor = colorScheme.onBackground
-            ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 8.dp,
-            pressedElevation = 16.dp
+            contentColor = colorScheme.onSurface
         )
 
     ) {
@@ -193,10 +190,6 @@ fun AddSignerCard(onClick: () -> Unit) {
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 8.dp,
-            pressedElevation = 16.dp
-        ),
         onClick = onClick
     ) {
         Box(
@@ -207,7 +200,7 @@ fun AddSignerCard(onClick: () -> Unit) {
                 imageVector = Icons.Rounded.Add,
                 contentDescription = "Add signer",
                 modifier = Modifier.size(24.dp), // Размер иконки
-                tint = colorScheme.onSurface
+                tint = colorScheme.primary
             )
         }
     }

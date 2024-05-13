@@ -33,7 +33,7 @@ private val DarkColorScheme = darkColorScheme(
     surface = DarkSurface, // вот задний фон
     onSurface = DarkOnSurface,
 
-    inverseSurface = Color.LightGray.copy(alpha = 0.2f),
+    inverseSurface = Color.LightGray.copy(alpha = 0.1f),
 
     //Это когда на текст можно нажать
     onSurfaceVariant = DarkSelectedText,
@@ -65,7 +65,7 @@ private val LightColorScheme = lightColorScheme(
     onSurface = onSurface,
 
     //Цвет на заднем фоне экрана
-    inverseSurface = Color.LightGray.copy(alpha = 0.2f),
+    inverseSurface = Color.LightGray.copy(alpha = 0.1f),
 
     //Это когда на текст можно нажать
     onSurfaceVariant = selectedText,

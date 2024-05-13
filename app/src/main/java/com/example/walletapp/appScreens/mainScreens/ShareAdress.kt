@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
@@ -50,10 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.walletapp.QR.generateQRCode
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetMyAddr
@@ -69,13 +64,14 @@ fun ShareAddress(
     val qrImage = generateQRCode(outputText)
 
     Scaffold(
+        containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Share address", color = colorScheme.onBackground) },
+                title = { Text(text = "Share address", color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.background,
-                    titleContentColor = colorScheme.onBackground,
-                    scrolledContainerColor = colorScheme.background
+                    containerColor = colorScheme.surface,
+                    titleContentColor = colorScheme.onSurface,
+                    scrolledContainerColor = colorScheme.surface
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
@@ -107,7 +103,7 @@ fun ShareAddress(
                 .fillMaxWidth()
                 .clip(roundedShape)
                 .background(Color.White)
-                .border(1.dp, colorScheme.onBackground, roundedShape)
+                .border(1.dp, colorScheme.onSurface, roundedShape)
         ) {
             Image(
                 bitmap = qrImage,
@@ -126,7 +122,7 @@ fun ShareAddress(
             OutlinedTextField(
                 value = outputText,
                 onValueChange = {},
-                textStyle = TextStyle(color = colorScheme.onBackground),
+                textStyle = TextStyle(color = colorScheme.onSurface),
                 modifier = Modifier.fillMaxWidth(),
                 shape = roundedShape,
                 readOnly = true,
@@ -139,7 +135,7 @@ fun ShareAddress(
                         clipboardManager.setPrimaryClip(clip)
                         Toast.makeText(context, R.string.copytobuffer, Toast.LENGTH_SHORT).show()
                     }) {
-                        Icon(painter = painterResource(id = R.drawable.copy), contentDescription = "Share", tint = colorScheme.onBackground)
+                        Icon(painter = painterResource(id = R.drawable.copy), contentDescription = "Share", tint = colorScheme.primary)
                     }
                 },
                 trailingIcon = {
@@ -153,14 +149,14 @@ fun ShareAddress(
                         val shareIntent = Intent.createChooser(sendIntent, null)
                         context.startActivity(shareIntent)
                     }) {
-                        Icon(painter = painterResource(id = R.drawable.share), contentDescription = "Copy", tint = colorScheme.onBackground)
+                        Icon(painter = painterResource(id = R.drawable.share), contentDescription = "Copy", tint = colorScheme.primary)
                     }
                 },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = colorScheme.surface,
                     unfocusedContainerColor = colorScheme.surface,
-                    focusedLeadingIconColor = colorScheme.onBackground,
-                    focusedTrailingIconColor = colorScheme.onBackground
+                    focusedLeadingIconColor = colorScheme.onSurface,
+                    focusedTrailingIconColor = colorScheme.onSurface
                 )
             )
         }
@@ -185,7 +181,7 @@ fun QuestionWithIcon(
             onClick = {showDialog = true},
             style = TextStyle(
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                color = colorScheme.onBackground
+                color = colorScheme.onSurface
             ),
         )
         IconButton(

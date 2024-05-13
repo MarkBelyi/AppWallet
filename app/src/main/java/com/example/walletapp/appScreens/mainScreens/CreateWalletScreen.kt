@@ -1,6 +1,7 @@
 package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
@@ -59,7 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
+import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +89,8 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
 
     if(openQRBottomSheet){
         ModalBottomSheet(
-            shape = roundedShape,
+            shape = topRoundedShape,
+            tonalElevation = 0.dp,
             containerColor = colorScheme.surface,
             sheetState = qrBottomSheetState,
             onDismissRequest = { openQRBottomSheet = false },
@@ -114,8 +116,9 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
 
     if(openSignerBottomSheet){
         ModalBottomSheet(
-            shape = roundedShape,
-            containerColor = colorScheme.surface,
+            shape = topRoundedShape,
+            tonalElevation = 0.dp,
+            containerColor = colorScheme.inverseSurface,
             sheetState = signerBottomSheetState,
             onDismissRequest = { openSignerBottomSheet = false },
             dragHandle = {
@@ -160,23 +163,19 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
         }
     }
 
-
-
-
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(id = R.string.create_wallet_title),
-                        color = colorScheme.onBackground
+                        color = colorScheme.onSurface
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.background,
-                    titleContentColor = colorScheme.onBackground,
-                    scrolledContainerColor = colorScheme.background
+                    containerColor = colorScheme.surface,
+                    titleContentColor = colorScheme.onSurface,
+                    scrolledContainerColor = colorScheme.surface
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
@@ -189,7 +188,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.background)
+                .background(colorScheme.surface)
                 .padding(padding)
                 .padding(start = 8.dp, end = 8.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -200,7 +199,9 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                 onExpandedChange = {
                     expanded = !expanded
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = colorScheme.surface, shape = newRoundedShape)
             ) {
                 TextField(
                     value = selectedNetwork,
@@ -209,7 +210,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                         Text(
                             text = stringResource(id = R.string.select_blockchain),
                             maxLines = 1,
-                            color = Color.Gray
+                            color = colorScheme.scrim
                         )
                     },
                     readOnly = true,
@@ -219,8 +220,8 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                     colors = ExposedDropdownMenuDefaults.textFieldColors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
-                        focusedTextColor = colorScheme.onBackground,
-                        unfocusedTextColor = colorScheme.onBackground
+                        focusedTextColor = colorScheme.onSurface,
+                        unfocusedTextColor = colorScheme.onSurface
                     ),
                     modifier = Modifier
                         .menuAnchor()
@@ -230,7 +231,14 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                 ExposedDropdownMenu(
                     expanded = expanded,
                     onDismissRequest = {expanded = false},
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorScheme.surface, shape = newRoundedShape)
+                        .border(
+                            width = 0.5.dp,
+                            shape = newRoundedShape,
+                            color = colorScheme.primary
+                        )
                 ) {
                     networks.forEach { network ->
                         DropdownMenuItem(
@@ -256,17 +264,19 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                 value = walletNameText,
                 onValueChange = { walletNameText = it },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(width = 0.5.dp, shape = newRoundedShape, color = colorScheme.primary),
                 placeholder = {
                     Text(
                         text = stringResource(id = R.string.default_name_wallet),
-                        color = Color.Gray
+                        color = colorScheme.scrim
                     )
                 },
-                shape = roundedShape,
+                shape = newRoundedShape,
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = colorScheme.onBackground,
-                    unfocusedTextColor = colorScheme.onBackground,
+                    focusedTextColor = colorScheme.onSurface,
+                    unfocusedTextColor = colorScheme.onSurface,
                     focusedContainerColor = colorScheme.surface,
                     unfocusedContainerColor = colorScheme.surface,
                     focusedIndicatorColor = Color.Transparent,
@@ -277,7 +287,9 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
             Text(
                 text = stringResource(id = R.string.signers),
                 maxLines = 1,
-                color = colorScheme.onBackground
+                color = colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 24.sp
             )
 
             LazyColumn(
@@ -304,7 +316,15 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
             }
 
             Text(
-                text = "Необходимое количество подписантов: ${requiredSigners.toInt()} из ${signerKeys.size}",
+                text =
+                "Необходимое количество подписантов: ${requiredSigners.toInt()} "
+                        +
+                        stringResource(id = R.string.of)
+                        +
+                        " ${signerKeys.size}",
+
+                color = colorScheme.onSurface,
+                fontWeight = FontWeight.Light,
                 fontSize = 14.sp
             )
 
@@ -343,14 +363,16 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                 }
                     onCreateClick()
                 },
-                shape = roundedShape,
+                shape = newRoundedShape,
                 enabled = walletNameText.isNotEmpty() && signerKeys.all { it.isNotEmpty() } && requiredSigners <= signerKeys.size,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = colorScheme.primary,
-                    contentColor = colorScheme.onPrimary
+                    contentColor = colorScheme.onPrimary,
+                    disabledContainerColor = colorScheme.primaryContainer,
+                    disabledContentColor = colorScheme.onPrimaryContainer
                 )
             ) {
                 Text(
@@ -383,11 +405,13 @@ fun SignerRow(
                 )
             },
             singleLine = true,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape),
             shape = MaterialTheme.shapes.medium,
             colors = TextFieldDefaults.colors(
-                focusedTextColor = colorScheme.onBackground,
-                unfocusedTextColor = colorScheme.onBackground,
+                focusedTextColor = colorScheme.onSurface,
+                unfocusedTextColor = colorScheme.onSurface,
                 focusedContainerColor = colorScheme.surface,
                 unfocusedContainerColor = colorScheme.surface,
                 focusedIndicatorColor = Color.Transparent,
@@ -431,18 +455,13 @@ fun SignerRow(
             TextButton(
                 onClick = { removeSigner(index) },
                 enabled = signerKeys.size > 1,
-                shape = roundedShape,
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 8.dp,
-                    pressedElevation = 16.dp,
-                    disabledElevation = 8.dp
-                ),
+                shape = newRoundedShape,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.background,
-                    contentColor = colorScheme.onBackground,
-                    disabledContainerColor = Color.LightGray,
-                    disabledContentColor = Color.DarkGray
-                )
+                    containerColor = colorScheme.surface,
+                    contentColor = colorScheme.onSurface,
+                    disabledContainerColor = colorScheme.scrim.copy(alpha = 0.4f),
+                    disabledContentColor = colorScheme.scrim
+                ),
             ) {
                 Text(
                     text = "remove",
@@ -453,19 +472,14 @@ fun SignerRow(
             Spacer(Modifier.width(8.dp))
             TextButton(
                 onClick = { addSigner() },
-                shape = roundedShape,
+                shape = newRoundedShape,
                 enabled = signerKeys.size < numberOfSigner,
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 8.dp,
-                    pressedElevation = 16.dp,
-                    disabledElevation = 8.dp
-                ),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.background,
-                    contentColor = colorScheme.onBackground,
-                    disabledContainerColor = Color.LightGray,
-                    disabledContentColor = Color.DarkGray
-                )
+                    containerColor = colorScheme.surface,
+                    contentColor = colorScheme.onSurface,
+                    disabledContainerColor = colorScheme.scrim.copy(alpha = 0.4f),
+                    disabledContentColor = colorScheme.scrim
+                ),
             ) {
                 Text(
                     text = "add",
@@ -488,29 +502,48 @@ fun RequiredSignersSelector(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Button(
+        ElevatedButton(
             onClick = {
                 if (requiredSigners > 1) onRequiredSignersChange(requiredSigners - 1)
             },
-            shape = roundedShape,
-            enabled = requiredSigners > 1
+            shape = newRoundedShape,
+            enabled = requiredSigners > 1,
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary,
+                disabledContainerColor = colorScheme.primaryContainer,
+                disabledContentColor = colorScheme.onPrimaryContainer
+            ),
+
         ) {
             Text("-")
         }
+        
         Text(
-            text = "$requiredSigners из $numberOfSigners",
-            modifier = Modifier.padding(horizontal = 16.dp)
+            text = "$requiredSigners " + stringResource(id = R.string.of) + " $numberOfSigners",
+            modifier = Modifier.padding(horizontal = 16.dp),
+            fontWeight= FontWeight.Light,
+            color = colorScheme.onSurface
         )
-        Button(
+        
+        ElevatedButton(
             onClick = {
                 if (requiredSigners < numberOfSigners) onRequiredSignersChange(requiredSigners + 1)
             },
-            shape = roundedShape,
-            enabled = requiredSigners < numberOfSigners
+            shape = newRoundedShape,
+            enabled = requiredSigners < numberOfSigners,
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary,
+                disabledContainerColor = colorScheme.primaryContainer,
+                disabledContentColor = colorScheme.onPrimaryContainer
+            )
         ) {
             Text("+")
         }
     }
 }
+
+
 
 
