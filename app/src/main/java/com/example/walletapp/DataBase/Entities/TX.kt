@@ -3,7 +3,7 @@ package com.example.walletapp.DataBase.Entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 
-@Entity(primaryKeys = ["unid","id","tx"]) //транзакции
+@Entity(primaryKeys = ["unid"]) //транзакции
 data class TX(
     @ColumnInfo(collate = ColumnInfo.NOCASE) val unid: String="",  // unid транзакции на сервере
     val id:Int=0, // id транзакции на сервере
@@ -17,8 +17,8 @@ data class TX(
     @ColumnInfo(collate = ColumnInfo.NOCASE) val signedEmail:String="", // email-Адреса подписантов, которые уже подписали. Пока не используется.
     @ColumnInfo(collate = ColumnInfo.NOCASE) val waitSMS:String="", // sms-Адреса подписантов, подписи которых ждёт транзакция. Пока не используется.
     @ColumnInfo(collate = ColumnInfo.NOCASE) val signedSMS:String="", // sms-Адреса подписантов, которые уже подписали. Пока не используется.
-    //во во
 
+    //во во
     val network: Int, // Код сети блокчейна (например 1000 для битка)
     val token: String, // имя токена (например TRX для трона)
     @ColumnInfo(collate = ColumnInfo.NOCASE) val to_addr: String,  // куда

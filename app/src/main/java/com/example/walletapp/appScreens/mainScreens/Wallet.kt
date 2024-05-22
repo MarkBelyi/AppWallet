@@ -1,7 +1,12 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -94,43 +99,56 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
+    val context = LocalContext.current
+    val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val isAddressEmpty = wallet.addr.isEmpty()
 
     Card(
         border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
-        colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surface
-        ),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         onClick = {
-            // Если адрес не пуст, обрабатываем нажатие
             if (!isAddressEmpty) onWalletClick(wallet)
         },
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = stringResource(id = R.string.name_of_wallet) + wallet.info,
+                text = context.getString(R.string.name_of_wallet) + ": " + wallet.info,
                 style = MaterialTheme.typography.titleMedium,
                 color = colorScheme.onSurface
             )
             Spacer(Modifier.height(4.dp))
 
-            // Отображаем различный текст в зависимости от того, пустой ли адрес кошелька
             if (isAddressEmpty) {
-                Text(stringResource(R.string.pending_wallet), fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface, style = MaterialTheme.typography.bodyMedium)
+                Text(context.getString(R.string.pending_wallet), fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface, style = MaterialTheme.typography.bodyMedium)
             } else {
-                // Прочая информация о кошельке
-                Text(text = stringResource(id = R.string.Address)+ ": \n${wallet.addr}", fontWeight = FontWeight.Light, color = colorScheme.onSurface, style = MaterialTheme.typography.bodySmall)
-                Text(text = stringResource(id = R.string.token) + wallet.tokenShortNames, fontWeight = FontWeight.Light, color = colorScheme.onSurface, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = context.getString(R.string.Address) + ": \n${wallet.addr}",
+                    fontWeight = FontWeight.Light,
+                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.clickable {
+                        val clip = ClipData.newPlainText("wallet address", wallet.addr)
+                        clipboardManager.setPrimaryClip(clip)
+                        Toast.makeText(context, "Address copied to clipboard", Toast.LENGTH_SHORT).show()
+                    }
+                )
+                Text(
+                    text = context.getString(R.string.token) + ": " + wallet.tokenShortNames,
+                    fontWeight = FontWeight.Light,
+                    color = colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
             Spacer(Modifier.height(8.dp))
             Divider(color = colorScheme.onSurface.copy(alpha = 0.1f))
             Spacer(Modifier.height(4.dp))
-            Text(text = stringResource(id = R.string.min_signers_count) + "${wallet.minSignersCount}", fontWeight = FontWeight.Light, color = colorScheme.onSurface, style = MaterialTheme.typography.bodySmall)
+            Text(
+                text = context.getString(R.string.min_signers_count) + ": ${wallet.minSignersCount}",
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }

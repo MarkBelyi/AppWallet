@@ -26,7 +26,7 @@ import com.example.walletapp.DataBase.Entities.Wallets
         Tokens::class,
         Balans::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class DataBase: RoomDatabase(){

@@ -134,6 +134,7 @@ class AppRepository(
 
     //TX
     val allTX: Flow<List<TX>> = txDAO.getAll()
+
     suspend fun insertTransaction(tx: TX) {
         txDAO.insert(tx)
     }

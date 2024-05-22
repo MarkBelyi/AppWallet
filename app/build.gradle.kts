@@ -122,6 +122,4 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
     // Required for compatibility
     implementation("androidx.fragment:fragment:1.6.2")
-
-
 }

@@ -1,7 +1,9 @@
 package com.example.walletapp.appViewModel
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -43,7 +45,8 @@ import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 
-class appViewModel(private val repository: AppRepository) : ViewModel() {
+class appViewModel(private val repository: AppRepository, application: Application) : AndroidViewModel(application) {
+    private val context: Context = application.applicationContext
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
     fun updateAuthMethod(authMethod: AuthMethod, context: Context) {
@@ -71,9 +74,57 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
     val allTX: LiveData<List<TX>> = repository.allTX.asLiveData()
 
 
-
     fun fetchAndStoreTransactions(context: Context) = viewModelScope.launch {
-        val apiResponse = GetAPIString(context, "tx_by_ec")
+        val apiResponse = GetAPIString(context, "tx")
+        if (apiResponse.isNotEmpty()) {
+            try {
+                val transactions = JSONArray(apiResponse)
+                val txList = mutableListOf<TX>()
+                for (i in 0 until transactions.length()) {
+                    val txJson = transactions.getJSONObject(i)
+                    val tokenParts = txJson.optString("token", "").split(":::")
+                    val networkToken = tokenParts[0]
+                    val tokenId = tokenParts.getOrElse(1) { "" }.split("###")[0]
+
+                    val waitEC = txJson.optJSONArray("wait")?.let { waitArray ->
+                        val waitList = mutableListOf<String>()
+                        for (j in 0 until waitArray.length()) {
+                            val waitObject = waitArray.optJSONObject(j)
+                            if (waitObject != null) {
+                                waitList.add(waitObject.optString("ecaddress", ""))
+                            }
+                        }
+                        waitList.joinToString(",")
+                    } ?: ""
+
+                    val tx = TX(
+                        unid = txJson.optString("unid", ""),
+                        id = txJson.optInt("id", 0), // Парсинг ID
+                        tx = txJson.optString("tx", ""), // Обработка null для tx
+                        minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1, // Парсинг min_sign
+                        waitEC = waitEC, // EC Адреса подписантов, подписи которых ждёт транзакция
+                        signedEC = "", // Подписи подписантов пока не обрабатываются, можно добавить аналогично waitEC при необходимости
+                        network = networkToken.toIntOrNull() ?: 0, // Обработка network ID
+                        token = tokenId,
+                        to_addr = txJson.optString("to_addr", ""),
+                        info = txJson.optString("info", ""), // Парсинг info
+                        tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
+                        value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
+                        init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
+                        eMSG = "", // Обработка сообщения об ошибке при необходимости
+                    )
+                    txList.add(tx)
+                }
+                repository.insertAllTransactions(txList)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    fun fetchAndStore50Transactions(context: Context) = viewModelScope.launch {
+        val apiResponse = GetAPIString(context, "tx_sign_signed")
         if (apiResponse.isNotEmpty()) {
             try {
                 val transactions = JSONArray(apiResponse)
@@ -106,6 +157,87 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
         }
     }
 
+    private val _rejectedTransactions = MutableLiveData<Map<String, String>>()
+    val rejectedTransactions: LiveData<Map<String, String>> get() = _rejectedTransactions
+
+    private val _signedTransactions = MutableLiveData<Set<String>>()
+    val signedTransactions: LiveData<Set<String>> get() = _signedTransactions
+
+    init {
+        _rejectedTransactions.value = loadRejectedTransactions()
+        _signedTransactions.value = loadSignedTransactions()
+    }
+
+    private fun loadRejectedTransactions(): Map<String, String> {
+        val prefs = context.getSharedPreferences("TransactionPreferences", Context.MODE_PRIVATE)
+        val rejectedMap = mutableMapOf<String, String>()
+        prefs.getStringSet("rejectedTransactions", emptySet())?.forEach { entry ->
+            val parts = entry.split("|")
+            if (parts.size == 2) {
+                rejectedMap[parts[0]] = parts[1]
+            }
+        }
+        return rejectedMap
+    }
+
+    private fun loadSignedTransactions(): Set<String> {
+        val prefs = context.getSharedPreferences("TransactionPreferences", Context.MODE_PRIVATE)
+        return prefs.getStringSet("signedTransactions", emptySet()) ?: emptySet()
+    }
+
+    private fun saveRejectedTransactions(rejectedMap: Map<String, String>) {
+        val prefs = context.getSharedPreferences("TransactionPreferences", Context.MODE_PRIVATE)
+        with(prefs.edit()) {
+            putStringSet("rejectedTransactions", rejectedMap.map { "${it.key}|${it.value}" }.toSet())
+            apply()
+        }
+    }
+
+    private fun saveSignedTransactions(signedSet: Set<String>) {
+        val prefs = context.getSharedPreferences("TransactionPreferences", Context.MODE_PRIVATE)
+        with(prefs.edit()) {
+            putStringSet("signedTransactions", signedSet)
+            apply()
+        }
+    }
+
+    fun rejectTransaction(txUnid: String, reason: String) = viewModelScope.launch {
+        val message = JSONObject().apply {
+            put("ec_reject", reason)
+        }.toString()
+        val modifiedMessage = message.substring(1, message.length - 1)
+        val api = "tx_reject/$txUnid"
+        try {
+            val response = GetAPIString(context, api, mes = modifiedMessage, POST = true)
+            Log.d("TransactionRequest", "Response for rejecting transaction $txUnid: $response")
+            // Update the rejection state
+            _rejectedTransactions.value = _rejectedTransactions.value?.plus(txUnid to reason)
+            saveRejectedTransactions(_rejectedTransactions.value ?: emptyMap())
+        } catch (e: Exception) {
+            Log.e("TransactionError", "Error rejecting transaction $txUnid with reason $reason", e)
+        }
+    }
+
+    fun signTransaction(txUnid: String) = viewModelScope.launch {
+        val api = "tx_sign/$txUnid"
+        try {
+            val response = GetAPIString(context, api, mes = "", POST = true)
+            Log.d("TransactionRequest", "Response for signing transaction $txUnid: $response")
+            // Update the signing state
+            _signedTransactions.value = _signedTransactions.value?.plus(txUnid)
+            saveSignedTransactions(_signedTransactions.value ?: emptySet())
+        } catch (e: Exception) {
+            Log.e("TransactionError", "Error signing transaction $txUnid", e)
+        }
+    }
+
+    fun isTransactionRejected(transactionId: String): String? {
+        return _rejectedTransactions.value?.get(transactionId)
+    }
+
+    fun isTransactionSigned(transactionId: String): Boolean {
+        return _signedTransactions.value?.contains(transactionId) ?: false
+    }
 
     var selectedWallet: MutableLiveData<Wallets> = MutableLiveData()
     var selectedToken: MutableLiveData<Balans> = MutableLiveData()
@@ -121,9 +253,6 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
     fun getBalansForTokenAddress(tokenAddr: String): LiveData<List<Balans>> = liveData {
         emit(repository.getAllBalansByAddr(tokenAddr))
     }
-
-    private val _transactionStatus = MutableLiveData<String>()
-    val transactionStatus: LiveData<String> = _transactionStatus
 
     fun sendTransaction(token: Balans, wallet: Wallets, address: String, amount: Double, context: Context) = viewModelScope.launch {
         val symbols = DecimalFormatSymbols(Locale.getDefault()).apply {
@@ -193,30 +322,6 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
             }
         })
     }
-    fun signTransaction(context: Context, txUnid: String) = viewModelScope.launch {
-        val api = "tx_sign/$txUnid"
-        try {
-            val response = GetAPIString(context, api, mes = "", POST = true)
-            Log.d("TransactionRequest", "Response for signing transaction $txUnid: $response")
-        } catch (e: Exception) {
-            Log.e("TransactionError", "Error signing transaction $txUnid", e)
-        }
-    }
-
-    fun rejectTransaction(context: Context, txUnid: String, reason: String) = viewModelScope.launch {
-        val message = JSONObject().apply {
-            put("ec_reject", reason)
-        }.toString()
-        val modifiedMessage = message.substring(1, message.length - 1)
-        val api = "tx_reject/$txUnid"
-        try {
-            val response = GetAPIString(context, api, mes = modifiedMessage, POST = true)
-            Log.d("TransactionRequest", "Response for rejecting transaction $txUnid: $response")
-        } catch (e: Exception) {
-            Log.e("TransactionError", "Error rejecting transaction $txUnid with reason $reason", e)
-        }
-    }
-
 
     fun insertWallet(wallet: Wallets) = viewModelScope.launch {
         repository.insertWallet(wallet)
@@ -359,8 +464,6 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
     }
 
     //balans
-
-    // Balans methods
     fun getAllBalans(): LiveData<List<Balans>> = liveData {
         emit(repository.getAllBalans())
     }
@@ -399,12 +502,12 @@ class appViewModel(private val repository: AppRepository) : ViewModel() {
 
 }
 
-class AppViewModelFactory(private val repository: AppRepository) : ViewModelProvider.Factory{
+class AppViewModelFactory(private val repository: AppRepository, private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if(modelClass.isAssignableFrom(appViewModel::class.java)){
+        if (modelClass.isAssignableFrom(appViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return appViewModel(repository) as T
+            return appViewModel(repository, application) as T
         }
-        throw  IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

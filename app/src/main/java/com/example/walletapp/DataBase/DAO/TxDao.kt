@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
 import com.example.walletapp.DataBase.Entities.TX
 import kotlinx.coroutines.flow.Flow
 
@@ -29,7 +28,7 @@ interface TxDAO {
     @Query("DELETE FROM TX")
     suspend fun deleteAll()
 
-    @Upsert(entity = TX::class)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun add(items: List<TX>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

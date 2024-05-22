@@ -118,7 +118,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
         ModalBottomSheet(
             shape = topRoundedShape,
             tonalElevation = 0.dp,
-            containerColor = colorScheme.inverseSurface,
+            containerColor = colorScheme.surface,
             sheetState = signerBottomSheetState,
             onDismissRequest = { openSignerBottomSheet = false },
             dragHandle = {

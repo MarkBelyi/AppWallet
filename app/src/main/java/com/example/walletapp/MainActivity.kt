@@ -39,7 +39,7 @@ class MainApplication : Application(){
 class MainActivity : AppCompatActivity() {
     //инициализируем viewModel
     private val appViewModel: appViewModel by viewModels {
-        AppViewModelFactory((application as MainApplication).repository)
+        AppViewModelFactory((application as MainApplication).repository, application)
     }
 
     private val showAuthSheet = mutableStateOf(false)

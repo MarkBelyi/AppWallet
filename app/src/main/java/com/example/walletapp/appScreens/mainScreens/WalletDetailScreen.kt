@@ -28,13 +28,12 @@ import com.example.walletapp.DataBase.Entities.Wallets
 fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
     BackHandler(onBack = onBack)
     Scaffold(
+        containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
                 title = { Text(text = wallet.info, color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.surface,
-                    titleContentColor = colorScheme.onSurface,
-                    scrolledContainerColor = colorScheme.surface
+                    containerColor = colorScheme.surface
                 ),
                 navigationIcon = {
                     IconButton(
@@ -58,7 +57,9 @@ fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item { Text("Wallet address: ${wallet.addr}", fontSize = 16.sp) }
+            item { Text("Wallet address: ${wallet.addr}", fontSize = 16.sp, color = colorScheme.onSurface) }
+            item { Text("Min. signers: ${wallet.minSignersCount}", fontSize = 16.sp, color = colorScheme.onSurface) }
+            item { Text("Tokens: ${wallet.tokenShortNames}", fontSize = 16.sp, color = colorScheme.onSurface) }
         }
     }
 
