@@ -54,7 +54,9 @@ fun MainPagesActivity(
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit,
     onMatrixClick:() -> Unit,
-    onSend: () -> Unit
+    onSend: () -> Unit,
+    onReceive: () -> Unit,
+    onHistory: () -> Unit
 ){
 
     val navController = rememberNavController()
@@ -85,7 +87,9 @@ fun MainPagesActivity(
                     onSignersClick,
                     onCreateWalletClick,
                     onMatrixClick,
-                    onSend
+                    onSend,
+                    onReceive,
+                    onHistory
                 )
             }
             composable(BottomBarTab.Subscriptions.route) {

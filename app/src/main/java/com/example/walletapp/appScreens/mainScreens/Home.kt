@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -62,13 +63,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun Home(
     viewModel: appViewModel,
-
     onSettingsClick: () -> Unit,
     onShareClick: () -> Unit,
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit,
     onMatrixClick: () -> Unit,
-    onSend: () -> Unit
+    onSend: () -> Unit,
+    onReceive: () -> Unit,
+    onHistory: () -> Unit
 ) {
     val context  = LocalContext.current
 
@@ -144,7 +146,7 @@ fun Home(
             .background(color = colorScheme.inverseSurface)
             .padding(paddingColumn)
     ) {
-        val (gridRef) = createRefs()
+        val (gridRef, button) = createRefs()
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
@@ -154,6 +156,8 @@ fun Home(
                 Actions.signers -> onSignersClick()
                 Actions.createWallet -> onCreateWalletClick()
                 Actions.send -> onSend()
+                Actions.recieve -> onReceive()
+                Actions.history -> onHistory()
                 else -> onMatrixClick()
             }
         }, modifier = Modifier.constrainAs(gridRef) {
@@ -163,6 +167,12 @@ fun Home(
             bottom.linkTo(parent.bottom)
             width = Dimension.fillToConstraints
         })
+
+        Button(
+            onClick = {viewModel.signersList(context, "EB15416937B3D96145258B2600354028")}
+        ){
+           Text(text = "123")
+        }
     }
 }
 

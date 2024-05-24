@@ -47,7 +47,7 @@ fun Sign(viewModel: appViewModel) {
 
 @Composable
 fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
-    val isTxValid = tx.tx.matches(Regex("^[a-fA-F0-9]{64}$"))
+    val isTxValid = tx.tx.replace(" ", "").matches(Regex("^[a-fA-F0-9]{64}$"))
     val signingState = remember { mutableStateOf(SigningState.IDLE) }
     val showDialog = remember { mutableStateOf(false) }
     val rejectReason = remember { mutableStateOf("") }
@@ -200,7 +200,7 @@ fun TXScreens(viewModel: appViewModel) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.fetchAndStoreTransactions(context)
+        viewModel.needSignTX(context)
     }
 
     LazyColumn(modifier = Modifier.fillMaxWidth()) {

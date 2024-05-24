@@ -21,7 +21,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -50,7 +49,7 @@ import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
 
-object Routes {
+object SendingRoutes {
     const val WALLETS = "wallets"
     const val SELECT_TOKEN = "select_token/{tokenAddr}"
     const val SEND_TRANSACTION = "send_transaction"
@@ -58,17 +57,17 @@ object Routes {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SendingScreens(viewModel: appViewModel, onBackClick: () -> Unit) {
+fun SendingScreens(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClick: () -> Unit) {
     val navController = rememberNavController()
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.inverseSurface,
+        containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
-                title = { Text("Choose", color = MaterialTheme.colorScheme.onSurface) },
+                title = { Text("Choose", color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                    containerColor = colorScheme.surface,
+                    titleContentColor = colorScheme.onSurface
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -81,19 +80,19 @@ fun SendingScreens(viewModel: appViewModel, onBackClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
+                .background(colorScheme.surface)
                 .padding(paddingValues)
         ) {
-            NavHost(navController, startDestination = Routes.WALLETS) {
-                composable(Routes.WALLETS) {
-                    WalletsListScreen(navController, viewModel)
+            NavHost(navController, startDestination = SendingRoutes.WALLETS) {
+                composable(SendingRoutes.WALLETS) {
+                    WalletsListScreen(navController, onCreateClick,  viewModel)
                 }
-                composable(Routes.SELECT_TOKEN) { backStackEntry ->
+                composable(SendingRoutes.SELECT_TOKEN) { backStackEntry ->
                     backStackEntry.arguments?.getString("tokenAddr")?.let { tokenAddr ->
                         SelectTokenScreen(navController, viewModel, tokenAddr)
                     }
                 }
-                composable(Routes.SEND_TRANSACTION) {
+                composable(SendingRoutes.SEND_TRANSACTION) {
                     SendTransactionScreen(viewModel)
                 }
             }
@@ -102,15 +101,15 @@ fun SendingScreens(viewModel: appViewModel, onBackClick: () -> Unit) {
 }
 
 @Composable
-fun WalletsListScreen(navController: NavController, viewModel: appViewModel) {
+fun WalletsListScreen(navController: NavController, onCreateClick: () -> Unit,  viewModel: appViewModel) {
     val wallets by viewModel.allWallets.observeAsState(initial = emptyList())
     WalletsList(
         wallets = wallets,
         onWalletClick = { wallet ->
             viewModel.selectWallet(wallet)
-            navController.navigate(Routes.SELECT_TOKEN.replace("{tokenAddr}", wallet.addr))
+            navController.navigate(SendingRoutes.SELECT_TOKEN.replace("{tokenAddr}", wallet.addr))
         },
-        onCreateClick = {}
+        onCreateClick = {onCreateClick()}
     )
 }
 
@@ -122,7 +121,7 @@ fun SelectTokenScreen(navController: NavController, viewModel: appViewModel, tok
         items(balansList) { balans ->
             TokenItem(balans = balans, onClick = {
                 viewModel.selectToken(balans)
-                navController.navigate(Routes.SEND_TRANSACTION) {
+                navController.navigate(SendingRoutes.SEND_TRANSACTION) {
                     launchSingleTop = true
                     restoreState = true
                 }

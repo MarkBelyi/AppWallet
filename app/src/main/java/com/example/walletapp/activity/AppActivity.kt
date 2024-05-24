@@ -16,7 +16,9 @@ import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appScreens.mainScreens.EditSigner
+import com.example.walletapp.appScreens.mainScreens.HistoryScreen
 import com.example.walletapp.appScreens.mainScreens.MatrixRain
+import com.example.walletapp.appScreens.mainScreens.ReceiveScreen
 import com.example.walletapp.appScreens.mainScreens.SendingScreens
 import com.example.walletapp.appScreens.mainScreens.SettingsScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
@@ -65,12 +67,14 @@ fun AppActivity(
                 onSignersClick = {switchToPage(3)},
                 onCreateWalletClick = {switchToPage(5)},
                 onMatrixClick= {switchToPage(6)},
-                onSend = {switchToPage(1)}
+                onSend = {switchToPage(1)},
+                onReceive = {switchToPage(9)},
+                onHistory = {switchToPage(10)}
             )
 
             1 -> SendingScreens(
                 viewModel = viewModel,
-                //onCreateClick = {switchToPage(5)},
+                onCreateClick = {switchToPage(5)},
                 onBackClick = {switchToPage(0)}
             )
 
@@ -105,6 +109,17 @@ fun AppActivity(
             8 -> AddSignerScreen(
                 viewModel = viewModel,
                 onBackClick = {switchToPage(3)}
+            )
+            9 -> ReceiveScreen(
+                viewModel = viewModel,
+                onCreateClick = { switchToPage(5) },
+                onBackClick = { switchToPage(0) }
+            )
+
+            10 -> HistoryScreen(
+                viewModel = viewModel,
+                onSendingClick = {switchToPage(1)},
+                onBackClick = {switchToPage(0)}
             )
         }
     }

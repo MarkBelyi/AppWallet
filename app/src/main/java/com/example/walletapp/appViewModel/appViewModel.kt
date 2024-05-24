@@ -46,6 +46,7 @@ import java.util.Locale
 
 
 class appViewModel(private val repository: AppRepository, application: Application) : AndroidViewModel(application) {
+
     private val context: Context = application.applicationContext
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
@@ -73,6 +74,58 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
     val allTX: LiveData<List<TX>> = repository.allTX.asLiveData()
 
+    fun signersList(context: Context, unid: String) = viewModelScope.launch {
+        val apiResponse = GetAPIString(context, "get_wallet_slist/${unid}")
+        println(apiResponse)
+    }
+
+    fun needSignTX(context: Context) = viewModelScope.launch {
+        val apiResponse = GetAPIString(context, "tx_by_ec")
+        if (apiResponse.isNotEmpty()) {
+            try {
+                val transactions = JSONArray(apiResponse)
+                val txList = mutableListOf<TX>()
+                for (i in 0 until transactions.length()) {
+                    val txJson = transactions.getJSONObject(i)
+                    val tokenParts = txJson.optString("token", "").split(":::")
+                    val networkToken = tokenParts[0]
+                    val tokenId = tokenParts.getOrElse(1) { "" }.split("###")[0]
+
+                    val waitEC = txJson.optJSONArray("wait")?.let { waitArray ->
+                        val waitList = mutableListOf<String>()
+                        for (j in 0 until waitArray.length()) {
+                            val waitObject = waitArray.optJSONObject(j)
+                            if (waitObject != null) {
+                                waitList.add(waitObject.optString("ecaddress", ""))
+                            }
+                        }
+                        waitList.joinToString(",")
+                    } ?: ""
+
+                    val tx = TX(
+                        unid = txJson.optString("unid", ""),
+                        id = txJson.optInt("id", 0), // Парсинг ID
+                        tx = txJson.optString("tx", ""), // Обработка null для tx
+                        minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1, // Парсинг min_sign
+                        waitEC = waitEC, // EC Адреса подписантов, подписи которых ждёт транзакция
+                        signedEC = "", // Подписи подписантов пока не обрабатываются, можно добавить аналогично waitEC при необходимости
+                        network = networkToken.toIntOrNull() ?: 0, // Обработка network ID
+                        token = tokenId,
+                        to_addr = txJson.optString("to_addr", ""),
+                        info = txJson.optString("info", ""), // Парсинг info
+                        tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
+                        value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
+                        init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
+                        eMSG = "", // Обработка сообщения об ошибке при необходимости
+                    )
+                    txList.add(tx)
+                }
+                repository.insertAllTransactions(txList)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     fun fetchAndStoreTransactions(context: Context) = viewModelScope.launch {
         val apiResponse = GetAPIString(context, "tx")
