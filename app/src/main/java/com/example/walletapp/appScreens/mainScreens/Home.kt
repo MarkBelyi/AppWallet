@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -50,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.navigation.NavHostController
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
@@ -70,7 +70,8 @@ fun Home(
     onMatrixClick: () -> Unit,
     onSend: () -> Unit,
     onReceive: () -> Unit,
-    onHistory: () -> Unit
+    onHistory: () -> Unit,
+    navController: NavHostController,
 ) {
     val context  = LocalContext.current
 
@@ -118,7 +119,7 @@ fun Home(
             shape = topRoundedShape,
             containerColor = colorScheme.surface,
             sheetState = secondBottomSheetState,
-            onDismissRequest = { openSecondBottomSheet = false }
+            onDismissRequest = { openSecondBottomSheet = false },
         ) {
 
             SecondBottomSheetContent(
@@ -134,7 +135,8 @@ fun Home(
                         delay(300) // Небольшая задержка для завершения анимации
                         openSecondBottomSheet = false
                     }
-                }
+                },
+                navController = navController
             )
 
         }
@@ -146,7 +148,7 @@ fun Home(
             .background(color = colorScheme.inverseSurface)
             .padding(paddingColumn)
     ) {
-        val (gridRef, button) = createRefs()
+        val (gridRef) = createRefs()
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
@@ -168,11 +170,11 @@ fun Home(
             width = Dimension.fillToConstraints
         })
 
-        Button(
+        /*Button(
             onClick = {viewModel.signersList(context, "EB15416937B3D96145258B2600354028")}
         ){
            Text(text = "123")
-        }
+        }*/
     }
 }
 
@@ -275,7 +277,8 @@ fun SecondBottomSheetContent(
     viewModel: appViewModel,
     qrResult: String?,
     context: Context,
-    onHideButtonClick: () -> Unit
+    onHideButtonClick: () -> Unit,
+    navController: NavHostController
 ) {
     Column(
         modifier = Modifier
@@ -285,7 +288,14 @@ fun SecondBottomSheetContent(
     )
     {
         ElevatedButton(
-            onClick = { /* Обработка "Перевести" */ },
+            onClick = {
+                if (qrResult != null) {
+                    onHideButtonClick()
+                    navController.navigate("${SendingRoutes.WALLETS}?address=$qrResult")
+                } else {
+                    Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
+                }
+            },
             shape = roundedShape,
             modifier = Modifier
                 .fillMaxWidth()
@@ -306,7 +316,7 @@ fun SecondBottomSheetContent(
                     onHideButtonClick()
                     viewModel.addNewSignerFromQR(qrResult)
                     Toast.makeText(context, "Подписант создан", Toast.LENGTH_SHORT).show()
-                }else{
+                } else {
                     Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
                 }
             },
@@ -323,6 +333,6 @@ fun SecondBottomSheetContent(
         }
 
         Spacer(modifier = Modifier.height(48.dp))
-
     }
 }
+

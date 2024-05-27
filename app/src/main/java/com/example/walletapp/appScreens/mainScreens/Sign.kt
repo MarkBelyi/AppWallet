@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.DataBase.Entities.TX
+import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
 
@@ -47,7 +48,14 @@ fun Sign(viewModel: appViewModel) {
 
 @Composable
 fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
-    val isTxValid = tx.tx.replace(" ", "").matches(Regex("^[a-fA-F0-9]{64}$"))
+    val context = LocalContext.current
+    val userAddress = remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        userAddress.value = GetMyAddr(context) // Get the user's address
+    }
+
+    val isTxValid = tx.tx.replace(" ", "").matches(Regex("^[a-fA-F0-9\\s]{64}$"))
     val signingState = remember { mutableStateOf(SigningState.IDLE) }
     val showDialog = remember { mutableStateOf(false) }
     val rejectReason = remember { mutableStateOf("") }
@@ -93,6 +101,8 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
         )
     }
 
+    val isSigner = tx.signedEC.split(",").contains(userAddress.value) || tx.waitEC.split(",").contains(userAddress.value)
+
     Card(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -100,7 +110,7 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
             .fillMaxWidth(),
         shape = roundedShape,
         colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surface,
+            containerColor = colorScheme.surface
         )
     ) {
         Row(
@@ -134,16 +144,20 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
                         when (signingState.value) {
                             SigningState.IDLE -> {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                                    Button(onClick = {
-                                        signingState.value = SigningState.SIGNING
-                                        onSign()
-                                    }) {
-                                        Text("Sign")
-                                    }
-                                    Button(onClick = {
-                                        showDialog.value = true
-                                    }) {
-                                        Text("Reject")
+                                    if (isSigner) {
+                                        Button(onClick = {
+                                            signingState.value = SigningState.SIGNING
+                                            onSign()
+                                        }) {
+                                            Text("Sign")
+                                        }
+                                        Button(onClick = {
+                                            showDialog.value = true
+                                        }) {
+                                            Text("Reject")
+                                        }
+                                    } else {
+                                        Text(text = "Waiting for signer's signature", color = colorScheme.onSurface)
                                     }
                                 }
                             }

@@ -56,9 +56,8 @@ fun MainPagesActivity(
     onMatrixClick:() -> Unit,
     onSend: () -> Unit,
     onReceive: () -> Unit,
-    onHistory: () -> Unit
+    onHistory: () -> Unit,
 ){
-
     val navController = rememberNavController()
     val bottomBarTabs = mutableListOf(BottomBarTab.Wallet, BottomBarTab.Home, BottomBarTab.Subscriptions)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -89,7 +88,8 @@ fun MainPagesActivity(
                     onMatrixClick,
                     onSend,
                     onReceive,
-                    onHistory
+                    onHistory,
+                    navController = navController,
                 )
             }
             composable(BottomBarTab.Subscriptions.route) {

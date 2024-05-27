@@ -57,9 +57,12 @@ object SendingRoutes {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SendingScreens(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClick: () -> Unit) {
+fun SendingScreens(
+    viewModel: appViewModel,
+    onCreateClick: () -> Unit,
+    onBackClick: () -> Unit
+) {
     val navController = rememberNavController()
-
     Scaffold(
         containerColor = colorScheme.inverseSurface,
         topBar = {
@@ -77,6 +80,7 @@ fun SendingScreens(viewModel: appViewModel, onCreateClick: () -> Unit, onBackCli
             )
         }
     ) { paddingValues ->
+        val address = navController.currentBackStackEntry?.arguments?.getString("address") ?: ""
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -85,15 +89,15 @@ fun SendingScreens(viewModel: appViewModel, onCreateClick: () -> Unit, onBackCli
         ) {
             NavHost(navController, startDestination = SendingRoutes.WALLETS) {
                 composable(SendingRoutes.WALLETS) {
-                    WalletsListScreen(navController, onCreateClick,  viewModel)
+                    WalletsListScreen(navController, onCreateClick, viewModel, address)
                 }
                 composable(SendingRoutes.SELECT_TOKEN) { backStackEntry ->
                     backStackEntry.arguments?.getString("tokenAddr")?.let { tokenAddr ->
-                        SelectTokenScreen(navController, viewModel, tokenAddr)
+                        SelectTokenScreen(navController, viewModel, tokenAddr, address)
                     }
                 }
                 composable(SendingRoutes.SEND_TRANSACTION) {
-                    SendTransactionScreen(viewModel)
+                    SendTransactionScreen(viewModel, address)
                 }
             }
         }
@@ -101,27 +105,28 @@ fun SendingScreens(viewModel: appViewModel, onCreateClick: () -> Unit, onBackCli
 }
 
 @Composable
-fun WalletsListScreen(navController: NavController, onCreateClick: () -> Unit,  viewModel: appViewModel) {
+fun WalletsListScreen(navController: NavController, onCreateClick: () -> Unit, viewModel: appViewModel, address: String) {
     val wallets by viewModel.allWallets.observeAsState(initial = emptyList())
     WalletsList(
         wallets = wallets,
         onWalletClick = { wallet ->
             viewModel.selectWallet(wallet)
-            navController.navigate(SendingRoutes.SELECT_TOKEN.replace("{tokenAddr}", wallet.addr))
+            navController.navigate("${SendingRoutes.SELECT_TOKEN.replace("{tokenAddr}", wallet.addr)}?address=$address")
         },
-        onCreateClick = {onCreateClick()}
+        onCreateClick = { onCreateClick() }
     )
 }
 
+
 @Composable
-fun SelectTokenScreen(navController: NavController, viewModel: appViewModel, tokenAddr: String) {
+fun SelectTokenScreen(navController: NavController, viewModel: appViewModel, tokenAddr: String, address: String) {
     val balansList by viewModel.getBalansForTokenAddress(tokenAddr).observeAsState(initial = emptyList())
 
     LazyColumn {
         items(balansList) { balans ->
             TokenItem(balans = balans, onClick = {
                 viewModel.selectToken(balans)
-                navController.navigate(SendingRoutes.SEND_TRANSACTION) {
+                navController.navigate("${SendingRoutes.SEND_TRANSACTION}?address=$address") {
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -129,6 +134,7 @@ fun SelectTokenScreen(navController: NavController, viewModel: appViewModel, tok
         }
     }
 }
+
 
 @Composable
 fun TokenItem(balans: Balans, onClick: () -> Unit) {
@@ -158,13 +164,12 @@ fun TokenItem(balans: Balans, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SendTransactionScreen(viewModel: appViewModel) {
-
+fun SendTransactionScreen(viewModel: appViewModel, preFilledAddress: String) {
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openQRBottomSheet by remember { mutableStateOf(false) }
-    var address by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf(preFilledAddress) }
 
-    if(openQRBottomSheet){
+    if (openQRBottomSheet) {
         ModalBottomSheet(
             shape = roundedShape,
             containerColor = colorScheme.surface,
@@ -188,11 +193,6 @@ fun SendTransactionScreen(viewModel: appViewModel) {
         }
     }
 
-    fun updateState(updateFunc: (String) -> Unit): (String) -> Unit = { newValue ->
-        updateFunc(newValue)
-    }
-
-
     val selectedWallet by viewModel.selectedWallet.observeAsState()
     val selectedToken by viewModel.selectedToken.observeAsState()
     var amount by remember { mutableStateOf("") }
@@ -209,7 +209,7 @@ fun SendTransactionScreen(viewModel: appViewModel) {
 
                 CustomOutlinedTextFieldWithIcon(
                     value = address,
-                    onValueChange = updateState { address = it },
+                    onValueChange = { address = it },
                     placeholder = "Address",
                     onClick = { openQRBottomSheet = true },  // При нажатии открывать ModalBottomSheet
                 )
