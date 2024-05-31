@@ -25,8 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.walletapp.Element.ClickableText
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.registrationScreens.ClickedText
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +73,7 @@ fun HistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBackCli
                     fontWeight = FontWeight.Light
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                ClickedText(
+                ClickableText(
                     text = "Create transaction",
                     onClick = onSendingClick
                 )

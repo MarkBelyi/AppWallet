@@ -74,10 +74,54 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
     val allTX: LiveData<List<TX>> = repository.allTX.asLiveData()
 
-    fun signersList(context: Context, unid: String) = viewModelScope.launch {
+    fun signersList(context: Context, unid: String, callback: (String) -> Unit) = viewModelScope.launch {
         val apiResponse = GetAPIString(context, "get_wallet_slist/${unid}")
-        println(apiResponse)
+        callback(apiResponse)
     }
+
+    fun updateWalletSlistAndMinSigns(walletId: Int, slist: String, minSigns: Int) = viewModelScope.launch {
+        repository.updateWalletSlistAndMinSigns(walletId, slist, minSigns)
+    }
+
+    fun updateWalletByUnid(context: Context, unid: String) = viewModelScope.launch {
+        val apiResponse = GetAPIString(context, "walletbyunid/${unid}")
+        try {
+            val responseObject = JSONObject(apiResponse)
+            val walletName = responseObject.getString("wallet_name")
+            val info = responseObject.getString("info")
+            val network = responseObject.getInt("network")
+            val walletType = responseObject.getInt("wallet_type")
+            val myFlags = responseObject.optString("myFlags", "")
+            val slist = responseObject.getJSONObject("slist").keys().asSequence()
+                .map { responseObject.getJSONObject("slist").getJSONObject(it).getString("ecaddress") }
+                .joinToString(",")
+            val minSigns = responseObject.getJSONObject("slist").keys().asSequence()
+                .map { responseObject.getJSONObject("slist").getJSONObject(it).getString("type") }
+                .distinct()
+                .count()
+            val addrs = responseObject.getString("addrs")
+
+            val newWallet = Wallets(
+                wallet_id = 0, // Замените на правильное значение, если необходимо
+                network = network,
+                myFlags = myFlags,
+                wallet_type = walletType,
+                name = walletName,
+                info = info,
+                addr = addrs,
+                addr_info = "",
+                myUNID = unid,
+                tokenShortNames = "",
+                slist = slist,
+                minSignersCount = minSigns
+            )
+            repository.insertWallet(newWallet)
+        } catch (e: JSONException) {
+            Log.e("JSON Error", "Error parsing wallet by unid response: ${e.message}")
+        }
+    }
+
+
 
     fun needSignTX(context: Context) = viewModelScope.launch {
         val apiResponse = GetAPIString(context, "tx_by_ec")

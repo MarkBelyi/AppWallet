@@ -1,14 +1,14 @@
 package com.example.walletapp.parse
 
+import android.util.Log
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
-import com.example.walletapp.Server.GetAPIString
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import com.google.gson.reflect.TypeToken
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 fun parseNetworksJsonWithGson(jsonString: String): List<Networks> {
@@ -123,4 +123,26 @@ fun parseTokens(ss: String): List<Tokens> {
         ))
     }
     return tokensList
+}
+
+fun parseSlist(response: String): Pair<String, Int> {
+    return try {
+        val slistArray = JSONArray(response)
+        if (slistArray.length() > 0) {
+            val slistObject = slistArray.getJSONObject(0).getString("slist")
+            val slistJson = JSONObject(slistObject)
+            val minSigns = slistJson.getString("min_signs").toDouble().toInt()
+            val ecAddresses = slistJson.keys().asSequence()
+                .filter { it != "min_signs" }
+                .map { slistJson.getJSONObject(it).getString("ecaddress") }
+                .joinToString(",")
+
+            ecAddresses to minSigns
+        } else {
+            "" to 1
+        }
+    } catch (e: JSONException) {
+        Log.e("JSON Error", "Error parsing JSON response: ${e.message}")
+        "" to 1
+    }
 }

@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,9 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,90 +43,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.R
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.registrationScreens.AuthMethod
-import com.example.walletapp.registrationScreens.PinLockScreen
-import kotlinx.coroutines.launch
-import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.registrationScreens.PinLockScreenApp
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.topRoundedShape
+import kotlinx.coroutines.launch
 
-
-
-/*@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AuthModalBottomSheet(
-    showAuthSheet: MutableState<Boolean>,
-    onAuthenticated: () -> Unit,
-    viewModel: appViewModel
-) {
-    val context = LocalContext.current
-    val passwordStorage = PasswordStorageHelper(context)
-    val coroutineScope = rememberCoroutineScope()
-    val authMethod by viewModel.getAuthMethod().observeAsState(AuthMethod.PINCODE)
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
-
-
-    BottomSheetScaffold(
-        sheetContent = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                when (authMethod) {
-                    AuthMethod.PINCODE -> {
-                        PinLockScreenApp(
-                            onAction = {
-                                if (verifyPin(context)) {
-                                    coroutineScope.launch {
-                                        sheetState.hide()
-                                        onAuthenticated()
-                                    }
-                                } else {
-                                    Toast.makeText(context, "Incorrect PIN", Toast.LENGTH_SHORT)
-                                        .show()
-                                }
-                            },
-                            onBiometricAuthenticated = onAuthenticated
-                        )
-                    }
-
-                    AuthMethod.PASSWORD -> {
-                        PasswordInputField(onPasswordSubmitted = { password ->
-                            if (password == passwordStorage.getPassword("MyPassword")) {
-                                coroutineScope.launch {
-                                    sheetState.hide()
-                                    onAuthenticated()
-                                }
-                            } else {
-                                Toast.makeText(context, "Incorrect password", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                        })
-                    }
-                }
-            }
-        },
-        scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState),
-        sheetPeekHeight = 0.dp,
-        sheetSwipeEnabled = false
-    ) {}
-
-    LaunchedEffect(showAuthSheet.value) {
-        coroutineScope.launch {
-            if (showAuthSheet.value) {
-                sheetState.show()
-            } else {
-                sheetState.hide()
-            }
-        }
-    }
-}*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -294,10 +214,4 @@ fun verifyPin(context: Context): Boolean {
     // Here you would check the pin somehow, typically comparing with stored hash
     return true
 }
-
-/*
-fun loadAuthMethod(context: Context): AuthMethod {
-    val prefs = context.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE)
-    return AuthMethod.valueOf(prefs.getString("AuthMethod", AuthMethod.PASSWORD.name)!!)
-}*/
 

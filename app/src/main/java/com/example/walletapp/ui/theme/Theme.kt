@@ -79,15 +79,10 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun WalletAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    //dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
 
     val colorScheme = when {
-        /*dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }*/
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
@@ -100,14 +95,6 @@ fun WalletAppTheme(
             // Устанавливаем флаги для прозрачности статус-бара и навигационного бара
             window.statusBarColor = Color.Transparent.toArgb()
             window.navigationBarColor = Color.Transparent.toArgb()
-
-            //Также все по обычному
-            /*// Получаем WindowInsetsController
-            val windowInsetsController = WindowCompat.getInsetsController(window, view)
-            // Настраиваем цвет иконок в статус-баре
-            windowInsetsController.isAppearanceLightStatusBars = !darkTheme
-            // Настраиваем цвет иконок в навигационном баре
-            windowInsetsController.isAppearanceLightNavigationBars = !darkTheme*/
 
             val windowInsetsController = WindowCompat.getInsetsController(window, view)
             WindowCompat.setDecorFitsSystemWindows(window, false)

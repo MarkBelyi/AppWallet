@@ -1,12 +1,7 @@
 package com.example.walletapp.appScreens.mainScreens
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,9 +34,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.DataBase.Entities.Wallets
+import com.example.walletapp.Element.ClickableText
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.registrationScreens.ClickedText
 
 @Composable
 fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
@@ -50,7 +45,18 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
     var selectedWallet by remember { mutableStateOf<Wallets?>(null) }
 
     LaunchedEffect(wallets) {
-        viewModel.addWallets(context)
+        wallets.forEach { wallet ->
+            /*if(wallet.addr.isNotEmpty() && wallet.slist.isEmpty()){
+                viewModel.signersList(context, wallet.myUNID) { response ->
+                    val (parsedSlist, minSigns) = parseSlist(response)
+                    viewModel.updateWalletSlistAndMinSigns(wallet.wallet_id, parsedSlist, minSigns)
+                }
+            }else{
+                //Тут должна быть классная логика для одного кошелька
+            }*/
+            viewModel.addWallets(context)
+        }
+
     }
 
     if (selectedWallet == null) {
@@ -84,7 +90,7 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
                 ){
                     Text(text = stringResource(id = R.string.no_wallets), color = colorScheme.onSurface, modifier = Modifier.fillMaxSize(), textAlign = TextAlign.Center)
                     Spacer(modifier = Modifier.height(4.dp))
-                    ClickedText(text = stringResource(id = R.string.createWallet), onClick = onCreateClick)
+                    ClickableText(text = stringResource(id = R.string.createWallet), onClick = onCreateClick)
                 }
             }
         }
@@ -100,7 +106,6 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
 @Composable
 fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
     val context = LocalContext.current
-    val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val isAddressEmpty = wallet.addr.isEmpty()
 
     Card(
@@ -126,12 +131,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                     text = context.getString(R.string.Address) + ": \n${wallet.addr}",
                     fontWeight = FontWeight.Light,
                     color = colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.clickable {
-                        val clip = ClipData.newPlainText("wallet address", wallet.addr)
-                        clipboardManager.setPrimaryClip(clip)
-                        Toast.makeText(context, "Address copied to clipboard", Toast.LENGTH_SHORT).show()
-                    }
+                    style = MaterialTheme.typography.bodySmall
                 )
                 Text(
                     text = context.getString(R.string.token) + ": " + wallet.tokenShortNames,

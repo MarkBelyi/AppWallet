@@ -1,9 +1,15 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -12,20 +18,30 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Wallets
+import com.example.walletapp.R
+import com.example.walletapp.ui.theme.roundedShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
+    val context = LocalContext.current
     BackHandler(onBack = onBack)
     Scaffold(
         containerColor = colorScheme.inverseSurface,
@@ -43,24 +59,87 @@ fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
                             imageVector = Icons.Rounded.ArrowBack,
                             contentDescription = "Back",
                             modifier = Modifier.scale(1.2f),
-                            tint = colorScheme.onSurface)
+                            tint = colorScheme.onSurface
+                        )
                     }
                 }
             )
         }
     ) {padding ->
+
         LazyColumn(
-            contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)
         ) {
-            item { Text("Wallet address: ${wallet.addr}", fontSize = 16.sp, color = colorScheme.onSurface) }
-            item { Text("Min. signers: ${wallet.minSignersCount}", fontSize = 16.sp, color = colorScheme.onSurface) }
-            item { Text("Tokens: ${wallet.tokenShortNames}", fontSize = 16.sp, color = colorScheme.onSurface) }
+            items(1){
+                Text(text = "Адрес кошелька:", fontSize = 16.sp, color = colorScheme.onSurface)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = wallet.addr,
+                    onValueChange = {},
+                    textStyle = TextStyle(color = colorScheme.onSurface),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = roundedShape,
+                    readOnly = true,
+                    singleLine = true,
+                    maxLines = 1,
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("address", wallet.addr)
+                            clipboardManager.setPrimaryClip(clip)
+                            Toast.makeText(context, R.string.copytobuffer, Toast.LENGTH_SHORT).show()
+                        }) {
+                            Icon(painter = painterResource(id = R.drawable.copy), contentDescription = "Share", tint = colorScheme.primary)
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        focusedContainerColor = colorScheme.surface,
+                        unfocusedContainerColor = colorScheme.surface,
+                        focusedLeadingIconColor = colorScheme.onSurface,
+                        focusedTrailingIconColor = colorScheme.onSurface
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(text = "Подписанты:", fontSize = 16.sp, color = colorScheme.onSurface)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = wallet.slist,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorScheme.surface, shape = roundedShape)
+                        .padding(8.dp),
+                    fontSize = 14.sp,
+                    color = colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(text = "Баланс:", fontSize = 16.sp, color = colorScheme.onSurface)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = wallet.tokenShortNames,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorScheme.surface, shape = roundedShape)
+                        .padding(8.dp),
+                    fontSize = 14.sp,
+                    color = colorScheme.onSurface
+                )
+            }
+
         }
+
     }
 
 }

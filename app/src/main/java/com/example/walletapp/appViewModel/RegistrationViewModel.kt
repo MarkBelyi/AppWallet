@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class RegistrationViewModel () : ViewModel(){
-    //Регистрация
     var isPhraseSent: Boolean by mutableStateOf(false)
 
     var selectedTabIndex: Int by mutableStateOf(0)

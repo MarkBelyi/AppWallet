@@ -28,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -50,7 +49,6 @@ import com.example.walletapp.elements.checkbox.ShareMnemonicPhrase
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
-import com.example.walletapp.ui.theme.roundedShape
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.MnemonicUtils
 import org.web3j.crypto.WalletUtils
@@ -188,7 +186,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
             onClick = {
                 if (isPhraseSaved && isPhraseSent){
                     //имея эту фразу можно создать ключевую пару:
-                    val restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("Cancer killing me" , mnemonic)
+                    val restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on" , mnemonic)
                     ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                     ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
                     viewModelApp.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context)))

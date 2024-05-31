@@ -67,6 +67,10 @@ class AppRepository(
         walletsDAO.insertWallet(wallet)
     }
 
+    suspend fun updateWalletSlistAndMinSigns(walletId: Int, slist: String, minSigns: Int) {
+        walletsDAO.updateWalletSlistAndMinSigns(walletId, slist, minSigns)
+    }
+
     suspend fun addWallets(wallets: List<Wallets>) {
         walletsDAO.addWallets(wallets)
     }

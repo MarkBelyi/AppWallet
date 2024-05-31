@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,7 +28,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -136,7 +134,7 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: Regi
         CustomButton(
             text = stringResource(id = R.string.button_continue),
             onClick = {
-                val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("MARKovka", mnemonic)
+                val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on", mnemonic)
                 ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                 ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
                 navHostController.navigate("App")
@@ -233,13 +231,11 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
     @Composable
     fun SmallWordBox(word: String?, onClick: () -> Unit) {
         val textColor = if (word in initiallyBottomWords) colorScheme.secondary else colorScheme.onSurface
-
-        BoxWithConstraints(
-
+        Box(
             modifier = Modifier
                 .border(
                     width = 0.5.dp,
-                    color = colorScheme.secondary,
+                    color = colorScheme.onSurfaceVariant,
                     shape = newRoundedShape
                 )
                 .shadow(
@@ -248,11 +244,9 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
                     clip = true
                 )
                 .background(
-                    color = colorScheme.surface,
-                    shape = newRoundedShape
+                    color = colorScheme.surface
                 )
-                .clip(newRoundedShape)
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(1.dp)
                 .clickable(enabled = word in availableWords, onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
@@ -264,7 +258,8 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
                     fontWeight = FontWeight.Light,
                     textAlign = TextAlign.Center,
                     color = textColor,
-                    maxLines = 1
+                    maxLines = 1,
+                    modifier = Modifier.padding(12.dp)
                 )
             }
 
@@ -313,3 +308,6 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
     isContinueEnabled.value = displayedWords.filterNotNull().size == mnemonicList.size &&
             displayedWords.filterNotNull() == mnemonicList
 }
+
+
+

@@ -13,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -104,18 +103,18 @@ fun MainPagesActivity(
 
 
 val actionItems = listOf(
-        Triple(R.string.action_transfer, R.drawable.send, Actions.send),
-        Triple(R.string.action_receive, R.drawable.receive, Actions.recieve),
-        Triple(R.string.action_history, R.drawable.history_fill1_wght400_grad0_opsz24, Actions.history),
-        Triple(R.string.action_create_wallet, R.drawable.add, Actions.createWallet),
-        Triple(R.string.action_buy_crypto, R.drawable.buy, Actions.buyCrypto),
-        Triple(R.string.action_exchange_crypto, R.drawable.excange, Actions.exchangeCrypto),
-        Triple(R.string.action_share_my_address, R.drawable.share, Actions.shareMyAddr),
-        Triple(R.string.action_signers, R.drawable.signers, Actions.signers),
-        Triple(R.string.action_co_signer, R.drawable.sosigner, Actions.coSigner),
-        Triple(R.string.support, R.drawable.headset_mic_fill1_wght400_grad0_opsz24, Actions.support),
+        Triple(R.string.action_transfer, R.drawable.send_light, Actions.send),
+        Triple(R.string.action_receive, R.drawable.receive_light, Actions.recieve),
+        Triple(R.string.action_history, R.drawable.history_light, Actions.history),
+        Triple(R.string.action_create_wallet, R.drawable.create_light, Actions.createWallet),
+        Triple(R.string.action_buy_crypto, R.drawable.buy_light, Actions.buyCrypto),
+        Triple(R.string.action_exchange_crypto, R.drawable.exchange_light, Actions.exchangeCrypto),
+        Triple(R.string.action_share_my_address, R.drawable.share_light, Actions.shareMyAddr),
+        Triple(R.string.action_signers, R.drawable.signers_light, Actions.signers),
+        Triple(R.string.action_co_signer, R.drawable.cosigner_light, Actions.coSigner),
+        Triple(R.string.support, R.drawable.support_light, Actions.support),
         Triple(R.string.action_settings, R.drawable.settings, Actions.settings),
-        Triple(R.string.action_qr, R.drawable.qr_code_scanner, Actions.QR)
+        Triple(R.string.action_qr, R.drawable.qr_light, Actions.QR)
 )
 
 
@@ -148,7 +147,7 @@ fun AppBottomBar(
                         painter = painterResource(id = screen.icon),
                         contentDescription = stringResource(id = screen.label),
                         modifier = Modifier.scale(1.4f),
-                        tint = if (isSelected) colorScheme.primary else Color.LightGray
+                        tint = if (isSelected) colorScheme.primary else colorScheme.onSurface
                     )
                 },
                 label = { Text(
@@ -157,7 +156,7 @@ fun AppBottomBar(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Light
                     ),
-                    color = if (isSelected) colorScheme.primary else Color.LightGray
+                    color = if (isSelected) colorScheme.primary else colorScheme.onSurface
                 ) },
                 selected = currentRoute == screen.route,
                 alwaysShowLabel = true,
@@ -178,7 +177,7 @@ fun AppBottomBar(
 sealed class BottomBarTab(val route: String, val icon: Int, val label: Int) {
 
     object Wallet : BottomBarTab("wallet", R.drawable.wallet_light, R.string.wallet_name)
-    object Home : BottomBarTab("home", R.drawable.home_light, R.string.home)
+    object Home : BottomBarTab("home", R.drawable.home_2, R.string.home)
     object Subscriptions : BottomBarTab("subscriptions", R.drawable.sign_light, R.string.requests)
 
 }

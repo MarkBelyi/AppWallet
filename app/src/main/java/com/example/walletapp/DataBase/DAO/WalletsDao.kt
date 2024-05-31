@@ -29,6 +29,9 @@ interface WalletsDAO {
     @Upsert(entity = Wallets::class)
     suspend fun addWallets(wallets: List<Wallets>)
 
+    @Query("UPDATE Wallets SET slist = :slist, minSignersCount = :minSigns WHERE wallet_id = :walletId")
+    suspend fun updateWalletSlistAndMinSigns(walletId: Int, slist: String, minSigns: Int)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWallet(item: Wallets)
+    suspend fun insertWallet(wallet: Wallets)
 }

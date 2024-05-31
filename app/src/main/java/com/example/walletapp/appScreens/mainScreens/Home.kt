@@ -170,11 +170,6 @@ fun Home(
             width = Dimension.fillToConstraints
         })
 
-        /*Button(
-            onClick = {viewModel.signersList(context, "EB15416937B3D96145258B2600354028")}
-        ){
-           Text(text = "123")
-        }*/
     }
 }
 

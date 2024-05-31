@@ -199,10 +199,9 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
                     clip = true
                 )
                 .background(
-                    color = colorScheme.background
+                    color = colorScheme.surface
                 )
-                .padding(1.dp)
-                .background(colorScheme.background),
+                .padding(1.dp),
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedTextColor = colorScheme.onSurface,
