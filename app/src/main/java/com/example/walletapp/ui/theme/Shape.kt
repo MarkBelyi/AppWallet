@@ -8,6 +8,8 @@ val paddingColumn = 16.dp
 
 val roundedShape = RoundedCornerShape(10.dp)
 
+val miniRoundedShape = RoundedCornerShape(6.dp)
+
 val newRoundedShape = RoundedCornerShape(24.dp)
 
 val topRoundedShape: Shape = RoundedCornerShape(

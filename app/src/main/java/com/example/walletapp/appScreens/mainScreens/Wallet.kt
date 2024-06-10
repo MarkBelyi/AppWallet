@@ -2,20 +2,26 @@ package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
@@ -28,7 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +45,10 @@ import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.Element.ClickableText
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.ui.theme.miniRoundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
+import com.example.walletapp.ui.theme.roundedShape
+import org.bouncycastle.math.raw.Mod
 
 @Composable
 fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
@@ -107,6 +119,28 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
 fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
     val context = LocalContext.current
     val isAddressEmpty = wallet.addr.isEmpty()
+    val network = wallet.network
+    val iconResource = when {
+        network == 1000 || network == 1010 -> R.drawable.btc
+        network == 3000 || network == 3040 -> R.drawable.eth
+        network == 5000 || network == 5010 -> R.drawable.tron
+        else -> R.drawable.wait
+    }
+
+    var tokensList = mutableListOf<String>()
+
+    //var tokenName = ""
+
+    if (wallet.tokenShortNames.isNotBlank()) {
+        wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
+        val parts = token.split(" ")
+        val tokenName = parts.getOrNull(1) ?: ""
+            tokensList.add(tokenName)
+    }
+
+    }
+
+
 
     Card(
         border = BorderStroke(width = 1.5.dp, color = colorScheme.primary),
@@ -116,42 +150,119 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
         },
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = context.getString(R.string.name_of_wallet) + ": " + wallet.info,
-                style = MaterialTheme.typography.titleMedium,
-                color = colorScheme.onSurface
-            )
-            Spacer(Modifier.height(4.dp))
-
-            if (isAddressEmpty) {
-                Text(context.getString(R.string.pending_wallet), fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface, style = MaterialTheme.typography.bodyMedium)
-            } else {
-                Text(
-                    text = context.getString(R.string.Address) + ": \n${wallet.addr}",
-                    fontWeight = FontWeight.Light,
-                    color = colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    text = context.getString(R.string.token) + ": " + wallet.tokenShortNames,
-                    fontWeight = FontWeight.Light,
-                    color = colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodySmall
+        Row(modifier = Modifier.padding(16.dp)) {
+            Box(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .weight(0.2f),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(iconResource),
+                    contentDescription = "Blockchain network logo",
+                    tint = colorScheme.primary
                 )
             }
-            Spacer(Modifier.height(8.dp))
-            Divider(color = colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = context.getString(R.string.min_signers_count) + ": ${wallet.minSignersCount}",
-                fontWeight = FontWeight.Light,
-                color = colorScheme.onSurface,
-                style = MaterialTheme.typography.bodySmall
-            )
+
+            Spacer(Modifier.width(4.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = context.getString(R.string.name_of_wallet) + ": " + wallet.info,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colorScheme.onSurface
+                )
+                if (isAddressEmpty) {
+                    Text(
+                        context.getString(R.string.pending_wallet),
+                        fontWeight = FontWeight.SemiBold,
+                        color = colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                } else {
+                    Spacer(Modifier.height(4.dp))
+
+                    Row(modifier = Modifier.padding(4.dp)) {
+                        tokensList.forEach { token ->
+                            Box(
+                                modifier = Modifier
+                                    .border(
+                                        width = 0.5.dp,
+                                        color = colorScheme.primary,
+                                        shape = miniRoundedShape
+                                    )
+                                    .padding(4.dp)
+                            ) {
+                                Text(
+                                    text = token,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
+
+//if (wallet.tokenShortNames.isNotBlank()) {
+//    wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
+//        val parts = token.split(" ")
+//        val name = parts.getOrNull(1) ?: ""
+//    }
+//}
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
+//    val context = LocalContext.current
+//    val isAddressEmpty = wallet.addr.isEmpty()
+//
+//    Card(
+//        border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
+//        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+//        onClick = {
+//            if (!isAddressEmpty) onWalletClick(wallet)
+//        },
+//        modifier = Modifier.fillMaxWidth()
+//    ) {
+//        Column(modifier = Modifier.padding(16.dp)) {
+//            Text(
+//                text = context.getString(R.string.name_of_wallet) + ": " + wallet.info,
+//                style = MaterialTheme.typography.titleMedium,
+//                color = colorScheme.onSurface
+//            )
+//            Spacer(Modifier.height(4.dp))
+//
+//            if (isAddressEmpty) {
+//                Text(context.getString(R.string.pending_wallet), fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface, style = MaterialTheme.typography.bodyMedium)
+//            } else {
+//                Text(
+//                    text = context.getString(R.string.Address) + ": \n${wallet.addr}",
+//                    fontWeight = FontWeight.Light,
+//                    color = colorScheme.onSurface,
+//                    style = MaterialTheme.typography.bodySmall
+//                )
+//                Text(
+//                    text = context.getString(R.string.token) + ": " + wallet.tokenShortNames,
+//                    fontWeight = FontWeight.Light,
+//                    color = colorScheme.onSurface,
+//                    style = MaterialTheme.typography.bodySmall
+//                )
+//            }
+//            Spacer(Modifier.height(8.dp))
+//            Divider(color = colorScheme.onSurface.copy(alpha = 0.1f))
+//            Spacer(Modifier.height(4.dp))
+//            Text(
+//                text = context.getString(R.string.min_signers_count) + ": ${wallet.minSignersCount}",
+//                fontWeight = FontWeight.Light,
+//                color = colorScheme.onSurface,
+//                style = MaterialTheme.typography.bodySmall
+//            )
+//        }
+//    }
+//}
 
 
 
