@@ -64,7 +64,7 @@ fun ShareAddress(
     val qrImage = generateQRCode(outputText)
 
     Scaffold(
-        containerColor = colorScheme.inverseSurface,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(text = "Share address", color = colorScheme.onSurface) },
@@ -102,14 +102,14 @@ fun ShareAddress(
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
                 .clip(roundedShape)
-                .background(Color.White)
-                .border(1.dp, colorScheme.onSurface, roundedShape)
+                .background(Color.White.copy(alpha = 0.8f))
+                .border(0.75.dp, colorScheme.onSurface, roundedShape)
         ) {
             Image(
                 bitmap = qrImage,
                 contentDescription = "QR Code",
                 modifier = Modifier
-                    .aspectRatio(1f)
+                    .aspectRatio(1f),
             )
         }
 
