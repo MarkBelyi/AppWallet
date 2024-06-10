@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.roundedShape
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,6 +95,7 @@ fun AddSignerScreen(
 
 
     Scaffold(
+        containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
                 title = { Text(text = "Add Signer", color = colorScheme.onSurface) },
@@ -236,12 +238,14 @@ fun CustomOutlinedTextFieldWithIcon(
                 color = Color.Gray
             ) },
         singleLine = true,
-        shape = roundedShape,
+        shape = newRoundedShape,
         colors = TextFieldDefaults.colors(
             focusedTextColor = colorScheme.onSurface,
             unfocusedTextColor = colorScheme.onSurface,
             focusedContainerColor = colorScheme.surface,
-            unfocusedContainerColor = colorScheme.surface
+            unfocusedContainerColor = colorScheme.surface,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
         ),
         maxLines = 1,
         keyboardOptions = keyboardOptions,
@@ -258,6 +262,36 @@ fun CustomOutlinedTextFieldWithIcon(
                 )
             }
         }
+    )
+}
+
+@Composable
+fun CustomOutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+) {
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(),
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = {
+            Text(
+                text = placeholder,
+                fontWeight = FontWeight.Normal,
+                color = Color.Gray
+            ) },
+        singleLine = true,
+        shape = newRoundedShape,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = colorScheme.onSurface,
+            unfocusedTextColor = colorScheme.onSurface,
+            focusedContainerColor = colorScheme.surface,
+            unfocusedContainerColor = colorScheme.surface,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+        ),
+        maxLines = 1,
     )
 }
 

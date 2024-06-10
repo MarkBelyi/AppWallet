@@ -36,7 +36,6 @@ fun AppActivity(
 
     fun switchToPage(index: Int) {
         selectedTabIndex = index
-
     }
 
     fun switchToPage(index: Int, address: String = "", qrResult: String? = null) {

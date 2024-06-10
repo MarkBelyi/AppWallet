@@ -65,7 +65,7 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
         }, onCreateClick = onCreateClick
             )
     } else {
-        WalletDetailScreen(wallet = selectedWallet!!) {
+        WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel) {
             selectedWallet = null
         }
 

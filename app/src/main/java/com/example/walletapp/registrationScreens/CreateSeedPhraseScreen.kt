@@ -77,7 +77,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
             .background(color = colorScheme.surface)
             .padding(paddingColumn)
     ) {
-        var isPhraseSent by viewModelReg::isPhraseSent
+        val isPhraseSent by viewModelReg::isPhraseSent
         var isPhraseSaved by remember { mutableStateOf(false) }
 
         var showWords by remember { mutableStateOf(false) }

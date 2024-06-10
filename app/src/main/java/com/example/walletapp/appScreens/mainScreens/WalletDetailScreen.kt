@@ -6,6 +6,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -34,13 +37,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
+import org.json.JSONObject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
+fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit) {
+    val signers by viewModel.allSigners.observeAsState(initial = emptyList())
     val context = LocalContext.current
     BackHandler(onBack = onBack)
     Scaffold(
@@ -65,13 +72,15 @@ fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
                 }
             )
         }
-    ) {padding ->
-
+    ) { padding ->
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
         ) {
-            items(1){
+            items(1) {
                 Text(text = "Адрес кошелька:", fontSize = 16.sp, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -111,15 +120,7 @@ fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = wallet.slist,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = colorScheme.surface, shape = roundedShape)
-                        .padding(8.dp),
-                    fontSize = 14.sp,
-                    color = colorScheme.onSurface
-                )
+                AddressList(slist = wallet.slist, signers = signers)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -137,9 +138,44 @@ fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
                     color = colorScheme.onSurface
                 )
             }
-
         }
+    }
+}
 
+@Composable
+fun AddressList(slist: String, signers: List<Signer>) {
+    val slistJson = JSONObject(slist)
+    val addresses = mutableListOf<String>()
+
+    val keys = slistJson.keys()
+
+    while (keys.hasNext()) {
+        val key = keys.next()
+        val addressObject = slistJson.optJSONObject(key)
+        if (addressObject != null && addressObject.has("ecaddress")) {
+            val ecAddress = addressObject.optString("ecaddress")
+            if (ecAddress.isNotEmpty()) {
+                val signer = signers.find { it.address == ecAddress }
+                addresses.add(signer?.name ?: ecAddress)
+            }
+        }
     }
 
+    Column(
+        horizontalAlignment = Alignment.Start,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = colorScheme.surface, shape = roundedShape)
+            .padding(8.dp),
+    ) {
+        addresses.forEachIndexed { index, address ->
+            Text(
+                text = "${index + 1}. $address",
+                fontSize = 14.sp,
+                color = colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+    }
 }
+

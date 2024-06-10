@@ -2,11 +2,11 @@ package com.example.walletapp.repository
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.asFlow
-import com.cri.wallet.database.BalansDAO
-import com.cri.wallet.database.TokensDAO
-import com.cri.wallet.database.TxDAO
+import com.example.walletapp.DataBase.DAO.BalansDAO
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
+import com.example.walletapp.DataBase.DAO.TokensDAO
+import com.example.walletapp.DataBase.DAO.TxDAO
 import com.example.walletapp.DataBase.DAO.WalletsDAO
 import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
@@ -145,6 +145,10 @@ class AppRepository(
 
     suspend fun insertAllTransactions(txList: List<TX>) {
         txDAO.add(txList)
+    }
+
+    suspend fun updateTransactionStatus(unid: String, status: Int) {
+        txDAO.updateTransactionStatus(unid, status)
     }
 
 

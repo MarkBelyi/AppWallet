@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -60,17 +61,24 @@ fun AuthModalBottomSheet(
     onAuthenticated: () -> Unit,
     viewModel: appViewModel
 ) {
+
     val context = LocalContext.current
     val passwordStorage = PasswordStorageHelper(context)
     val coroutineScope = rememberCoroutineScope()
     val authMethod by viewModel.getAuthMethod().observeAsState(AuthMethod.PINCODE)
+    val isAuthenticated = remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+        skipPartiallyExpanded = true,
+        confirmValueChange = { newState ->
+            newState == SheetValue.Hidden && isAuthenticated.value
+        }
     )
 
     ModalBottomSheet(
         sheetState = sheetState,
-        onDismissRequest = onAuthenticated,
+        onDismissRequest = {
+            if (isAuthenticated.value) onAuthenticated()
+        },
         dragHandle = null,
         shape = topRoundedShape,
         content = {

@@ -94,7 +94,12 @@ fun parseWallets(ss: String): List<Wallets> {
             j.optString("addr",""),
             j.optString("addr_info",""),
             j.optString("myUNID",""),
-            j.optString("tokenShortNames","")))
+            j.optString("tokenShortNames",""),
+            j.optString("slist", ""),
+            j.optString("minSignersCount", "1").toInt(),
+            j.optString("group_id", "")
+        ),
+        )
     }
     return gg
 }

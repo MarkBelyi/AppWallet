@@ -1,4 +1,4 @@
-package com.cri.wallet.database
+package com.example.walletapp.DataBase.DAO
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -8,7 +8,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.walletapp.DataBase.Entities.Tokens
-import com.example.walletapp.DataBase.Entities.Wallets
 
 
 @Dao

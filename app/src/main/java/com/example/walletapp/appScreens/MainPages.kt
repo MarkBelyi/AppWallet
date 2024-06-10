@@ -117,16 +117,6 @@ val actionItems = listOf(
         Triple(R.string.action_qr, R.drawable.qr_light, Actions.QR)
 )
 
-
-val cards =
-    mutableListOf(
-        "H2K",
-        "Bitcoin",
-        "Ethereum",
-        "Tron",
-        "Polygon"
-    )
-
 @Composable
 fun AppBottomBar(
     bottomBarTabs: List<BottomBarTab>,
@@ -176,9 +166,9 @@ fun AppBottomBar(
 
 sealed class BottomBarTab(val route: String, val icon: Int, val label: Int) {
 
-    object Wallet : BottomBarTab("wallet", R.drawable.wallet_light, R.string.wallet_name)
-    object Home : BottomBarTab("home", R.drawable.home_2, R.string.home)
-    object Subscriptions : BottomBarTab("subscriptions", R.drawable.sign_light, R.string.requests)
+    data object Wallet : BottomBarTab("wallet", R.drawable.wallet_light, R.string.wallet_name)
+    data object Home : BottomBarTab("home", R.drawable.home_2, R.string.home)
+    data object Subscriptions : BottomBarTab("subscriptions", R.drawable.sign_light, R.string.requests)
 
 }
 

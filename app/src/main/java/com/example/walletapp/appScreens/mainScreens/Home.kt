@@ -2,7 +2,6 @@ package com.example.walletapp.appScreens.mainScreens
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -58,6 +58,8 @@ import com.example.walletapp.ui.theme.roundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.web3j.crypto.Credentials
+import org.web3j.crypto.WalletUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -142,13 +144,15 @@ fun Home(
         }
     }
 
+    var showKeyDialog by remember { mutableStateOf(false) }
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
             .background(color = colorScheme.inverseSurface)
             .padding(paddingColumn)
     ) {
-        val (gridRef) = createRefs()
+        val (gridRef, button) = createRefs()
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
@@ -169,6 +173,31 @@ fun Home(
             bottom.linkTo(parent.bottom)
             width = Dimension.fillToConstraints
         })
+
+        if (showKeyDialog) {
+            ShowKeyDialog(onDismiss = { showKeyDialog = false })
+        }
+
+        ElevatedButton(
+            onClick = {
+                showKeyDialog = true
+            },
+            shape = roundedShape,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp, max = 64.dp)
+                .constrainAs(button)
+                {
+                    top.linkTo(gridRef.bottom, margin = 16.dp)
+                },
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary,
+            )
+        ) {
+            Text("Показать ключи")
+        }
+
 
     }
 }
@@ -198,7 +227,7 @@ fun ActionGrid(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionCell(
     text: String,
@@ -260,7 +289,7 @@ fun ActionCell(
 
 @Composable
 fun BottomSheetContent(
-    onQRScanned: (String) -> Unit,
+    onQRScanned: (String) -> Unit
 ) {
     QrScreen(onScanResult = { result ->
         onQRScanned(result)
@@ -331,3 +360,34 @@ fun SecondBottomSheetContent(
     }
 }
 
+@Composable
+fun ShowKeyDialog(onDismiss: () -> Unit) {
+    val mnemonic = "We are such stuff as dreams are made on"
+    val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials(mnemonic, mnemonic)
+    val privateKeyBytes = restoreCredentials.ecKeyPair.privateKey.toByteArray()
+    val publicKeyBytes = restoreCredentials.ecKeyPair.publicKey.toByteArray()
+
+    val privateKey = privateKeyBytes.toHexString()
+    val publicKey = publicKeyBytes.toHexString()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Ключи") },
+        text = {
+            Column {
+                Text("Private Key: $privateKey")
+                Text("Public Key: $publicKey")
+            }
+        },
+        confirmButton = {
+            ElevatedButton(onClick = onDismiss) {
+                Text("Закрыть")
+            }
+        }
+    )
+}
+
+// Extension function to convert ByteArray to hexadecimal String
+fun ByteArray.toHexString(): String {
+    return joinToString("") { "%02x".format(it) }
+}

@@ -1,4 +1,4 @@
-package com.cri.wallet.database
+package com.example.walletapp.DataBase.DAO
 
 import androidx.room.Dao
 import androidx.room.Delete

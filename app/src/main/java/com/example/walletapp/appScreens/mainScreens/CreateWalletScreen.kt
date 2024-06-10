@@ -42,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,8 +78,8 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
     var selectedNetwork by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     var walletNameText by remember { mutableStateOf("") }
-    val signerKeys = remember { mutableStateListOf<String>("") }
-    var requiredSigners by remember { mutableStateOf(1f) }
+    val signerKeys = remember { mutableStateListOf("") }
+    var requiredSigners by remember { mutableIntStateOf(1) }
 
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openQRBottomSheet by remember { mutableStateOf(false) }
@@ -91,7 +92,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
         ModalBottomSheet(
             shape = topRoundedShape,
             tonalElevation = 0.dp,
-            containerColor = colorScheme.surface,
+            containerColor = colorScheme.inverseSurface,
             sheetState = qrBottomSheetState,
             onDismissRequest = { openQRBottomSheet = false },
             dragHandle = {
@@ -118,7 +119,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
         ModalBottomSheet(
             shape = topRoundedShape,
             tonalElevation = 0.dp,
-            containerColor = colorScheme.surface,
+            containerColor = colorScheme.inverseSurface,
             sheetState = signerBottomSheetState,
             onDismissRequest = { openSignerBottomSheet = false },
             dragHandle = {
@@ -164,6 +165,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
     }
 
     Scaffold(
+        containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
                 title = {
@@ -188,9 +190,8 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.surface)
                 .padding(padding)
-                .padding(start = 8.dp, end = 8.dp, bottom = 16.dp),
+                .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
@@ -332,7 +333,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                 numberOfSigners = signerKeys.size,
                 requiredSigners = requiredSigners.toInt(),
                 onRequiredSignersChange = { newRequiredSigners ->
-                    requiredSigners = newRequiredSigners.toFloat()
+                    requiredSigners = newRequiredSigners
                 }
             )
 

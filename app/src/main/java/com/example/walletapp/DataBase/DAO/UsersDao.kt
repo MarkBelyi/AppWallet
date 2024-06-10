@@ -1,11 +1,9 @@
-package com.cri.wallet.database
+package com.example.walletapp.DataBase.DAO
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-
 import com.example.walletapp.DataBase.Entities.Users
 import kotlinx.coroutines.flow.Flow
 
