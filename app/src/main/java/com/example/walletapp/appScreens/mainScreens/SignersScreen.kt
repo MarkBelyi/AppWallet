@@ -1,5 +1,6 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -53,7 +55,7 @@ fun SignersScreen(
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
 
     Scaffold(
-        containerColor = colorScheme.inverseSurface,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(text = "Signers", color = colorScheme.onSurface) },
@@ -78,11 +80,6 @@ fun SignersScreen(
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item {
-                AddSignerCard(
-                    onClick = { onAddSignerClick() }
-                )
-            }
             items(signers) { signer ->
                 SignerItem(
                     signer = signer,
@@ -90,6 +87,11 @@ fun SignersScreen(
                     onClick = {
                         onCurrentSignerClick(signer.address)
                     }
+                )
+            }
+            item {
+                AddSignerCard(
+                    onClick = { onAddSignerClick() }
                 )
             }
 
@@ -107,7 +109,8 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface,
             contentColor = colorScheme.onSurface
-        )
+        ),
+        border = BorderStroke(width = 0.75.dp, color = colorScheme.primary),
 
     ) {
         Row(
@@ -183,28 +186,35 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSignerCard(onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp), // Высота карточки
-        shape = roundedShape,
-        colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surface
-        ),
-        onClick = onClick
-    ) {
-        Box(
-            contentAlignment = Alignment.Center, // Центрирование содержимого
-            modifier = Modifier.fillMaxSize().weight(1f) // Заполняет весь размер карточки
+
+    Box(
+        modifier = Modifier.fillMaxSize(), // This makes the Box fill the entire screen
+        contentAlignment = Alignment.BottomEnd // This aligns the content to the bottom-end corner
+    ){
+        Card(
+            modifier = Modifier
+                .width(48.dp)
+                .height(48.dp), // Высота карточки
+            shape = roundedShape,
+            colors = CardDefaults.cardColors(
+                containerColor = colorScheme.surface
+            ),
+            onClick = onClick
         ) {
-            Icon(
-                imageVector = Icons.Rounded.Add,
-                contentDescription = "Add signer",
-                modifier = Modifier.size(24.dp), // Размер иконки
-                tint = colorScheme.primary
-            )
+            Box(
+                contentAlignment = Alignment.Center, // Центрирование содержимого
+                modifier = Modifier.fillMaxSize().weight(1f) // Заполняет весь размер карточки
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = "Add signer",
+                    modifier = Modifier.size(24.dp), // Размер иконки
+                    tint = colorScheme.primary
+                )
+            }
         }
     }
+
 }
 
 

@@ -6,10 +6,10 @@ import androidx.compose.ui.graphics.Color
 // Новые цвета
 // Если все же не выбирать градиент то тогда обычный задний фон
 //val Background = Color(0xFFFDFDFD)
-val Background = Color(0xFF16283E)
+val Background = Color.LightGray.copy(alpha = 0.3f)
 val onBackground = Color(0xFFFFFFFF)
 
-val Surface = Color(0xFFFFFFFF) //цвет safina (ой б**)
+val Surface = Color(0xFFFDFDFD) //цвет safina (ой б**)
 // Диалоговые окна должны быть синего цвета
 //val Surface = Color(0xFF16283e)
 //val onSurface = Color(0xFF0E194D)
@@ -37,6 +37,8 @@ val inputText = Color(0xFFA6A6A6)
 val secondButton = Color(0xFFFD6E74)
 
 val iconButton = Color(0XFFEC4C7D)
+
+val inverseSurface = Color.LightGray.copy(alpha = 0.1f)
 
 // Основной фон
 val DarkBackground = Color(0xFF1E1E1E)

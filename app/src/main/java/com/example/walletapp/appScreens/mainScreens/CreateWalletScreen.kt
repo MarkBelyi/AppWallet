@@ -518,14 +518,14 @@ fun RequiredSignersSelector(
         ) {
             Text("-")
         }
-        
+
         Text(
             text = "$requiredSigners " + stringResource(id = R.string.of) + " $numberOfSigners",
             modifier = Modifier.padding(horizontal = 16.dp),
             fontWeight= FontWeight.Light,
             color = colorScheme.onSurface
         )
-        
+
         ElevatedButton(
             onClick = {
                 if (requiredSigners < numberOfSigners) onRequiredSignersChange(requiredSigners + 1)

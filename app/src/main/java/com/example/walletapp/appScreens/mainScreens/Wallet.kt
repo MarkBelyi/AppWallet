@@ -109,7 +109,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
     val isAddressEmpty = wallet.addr.isEmpty()
 
     Card(
-        border = BorderStroke(width = 2.dp, color = colorScheme.primary),
+        border = BorderStroke(width = 1.5.dp, color = colorScheme.primary),
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         onClick = {
             if (!isAddressEmpty) onWalletClick(wallet)

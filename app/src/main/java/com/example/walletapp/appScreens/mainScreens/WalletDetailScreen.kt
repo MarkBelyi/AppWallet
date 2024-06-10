@@ -81,7 +81,7 @@ fun WalletDetailScreen(wallet: Wallets, onBack: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Card(
-                    border = BorderStroke(width = 1.dp, color = colorScheme.primary),
+                    border = BorderStroke(width = 0.75.dp, color = colorScheme.primary),
                     colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
                     modifier = Modifier.fillMaxWidth()
                 ) {
