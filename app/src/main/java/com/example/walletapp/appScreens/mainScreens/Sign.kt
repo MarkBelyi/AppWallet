@@ -40,7 +40,7 @@ fun Sign(viewModel: appViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorScheme.inverseSurface)
+            .background(color = colorScheme.background)
     ) {
         TXScreens(viewModel = viewModel)
     }

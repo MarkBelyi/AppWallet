@@ -33,7 +33,7 @@ private val DarkColorScheme = darkColorScheme(
     surface = DarkSurface, // вот задний фон
     onSurface = DarkOnSurface,
 
-    inverseSurface = Color.LightGray.copy(alpha = 0.1f),
+    inverseSurface = DarkSurface.copy(alpha = 0.9f),
 
     //Это когда на текст можно нажать
     onSurfaceVariant = DarkSelectedText,
@@ -47,7 +47,7 @@ private val LightColorScheme = lightColorScheme(
     // background параметр определять здесь бессмысленно так как нельзя вставить градиент
     // оставьте его пустым пока такая возможность не появится
 
-    background = Background, // это не задний фон
+    background = Color.LightGray.copy(alpha = 0.3f), // это не задний фон
     onBackground = onBackground,
 
     primary = Main,
