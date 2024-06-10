@@ -57,7 +57,7 @@ fun SettingsScreen() {
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
 
     Scaffold(
-        containerColor = colorScheme.inverseSurface,
+        containerColor = colorScheme.background,
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -121,6 +121,7 @@ fun SettingItem(
                     onCheckedChange(newCheckedState)
                 }
             }
+            .border(0.75.dp, colorScheme.primary, roundedShape)
     ) {
         Row(
             modifier = Modifier

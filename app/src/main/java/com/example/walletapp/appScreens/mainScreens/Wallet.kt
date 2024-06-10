@@ -77,7 +77,7 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorScheme.inverseSurface),
+            .background(color = colorScheme.background),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -109,7 +109,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
     val isAddressEmpty = wallet.addr.isEmpty()
 
     Card(
-        border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
+        border = BorderStroke(width = 1.5.dp, color = colorScheme.primary),
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         onClick = {
             if (!isAddressEmpty) onWalletClick(wallet)
@@ -141,7 +141,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                 )
             }
             Spacer(Modifier.height(8.dp))
-            Divider(color = colorScheme.onSurface.copy(alpha = 0.1f))
+            Divider(color = colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(4.dp))
             Text(
                 text = context.getString(R.string.min_signers_count) + ": ${wallet.minSignersCount}",

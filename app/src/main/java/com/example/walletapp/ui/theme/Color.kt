@@ -6,9 +6,8 @@ import androidx.compose.ui.graphics.Color
 // Новые цвета
 // Если все же не выбирать градиент то тогда обычный задний фон
 //val Background = Color(0xFFFDFDFD)
-val Background = Color(0xFF16283E)
+val Background = Color.LightGray.copy(alpha = 0.3f)
 val onBackground = Color(0xFFFFFFFF)
-
 
 val Surface = Color(0xFFFDFDFD) //цвет safina (ой б**)
 // Диалоговые окна должны быть синего цвета
@@ -39,11 +38,15 @@ val secondButton = Color(0xFFFD6E74)
 
 val iconButton = Color(0XFFEC4C7D)
 
+val inverseSurface = Color.LightGray.copy(alpha = 0.1f)
+
 // Основной фон
-val DarkBackground = Color(0xFF313234)
+val DarkBackground = Color(0xFF1E1E1E)
+//val DarkBackground = Color(0xFF121212)
+
 val DarkOnBackground = Color(0xFFFDFDFD)
 // Основной цвет
-val DarkMain = Color(0xFFFD6E74)
+val DarkMain = Color(0xFF9B2C3F)
 // Текст на основном тексте
 val DarkOnMain = Color(0xFFFDFDFD)
 
@@ -53,11 +56,12 @@ val DarkDisabledMain = DarkMain.copy(alpha = 0.4f)
 val DarkOnDisabledMain = Color(0xFFFDFDFD)
 
 // Все всплывающие окна снизу и необходимые карточки
-val DarkSurface = Color(0xFF313234)
+//val DarkSurface = Color(0xFF1E1E1E)
+val DarkSurface = Color(0xFF121212)
 // Текст на этом Surface
 val DarkOnSurface = Color(0xFFE0E0E0)
 // Текст который будет выделенным
-val DarkSelectedText = Color(0xFFEC4C7D)
+val DarkSelectedText = Color(0xFF7C1F32)
 
 // Цвет текста в полях ввода
 val DarkInputText = Color(0xFFCCCCCC)

@@ -71,7 +71,7 @@ fun AddSignerScreen(
     if(openQRBottomSheet){
         ModalBottomSheet(
             shape = roundedShape,
-            containerColor = colorScheme.surface,
+            containerColor = colorScheme.background,
             sheetState = qrBottomSheetState,
             onDismissRequest = { openQRBottomSheet = false },
             dragHandle = {
@@ -95,7 +95,7 @@ fun AddSignerScreen(
 
 
     Scaffold(
-        containerColor = colorScheme.inverseSurface,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(text = "Add Signer", color = colorScheme.onSurface) },
