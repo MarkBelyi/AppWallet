@@ -19,6 +19,7 @@ import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
+import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.Server.Getsign
 import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
@@ -46,7 +47,6 @@ import java.util.Locale
 
 
 class appViewModel(private val repository: AppRepository, application: Application) : AndroidViewModel(application) {
-
     private val context: Context = application.applicationContext
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
@@ -72,7 +72,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
 
     // Wallets and Tx
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
-    val allTX: LiveData<List<TX>> = repository.allTX.asLiveData()
 
     fun signersList(context: Context, unid: String, callback: (String) -> Unit) = viewModelScope.launch {
         val apiResponse = GetAPIString(context, "get_wallet_slist/${unid}")
@@ -121,8 +120,16 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
+    val allTX: LiveData<List<TX>> = repository.allTX.asLiveData()
 
+    // Method to update transaction status
+    private fun updateTransactionStatus(unid: String, status: Int) {
+        viewModelScope.launch {
+            repository.updateTransactionStatus(unid, status)
+        }
+    }
 
+    // Method to fetch transactions and update their status based on server response
     fun needSignTX(context: Context) = viewModelScope.launch {
         val apiResponse = GetAPIString(context, "tx_by_ec")
         if (apiResponse.isNotEmpty()) {
@@ -146,21 +153,24 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         waitList.joinToString(",")
                     } ?: ""
 
+                    val status = if (waitEC.contains(GetMyAddr(context))) 1 else 5
+
                     val tx = TX(
                         unid = txJson.optString("unid", ""),
-                        id = txJson.optInt("id", 0), // Парсинг ID
-                        tx = txJson.optString("tx", ""), // Обработка null для tx
-                        minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1, // Парсинг min_sign
-                        waitEC = waitEC, // EC Адреса подписантов, подписи которых ждёт транзакция
-                        signedEC = "", // Подписи подписантов пока не обрабатываются, можно добавить аналогично waitEC при необходимости
-                        network = networkToken.toIntOrNull() ?: 0, // Обработка network ID
+                        id = txJson.optInt("id", 0),
+                        tx = txJson.optString("tx", ""),
+                        minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1,
+                        waitEC = waitEC,
+                        signedEC = "",
+                        network = networkToken.toIntOrNull() ?: 0,
                         token = tokenId,
                         to_addr = txJson.optString("to_addr", ""),
-                        info = txJson.optString("info", ""), // Парсинг info
-                        tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
-                        value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
-                        init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
-                        eMSG = "", // Обработка сообщения об ошибке при необходимости
+                        info = txJson.optString("info", ""),
+                        tx_value = txJson.optString("value", "0").replace(",", "").toDouble(),
+                        value_hex = txJson.optString("value_hex", "0"),
+                        init_ts = txJson.optLong("init_ts", 0L).toInt(),
+                        eMSG = "",
+                        status = status
                     )
                     txList.add(tx)
                 }
@@ -168,6 +178,32 @@ class appViewModel(private val repository: AppRepository, application: Applicati
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    fun signTransaction(txUnid: String) = viewModelScope.launch {
+        val api = "tx_sign/$txUnid"
+        try {
+            val response = GetAPIString(context, api, mes = "", POST = true)
+            Log.d("TransactionRequest", "Response for signing transaction $txUnid: $response")
+            updateTransactionStatus(txUnid, 2)
+        } catch (e: Exception) {
+            Log.e("TransactionError", "Error signing transaction $txUnid", e)
+        }
+    }
+
+    fun rejectTransaction(txUnid: String, reason: String) = viewModelScope.launch {
+        val message = JSONObject().apply {
+            put("ec_reject", reason)
+        }.toString()
+        val modifiedMessage = message.substring(1, message.length - 1)
+        val api = "tx_reject/$txUnid"
+        try {
+            val response = GetAPIString(context, api, mes = modifiedMessage, POST = true)
+            Log.d("TransactionRequest", "Response for rejecting transaction $txUnid: $response")
+            updateTransactionStatus(txUnid, 3)
+        } catch (e: Exception) {
+            Log.e("TransactionError", "Error rejecting transaction $txUnid with reason $reason", e)
         }
     }
 
@@ -298,36 +334,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    fun rejectTransaction(txUnid: String, reason: String) = viewModelScope.launch {
-        val message = JSONObject().apply {
-            put("ec_reject", reason)
-        }.toString()
-        val modifiedMessage = message.substring(1, message.length - 1)
-        val api = "tx_reject/$txUnid"
-        try {
-            val response = GetAPIString(context, api, mes = modifiedMessage, POST = true)
-            Log.d("TransactionRequest", "Response for rejecting transaction $txUnid: $response")
-            // Update the rejection state
-            _rejectedTransactions.value = _rejectedTransactions.value?.plus(txUnid to reason)
-            saveRejectedTransactions(_rejectedTransactions.value ?: emptyMap())
-        } catch (e: Exception) {
-            Log.e("TransactionError", "Error rejecting transaction $txUnid with reason $reason", e)
-        }
-    }
-
-    fun signTransaction(txUnid: String) = viewModelScope.launch {
-        val api = "tx_sign/$txUnid"
-        try {
-            val response = GetAPIString(context, api, mes = "", POST = true)
-            Log.d("TransactionRequest", "Response for signing transaction $txUnid: $response")
-            // Update the signing state
-            _signedTransactions.value = _signedTransactions.value?.plus(txUnid)
-            saveSignedTransactions(_signedTransactions.value ?: emptySet())
-        } catch (e: Exception) {
-            Log.e("TransactionError", "Error signing transaction $txUnid", e)
-        }
-    }
-
     fun isTransactionRejected(transactionId: String): String? {
         return _rejectedTransactions.value?.get(transactionId)
     }
@@ -351,7 +357,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         emit(repository.getAllBalansByAddr(tokenAddr))
     }
 
-    fun sendTransaction(token: Balans, wallet: Wallets, address: String, amount: Double, context: Context) = viewModelScope.launch {
+    fun sendTransaction(token: Balans, wallet: Wallets, address: String, amount: Double, info: String, context: Context) = viewModelScope.launch {
         val symbols = DecimalFormatSymbols(Locale.getDefault()).apply {
             decimalSeparator = '.'
         }
@@ -361,7 +367,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
 
         val transactionDetails = JSONObject().apply {
             put("token", "${token.network_id}:::${token.name}###${wallet.name}")
-            put("info", wallet.info)
+            put("info", info)
             put("value", formattedAmount)
             put("toAddress", address)
         }

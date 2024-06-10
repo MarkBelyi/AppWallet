@@ -55,21 +55,9 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
         userAddress.value = GetMyAddr(context) // Get the user's address
     }
 
-    val isTxValid = tx.tx.replace(" ", "").matches(Regex("^[a-fA-F0-9\\s]{64}$"))
-    val signingState = remember { mutableStateOf(SigningState.IDLE) }
+    val signingState = remember { mutableStateOf(SigningState.values().find { it.ordinal == tx.status } ?: SigningState.IDLE) }
     val showDialog = remember { mutableStateOf(false) }
     val rejectReason = remember { mutableStateOf("") }
-
-    val rejectionReason = viewModel.isTransactionRejected(tx.unid)
-    if (rejectionReason != null) {
-        signingState.value = SigningState.REJECTED
-        rejectReason.value = rejectionReason
-    }
-
-    val isSigned = viewModel.isTransactionSigned(tx.unid)
-    if (isSigned) {
-        signingState.value = SigningState.SIGNED
-    }
 
     if (showDialog.value) {
         AlertDialog(
@@ -100,8 +88,6 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
             }
         )
     }
-
-    val isSigner = tx.signedEC.split(",").contains(userAddress.value) || tx.waitEC.split(",").contains(userAddress.value)
 
     Card(
         modifier = Modifier
@@ -139,60 +125,50 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
                     overflow = TextOverflow.Ellipsis,
                     color = colorScheme.onSurface
                 )
-                when {
-                    !isTxValid -> {
-                        when (signingState.value) {
-                            SigningState.IDLE -> {
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                                    if (isSigner) {
-                                        Button(onClick = {
-                                            signingState.value = SigningState.SIGNING
-                                            onSign()
-                                        }) {
-                                            Text("Sign")
-                                        }
-                                        Button(onClick = {
-                                            showDialog.value = true
-                                        }) {
-                                            Text("Reject")
-                                        }
-                                    } else {
-                                        Text(text = "Waiting for signer's signature", color = colorScheme.onSurface)
-                                    }
-                                }
+                when (signingState.value) {
+                    SigningState.IDLE -> {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            Button(onClick = {
+                                signingState.value = SigningState.SIGNING
+                                onSign()
+                            }) {
+                                Text("Sign")
                             }
-                            SigningState.SIGNING -> {
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                                    Text(text = "Ожидайте", color = colorScheme.onSurface)
-                                    CircularProgressIndicator()
-                                }
-                            }
-                            SigningState.REJECTED -> {
-                                Text(
-                                    text = "Отказано вами по причине: ${rejectReason.value}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = colorScheme.error
-                                )
-                            }
-                            SigningState.SIGNED -> {
-                                Text(
-                                    text = "Transaction signed",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = colorScheme.primary
-                                )
+                            Button(onClick = {
+                                showDialog.value = true
+                            }) {
+                                Text("Reject")
                             }
                         }
                     }
-                    else -> {
+                    SigningState.SIGNING -> {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            Text(text = "Ожидайте", color = colorScheme.onSurface)
+                            CircularProgressIndicator()
+                        }
+                    }
+                    SigningState.REJECTED -> {
                         Text(
-                            text = "Transaction: ${tx.tx}",
+                            text = "Отказано вами по причине: ${rejectReason.value}",
                             style = MaterialTheme.typography.bodySmall,
                             overflow = TextOverflow.Ellipsis,
-                            color = colorScheme.onSurface,
-                            maxLines = 1,
-                            minLines = 1
+                            color = colorScheme.error
+                        )
+                    }
+                    SigningState.SIGNED -> {
+                        Text(
+                            text = "Transaction signed",
+                            style = MaterialTheme.typography.bodySmall,
+                            overflow = TextOverflow.Ellipsis,
+                            color = colorScheme.primary
+                        )
+                    }
+                    SigningState.WAITING -> {
+                        Text(
+                            text = "Ожидайте подписей",
+                            style = MaterialTheme.typography.bodySmall,
+                            overflow = TextOverflow.Ellipsis,
+                            color = colorScheme.onSurface
                         )
                     }
                 }
@@ -205,9 +181,9 @@ enum class SigningState {
     IDLE,
     SIGNING,
     REJECTED,
-    SIGNED
+    SIGNED,
+    WAITING
 }
-
 @Composable
 fun TXScreens(viewModel: appViewModel) {
     val txs by viewModel.allTX.observeAsState(initial = emptyList())

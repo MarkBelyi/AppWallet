@@ -12,11 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import com.example.walletapp.R
 
 @Composable
 fun CheckboxWithLabel(
@@ -43,7 +45,7 @@ fun CheckboxWithLabel(
         )
         ClickableTextWithLink(
             text = text,
-            link = ""//нужно поставить сюда ссылочку на нужный документ
+            link = stringResource(id = R.string.user_agreement)
         )
     }
 }
@@ -55,9 +57,9 @@ fun ClickableTextWithLink(
 ) {
     val context = LocalContext.current
     val annotatedString = buildAnnotatedString {
-        append(text.substring(0, 18))  // Добавление текста до 18-го символа без стиля
+        append(text.substring(0, 18))
 
-        withStyle(style = SpanStyle(color = colorScheme.onSurfaceVariant)) { // Применение синего цвета начиная с 18-го символа
+        withStyle(style = SpanStyle(color = colorScheme.onSurfaceVariant)) {
             append(text.substring(18))
         }
 

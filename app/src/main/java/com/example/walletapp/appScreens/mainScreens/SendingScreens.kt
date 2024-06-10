@@ -1,7 +1,6 @@
 package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,7 +23,6 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -46,8 +43,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.walletapp.DataBase.Entities.Balans
+import com.example.walletapp.Element.CustomButton
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
 
 object SendingRoutes {
     const val WALLETS = "wallets"
@@ -84,7 +82,6 @@ fun SendingScreens(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.surface)
                 .padding(paddingValues)
         ) {
             NavHost(navController, startDestination = SendingRoutes.WALLETS) {
@@ -97,7 +94,7 @@ fun SendingScreens(
                     }
                 }
                 composable(SendingRoutes.SEND_TRANSACTION) {
-                    SendTransactionScreen(viewModel, address)
+                    TransactionScreen(viewModel, address)
                 }
             }
         }
@@ -162,6 +159,7 @@ fun TokenItem(balans: Balans, onClick: () -> Unit) {
     }
 }
 
+/*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SendTransactionScreen(viewModel: appViewModel, preFilledAddress: String) {
@@ -230,6 +228,117 @@ fun SendTransactionScreen(viewModel: appViewModel, preFilledAddress: String) {
                     }
                 }) {
                     Text("Send")
+                }
+            }
+        }
+    } ?: Text("No wallet or token selected", color = colorScheme.onSurface)
+}
+*/
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TransactionScreen(viewModel: appViewModel, preFilledAddress: String) {
+    val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var openQRBottomSheet by remember { mutableStateOf(false) }
+    var address by remember { mutableStateOf(preFilledAddress) }
+    var amount by remember { mutableStateOf("") }
+    var paymentPurpose by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    if (openQRBottomSheet) {
+        ModalBottomSheet(
+            shape = newRoundedShape,
+            containerColor = colorScheme.surface,
+            sheetState = qrBottomSheetState,
+            onDismissRequest = { openQRBottomSheet = false },
+            dragHandle = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            }
+        ) {
+            BottomSheetContent(
+                onQRScanned = { result ->
+                    address = result
+                    openQRBottomSheet = false
+                }
+            )
+        }
+    }
+
+    val selectedWallet by viewModel.selectedWallet.observeAsState()
+    val selectedToken by viewModel.selectedToken.observeAsState()
+
+    selectedWallet?.let { wallet ->
+        selectedToken?.let { token ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text("Кошелек: ${wallet.addr}", color = colorScheme.onSurface)
+                    Text("Баланс: ${token.amount} ${token.name}", color = colorScheme.onSurface)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    CustomOutlinedTextFieldWithIcon(
+                        value = address,
+                        onValueChange = { address = it },
+                        placeholder = "Адрес",
+                        onClick = { openQRBottomSheet = true },
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    CustomOutlinedTextField(
+                        value = amount,
+                        onValueChange = { amount = it },
+                        placeholder = "Сумма",
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text("Комиссия составит: ???", color = colorScheme.onSurface)
+                    Text("Минимальная комиссия: ???", color = colorScheme.onSurface)
+                    Text("Максимальная комиссия: ???", color = colorScheme.onSurface)
+                    Text("Комиссия: ???", color = colorScheme.onSurface)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text("Укажите назначение платежа", color = colorScheme.onSurface)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomOutlinedTextField(
+                        value = paymentPurpose,
+                        onValueChange = { paymentPurpose = it },
+                        placeholder = "Назначение платежа"
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    val isButtonEnabled = address.isNotBlank() && amount.isNotBlank() && paymentPurpose.isNotBlank()
+
+                    CustomButton(
+                        text = "Отправить",
+                        onClick = {
+                            amount.toDoubleOrNull()?.let { amt ->
+                                viewModel.sendTransaction(
+                                    token = token,
+                                    wallet = wallet,
+                                    amount = amt,
+                                    address = address,
+                                    info = paymentPurpose,
+                                    context = context
+                                )
+                            }
+                        },
+                        enabled = isButtonEnabled
+                    )
                 }
             }
         }

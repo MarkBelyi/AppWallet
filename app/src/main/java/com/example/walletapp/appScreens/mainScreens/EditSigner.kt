@@ -16,7 +16,7 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -64,13 +64,14 @@ fun EditSigner(
     }
 
     Scaffold(
+        containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Edit Signer", color = MaterialTheme.colorScheme.onSurface) },
+                title = { Text(text = "Edit Signer", color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface
+                    containerColor = colorScheme.surface,
+                    titleContentColor = colorScheme.onSurface,
+                    scrolledContainerColor = colorScheme.surface
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
@@ -89,13 +90,14 @@ fun EditSigner(
             verticalArrangement = Arrangement.spacedBy(space = 8.dp),
             horizontalAlignment = Alignment.Start
         ) {
+
             CustomOutlinedTextField(
                 value = nameState.value,
                 onValueChange = { nameState.value = it },
                 placeholder = "Name",
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
-                    focusManager.moveFocus(FocusDirection.Down) // Переход к следующему элементу
+                    focusManager.moveFocus(FocusDirection.Down)
                 })
             )
 
@@ -105,7 +107,7 @@ fun EditSigner(
                 placeholder = "Address",
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
-                    focusManager.moveFocus(FocusDirection.Down) // Переход к следующему элементу
+                    focusManager.moveFocus(FocusDirection.Down)
                 })
             )
 
@@ -148,10 +150,10 @@ fun EditSigner(
                     .heightIn(min = 48.dp, max = 64.dp),
                 shape = roundedShape,
                 colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary,
+                    disabledContainerColor = colorScheme.primaryContainer,
+                    disabledContentColor = colorScheme.onPrimaryContainer
                 ),
                 onClick = {
                 // Обработка нажатия на кнопку "Сохранить"

@@ -1,4 +1,4 @@
-package com.cri.wallet.database
+package com.example.walletapp.DataBase.DAO
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -18,6 +18,9 @@ interface TxDAO {
 
     @Query("SELECT * FROM TX WHERE tx != '' ")
     suspend fun getWhoHasTX(): List<TX>
+
+    @Query("UPDATE TX SET status = :status WHERE unid = :unid")
+    suspend fun updateTransactionStatus(unid: String, status: Int)
 
     @Query("SELECT * FROM TX WHERE tx = '' ")
     suspend fun getWhoHasNotTX(): List<TX>
