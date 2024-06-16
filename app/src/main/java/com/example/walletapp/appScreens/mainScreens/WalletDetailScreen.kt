@@ -136,8 +136,14 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                 Text(text = "Подписанты:", fontSize = 16.sp, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                AddressList(slist = wallet.slist, signers = signers)
+
+                Card(
+                    border = BorderStroke(width = 1.dp, color = colorScheme.primary),
+                    colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    AddressList(slist = wallet.slist, signers = signers)
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

@@ -3,6 +3,7 @@ package com.example.walletapp.appScreens.mainScreens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,10 +12,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
@@ -52,10 +55,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.R
@@ -66,7 +71,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClick: () -> Unit) {
+fun CreateWalletScreen(
+    viewModel: appViewModel,
+    onCreateClick: () -> Unit,
+    onBackClick: () -> Unit
+) {
     var selectedNetworkId by remember { mutableStateOf<Int?>(null) }
     var selectingSignerIndex by remember { mutableStateOf<Int?>(null) }
     var selectingSignerIndexQR by remember { mutableStateOf<Int?>(null) }
@@ -88,7 +97,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
     var openSignerBottomSheet by remember { mutableStateOf(false) }
 
 
-    if(openQRBottomSheet){
+    if (openQRBottomSheet) {
         ModalBottomSheet(
             shape = topRoundedShape,
             tonalElevation = 0.dp,
@@ -115,7 +124,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
         }
     }
 
-    if(openSignerBottomSheet){
+    if (openSignerBottomSheet) {
         ModalBottomSheet(
             shape = topRoundedShape,
             tonalElevation = 0.dp,
@@ -186,80 +195,14 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                 }
             )
         }
-    )  { padding ->
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 16.dp),
+                .padding(start = 8.dp, end = 8.dp, top = 12.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = {
-                    expanded = !expanded
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = colorScheme.surface, shape = newRoundedShape)
-            ) {
-                TextField(
-                    value = selectedNetwork,
-                    onValueChange = {},
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.select_blockchain),
-                            maxLines = 1,
-                            color = colorScheme.scrim
-                        )
-                    },
-                    readOnly = true,
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedTextColor = colorScheme.onSurface,
-                        unfocusedTextColor = colorScheme.onSurface
-                    ),
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = {expanded = false},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = colorScheme.surface, shape = newRoundedShape)
-                        .border(
-                            width = 0.5.dp,
-                            shape = newRoundedShape,
-                            color = colorScheme.primary
-                        )
-                ) {
-                    networks.forEach { network ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = network.network_name,
-                                    color = colorScheme.onSurface,
-                                    fontWeight = FontWeight.Normal
-                                )
-                            },
-                            onClick = {
-                                selectedNetwork = network.network_name
-                                selectedNetworkId = network.network_id
-                                expanded = false
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
 
             OutlinedTextField(
                 value = walletNameText,
@@ -285,13 +228,88 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                 )
             )
 
-            Text(
-                text = stringResource(id = R.string.signers),
-                maxLines = 1,
-                color = colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 24.sp
-            )
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = {
+                    expanded = !expanded
+                },
+                modifier = Modifier
+                    .border(
+                        width = 0.5.dp,
+                        shape = newRoundedShape,
+                        color = colorScheme.primary
+                    )
+                    .fillMaxWidth()
+                    .background(color = colorScheme.surface, shape = newRoundedShape)
+            ) {
+                TextField(
+                    value = selectedNetwork,
+                    onValueChange = {},
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.select_blockchain),
+                            maxLines = 1,
+                            color = colorScheme.scrim
+                        )
+                    },
+                    readOnly = true,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedTextColor = colorScheme.onSurface,
+                        unfocusedTextColor = colorScheme.onSurface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorScheme.surface, shape = newRoundedShape)
+                ) {
+                    networks.forEach { network ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = network.network_name,
+                                    color = colorScheme.onSurface,
+                                    fontWeight = FontWeight.Normal
+                                )
+                            },
+                            onClick = {
+                                selectedNetwork = network.network_name
+                                selectedNetworkId = network.network_id
+                                expanded = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 8.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.signers),
+                    maxLines = 1,
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
 
             LazyColumn(
                 modifier = Modifier
@@ -312,22 +330,22 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                             openQRBottomSheet = true
                         }
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
 
-            Text(
-                text =
-                "Необходимое количество подписантов: ${requiredSigners.toInt()} "
-                        +
-                        stringResource(id = R.string.of)
-                        +
-                        " ${signerKeys.size}",
+            Box(modifier = Modifier.align(Alignment.CenterHorizontally)){
+                Text(
+                    text =
+                    "Необходимое количество подписантов: ${requiredSigners.toInt()} "
+                            + stringResource(id = R.string.of)
+                            + " ${signerKeys.size}",
 
-                color = colorScheme.onSurface,
-                fontWeight = FontWeight.Light,
-                fontSize = 14.sp
-            )
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.Light,
+                    fontSize = 14.sp
+                )
+            }
 
             RequiredSignersSelector(
                 numberOfSigners = signerKeys.size,
@@ -338,30 +356,31 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
             )
 
             ElevatedButton(
-                onClick = { coroutineScope.launch{
-                    //GetAPIString(context, "newWallet", POST = true)
-                    //signerKeys - массив содержит все адреса подписантов, что юзер указал. Их отдадим на сервер через запятую
-                    val EC = signerKeys
-                        .filter { !it.isNullOrEmpty() } // отфильтруем пустые (ну а вдруг!)
-                        .toList()
+                onClick = {
+                    coroutineScope.launch {
+                        //GetAPIString(context, "newWallet", POST = true)
+                        //signerKeys - массив содержит все адреса подписантов, что юзер указал. Их отдадим на сервер через запятую
+                        val EC = signerKeys
+                            .filter { !it.isNullOrEmpty() } // отфильтруем пустые (ну а вдруг!)
+                            .toList()
 
-                    var ss:String="" // Json тело запроса
-                    ss="\"slist\":{"
-                    for (i in 0..EC.size-1) {
-                        ss += "\""+i+"\":{\"type\":" + "\"any\"," + "\"ecaddress\":\"" + EC[i] + "\"}"
-                        if (i<EC.size-1)ss+=","
+                        var ss: String = "" // Json тело запроса
+                        ss = "\"slist\":{"
+                        for (i in 0..EC.size - 1) {
+                            ss += "\"" + i + "\":{\"type\":" + "\"any\"," + "\"ecaddress\":\"" + EC[i] + "\"}"
+                            if (i < EC.size - 1) ss += ","
+                        }
+                        // "type":"any" значит что сервер примет любой метод подписи от подписанта[смс, емаил или ECDSA] (но мы пока используем ECDSA)
+
+                        if (requiredSigners > 0) // минимальное кол-во подписантов для кворума (минимум один, максимум все) когда-то был возможен ноль.
+                            ss += ",\"min_signs\":\"" + requiredSigners.toString() + "\""
+                        ss += "},"
+                        // selectedNetworkid - код сети, меняется в момент смены сети юзером в поле выбора сети
+                        ss += "\"network\":\"" + selectedNetworkId + "\"," // код сети блокчейна (3000 эфир, 5000 трон итд)
+                        ss += "\"info\":\"" + walletNameText + "\"" // Имя кошелька
+                        // Когда ss набит инфой, шлём его на сервер:
+                        viewModel.createWallet(context, ss)
                     }
-                    // "type":"any" значит что сервер примет любой метод подписи от подписанта[смс, емаил или ECDSA] (но мы пока используем ECDSA)
-
-                    if (requiredSigners>0) // минимальное кол-во подписантов для кворума (минимум один, максимум все) когда-то был возможен ноль.
-                        ss+=",\"min_signs\":\""+requiredSigners.toString()+"\""
-                    ss+="},"
-                    // selectedNetworkid - код сети, меняется в момент смены сети юзером в поле выбора сети
-                    ss+="\"network\":\""+selectedNetworkId+"\"," // код сети блокчейна (3000 эфир, 5000 трон итд)
-                    ss+="\"info\":\""+walletNameText+"\"" // Имя кошелька
-                    // Когда ss набит инфой, шлём его на сервер:
-                    viewModel.createWallet(context,ss)
-                }
                     onCreateClick()
                 },
                 shape = newRoundedShape,
@@ -392,101 +411,102 @@ fun SignerRow(
     onSignerIconClick: (Int) -> Unit,
     onQrScanClick: (Int) -> Unit
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        OutlinedTextField(
-            value = signerKeys[index],
-            onValueChange = { signerKeys[index] = it },
-            placeholder = {
-                Text(
-                    text = stringResource(id = R.string.new_signer),
-                    color = Color.Gray
-                )
-            },
-            singleLine = true,
-            modifier = Modifier
-                .weight(1f)
-                .border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape),
-            shape = MaterialTheme.shapes.medium,
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = colorScheme.onSurface,
-                unfocusedTextColor = colorScheme.onSurface,
-                focusedContainerColor = colorScheme.surface,
-                unfocusedContainerColor = colorScheme.surface,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
-        )
-
-        IconButton(onClick = { onQrScanClick(index) }) {
-            Icon(
-                painter = painterResource(id = R.drawable.qr_code_scanner),
-                contentDescription = "QR",
-                tint = colorScheme.primary,
-                modifier = Modifier.scale(1.2f)
-            )
-        }
-
-        IconButton(onClick = { onSignerIconClick(index) }) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Choose Signer",
-                tint = colorScheme.primary,
-                modifier = Modifier.scale(1.2f)
-            )
-        }
-    }
 
     fun addSigner() {
         signerKeys.add("")
     }
+
     fun removeSigner(index: Int) {
         signerKeys.removeAt(index)
     }
 
-    Spacer(modifier = Modifier.height(8.dp))
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .weight(1f)
+                .border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape)
+                .background(colorScheme.surface, shape = newRoundedShape)
+                .fillMaxWidth()
+        ) {
+
+            OutlinedTextField(
+                value = signerKeys[index],
+                onValueChange = { signerKeys[index] = it },
+                placeholder = {
+                    Text(
+                        text = stringResource(id = R.string.new_signer),
+                        color = Color.Gray
+                    )
+                },
+                singleLine = true,
+                shape = newRoundedShape,
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = colorScheme.onSurface,
+                    unfocusedTextColor = colorScheme.onSurface,
+                    focusedContainerColor = colorScheme.surface,
+                    unfocusedContainerColor = colorScheme.surface,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
+
+            IconButton(onClick = { onQrScanClick(index) }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.qr_code_scanner),
+                    contentDescription = "QR",
+                    tint = colorScheme.primary,
+                    modifier = Modifier.scale(1.2f)
+                )
+            }
+
+            IconButton(onClick = { onSignerIconClick(index) }) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Choose Signer",
+                    tint = colorScheme.primary,
+                    modifier = Modifier
+                        .scale(1.2f)
+                )
+            }
+
+        }
+        if (index == signerKeys.lastIndex) {
+            IconButton(
+                onClick = { removeSigner(index) },
+                enabled = signerKeys.size > 1
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "remove",
+                    tint = colorScheme.primary,
+                    modifier = Modifier.scale(1.2f)
+                )
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(4.dp))
 
     if (index == signerKeys.lastIndex) {
         Row(
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.fillMaxWidth()
         ) {
-            TextButton(
-                onClick = { removeSigner(index) },
-                enabled = signerKeys.size > 1,
-                shape = newRoundedShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.surface,
-                    contentColor = colorScheme.onSurface,
-                    disabledContainerColor = colorScheme.scrim.copy(alpha = 0.4f),
-                    disabledContentColor = colorScheme.scrim
-                ),
-            ) {
-                Text(
-                    text = "remove",
-                    color = colorScheme.onSurface,
-                    fontWeight = FontWeight.Normal
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            TextButton(
+            IconButton(
                 onClick = { addSigner() },
-                shape = newRoundedShape,
                 enabled = signerKeys.size < numberOfSigner,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.surface,
-                    contentColor = colorScheme.onSurface,
-                    disabledContainerColor = colorScheme.scrim.copy(alpha = 0.4f),
-                    disabledContentColor = colorScheme.scrim
-                ),
             ) {
-                Text(
-                    text = "add",
-                    color = colorScheme.onSurface,
-                    fontWeight = FontWeight.Normal
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "remove",
+                    tint = colorScheme.primary,
+                    modifier = Modifier.scale(1.2f)
                 )
+
             }
         }
     }
@@ -516,14 +536,14 @@ fun RequiredSignersSelector(
                 disabledContentColor = colorScheme.onPrimaryContainer
             ),
 
-        ) {
+            ) {
             Text("-")
         }
 
         Text(
             text = "$requiredSigners " + stringResource(id = R.string.of) + " $numberOfSigners",
             modifier = Modifier.padding(horizontal = 16.dp),
-            fontWeight= FontWeight.Light,
+            fontWeight = FontWeight.Light,
             color = colorScheme.onSurface
         )
 

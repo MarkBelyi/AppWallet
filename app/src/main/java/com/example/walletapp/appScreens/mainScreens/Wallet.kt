@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.Element.ClickableText
 import com.example.walletapp.R
@@ -164,17 +165,19 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                 )
             }
 
-            Spacer(Modifier.width(4.dp))
+            Spacer(Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = context.getString(R.string.name_of_wallet) + ": " + wallet.info,
+                    text = wallet.info.uppercase(),
                     style = MaterialTheme.typography.titleMedium,
-                    color = colorScheme.onSurface
+                    color = colorScheme.onSurface,
+                    fontSize = 20.sp
+
                 )
                 if (isAddressEmpty) {
                     Text(
                         context.getString(R.string.pending_wallet),
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Light,
                         color = colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium
                     )
@@ -202,7 +205,17 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                     }
                 }
             }
+            Box(modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(end = 8.dp)
+            ){
+                Text(
+                    text = wallet.tokenShortNames,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
+
     }
 }
 
