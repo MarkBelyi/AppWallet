@@ -36,6 +36,7 @@ enum class AuthMethod {
 }
 
 @Composable
+
 fun CreatePasswordScreen(
     onNextAction: () -> Unit,
     onPinCodeClick: () -> Unit,
@@ -140,6 +141,6 @@ fun isPasswordValid(password: String): Boolean {
     val isLongEnough = password.length >= 8
     return hasUpperCase && hasDigit && hasSpecialChar && isLongEnough
 }
-
+//2
 
 

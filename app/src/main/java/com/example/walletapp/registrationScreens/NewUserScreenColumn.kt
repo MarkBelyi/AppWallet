@@ -1,13 +1,21 @@
 package com.example.walletapp.registrationScreens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -15,6 +23,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -103,6 +116,11 @@ fun AnimatedContent(
     onAddClick: () -> Unit,
     onTermsAcceptedChange: (Boolean) -> Unit
 ) {
+
+    var isVisible by remember {
+        mutableStateOf(true)
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -131,7 +149,10 @@ fun AnimatedContent(
             CustomButton(
                 textResource = R.string.create_button,
                 enabled = termsAccepted,
-                onClick = onCreateClick
+                onClick = {
+                    onCreateClick()
+                    isVisible = !isVisible
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -154,8 +175,9 @@ fun AnimatedContent(
             )
 
             Spacer(modifier = Modifier.weight(0.4f))
+
         }
     }
 }
 
-
+//animation

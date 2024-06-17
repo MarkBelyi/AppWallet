@@ -52,6 +52,13 @@ android {
 }
 
 dependencies {
+
+    val composeBom = platform("androidx.compose:compose-bom:2024.05.00")
+    implementation(composeBom)
+
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+
     //Базовые настройки с которыми приложение запускается нормально
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
@@ -122,4 +129,9 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
     // Required for compatibility
     implementation("androidx.fragment:fragment:1.6.2")
+
+    implementation ("androidx.compose.animation:animation:1.3.3")
+    implementation ("androidx.compose.ui:ui:1.3.3")
+    implementation ("androidx.compose.runtime:runtime:1.3.3")
+    implementation ("androidx.compose.animation:animation:1.3.3")
 }
