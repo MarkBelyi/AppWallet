@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -61,6 +62,7 @@ import com.example.walletapp.ui.theme.roundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.bouncycastle.math.raw.Mod
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.WalletUtils
 
@@ -155,12 +157,40 @@ fun Home(
             .background(color = colorScheme.background)
             .padding(paddingColumn)
     ) {
-        val (gridRef, button) = createRefs()
+        val (assets, gridRef, button) = createRefs()
+
+        Card(
+            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .background(color = colorScheme.surface, shape = roundedShape)
+                .constrainAs(assets) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(gridRef.top)
+                }
+        ) {
+            Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text(
+                    text = "Мои Активы:",
+                    modifier = Modifier
+                        .background(color = colorScheme.surface)
+                        .fillMaxWidth()
+                )
+            }
+        }
+        LazyColumn() {
+
+        }
+
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
                 Actions.settings -> onSettingsClick()
-                Actions.QR -> { openQRBottomSheet = true }
+                Actions.QR -> {
+                    openQRBottomSheet = true
+                }
+
                 Actions.shareMyAddr -> onShareClick()
                 Actions.signers -> onSignersClick()
                 Actions.createWallet -> onCreateWalletClick()
@@ -200,10 +230,9 @@ fun Home(
         ) {
             Text("Показать ключи")
         }
-
-
     }
 }
+
 
 
 @Composable

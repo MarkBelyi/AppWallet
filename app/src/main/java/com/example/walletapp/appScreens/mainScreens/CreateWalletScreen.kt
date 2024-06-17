@@ -1,10 +1,13 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -22,6 +24,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,13 +32,13 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -53,21 +56,29 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.FractionalThreshold
+import androidx.wear.compose.material.rememberSwipeableState
+import androidx.wear.compose.material.swipeable
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,6 +152,7 @@ fun CreateWalletScreen(
             }
         ) {
             val signers by viewModel.allSigners.observeAsState(initial = emptyList())
+
             LazyColumn(
                 contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
                 modifier = Modifier
@@ -262,11 +274,12 @@ fun CreateWalletScreen(
                         focusedTextColor = colorScheme.onSurface,
                         unfocusedTextColor = colorScheme.onSurface,
                         focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+                        unfocusedIndicatorColor = Color.Transparent,
                     ),
                     modifier = Modifier
                         .menuAnchor()
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    shape = newRoundedShape
                 )
 
                 ExposedDropdownMenu(
@@ -274,7 +287,8 @@ fun CreateWalletScreen(
                     onDismissRequest = { expanded = false },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(color = colorScheme.surface, shape = newRoundedShape)
+                        .background(color = colorScheme.surface)
+                        .clip(newRoundedShape),
                 ) {
                     networks.forEach { network ->
                         DropdownMenuItem(
@@ -282,7 +296,7 @@ fun CreateWalletScreen(
                                 Text(
                                     text = network.network_name,
                                     color = colorScheme.onSurface,
-                                    fontWeight = FontWeight.Normal
+                                    fontWeight = FontWeight.Normal,
                                 )
                             },
                             onClick = {
@@ -291,6 +305,7 @@ fun CreateWalletScreen(
                                 expanded = false
                             },
                             modifier = Modifier.fillMaxWidth()
+//                            leadingIcon = { Image(painter = painterResource(id = R.drawable.safina_32x32), contentDescription = "blockchain icon") }
                         )
                     }
                 }
@@ -328,13 +343,16 @@ fun CreateWalletScreen(
                         onQrScanClick = {
                             selectingSignerIndexQR = index
                             openQRBottomSheet = true
+                        },
+                        onDismiss = { removeIndex ->
+                            if (signerKeys.size > 1) signerKeys.removeAt(removeIndex)
                         }
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                 }
             }
 
-            Box(modifier = Modifier.align(Alignment.CenterHorizontally)){
+            Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Text(
                     text =
                     "Необходимое количество подписантов: ${requiredSigners.toInt()} "
@@ -403,14 +421,21 @@ fun CreateWalletScreen(
     }
 }
 
+@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun SignerRow(
     index: Int,
     signerKeys: MutableList<String>,
     numberOfSigner: Int,
     onSignerIconClick: (Int) -> Unit,
-    onQrScanClick: (Int) -> Unit
+    onQrScanClick: (Int) -> Unit,
+    onDismiss: (Int) -> Unit
 ) {
+
+    val swipeableState = rememberSwipeableState(initialValue = 0)
+
+    val sizePx = with(LocalDensity.current) { 70.dp.toPx() }
+    val anchors = mapOf(0f to 0, -sizePx to -1)
 
     fun addSigner() {
         signerKeys.add("")
@@ -420,72 +445,130 @@ fun SignerRow(
         signerKeys.removeAt(index)
     }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+    if (swipeableState.currentValue == -1) {
+        LaunchedEffect(swipeableState) {
+            swipeableState.animateTo(0)
+            onDismiss(index)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .swipeable(
+                state = swipeableState,
+                anchors = anchors,
+                thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                orientation = Orientation.Horizontal
+            )
+            .background(Color.Transparent) // Background of the Box
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .weight(1f)
-                .border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape)
-                .background(colorScheme.surface, shape = newRoundedShape)
                 .fillMaxWidth()
+                .graphicsLayer {
+                    val offset = swipeableState.offset.value
+                    translationX = offset
+                    alpha = 1f - abs(offset) / sizePx
+                }
+                .swipeable(
+                    state = swipeableState,
+                    anchors = anchors,
+                    enabled = signerKeys.size > 1,
+                    thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                    orientation = Orientation.Horizontal
+                )
+                .background(
+                    if (swipeableState.offset.value < -sizePx / 2) Color.Transparent else Color.Transparent,
+                    shape = newRoundedShape
+                )
         ) {
-
-            OutlinedTextField(
-                value = signerKeys[index],
-                onValueChange = { signerKeys[index] = it },
-                placeholder = {
-                    Text(
-                        text = stringResource(id = R.string.new_signer),
-                        color = Color.Gray
-                    )
-                },
-                singleLine = true,
-                shape = newRoundedShape,
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = colorScheme.onSurface,
-                    unfocusedTextColor = colorScheme.onSurface,
-                    focusedContainerColor = colorScheme.surface,
-                    unfocusedContainerColor = colorScheme.surface,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-
-            IconButton(onClick = { onQrScanClick(index) }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.qr_code_scanner),
-                    contentDescription = "QR",
-                    tint = colorScheme.primary,
-                    modifier = Modifier.scale(1.2f)
-                )
-            }
-
-            IconButton(onClick = { onSignerIconClick(index) }) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Choose Signer",
-                    tint = colorScheme.primary,
-                    modifier = Modifier
-                        .scale(1.2f)
-                )
-            }
-
-        }
-        if (index == signerKeys.lastIndex) {
-            IconButton(
-                onClick = { removeSigner(index) },
-                enabled = signerKeys.size > 1
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .weight(1f)
+                    .border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape)
+                    .background(colorScheme.surface, shape = newRoundedShape)
+                    .fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "remove",
-                    tint = colorScheme.primary,
-                    modifier = Modifier.scale(1.2f)
+
+                OutlinedTextField(
+                    value = signerKeys[index],
+                    onValueChange = { signerKeys[index] = it },
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.new_signer),
+                            color = Color.Gray
+                        )
+                    },
+                    singleLine = true,
+                    shape = newRoundedShape,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = colorScheme.onSurface,
+                        unfocusedTextColor = colorScheme.onSurface,
+                        focusedContainerColor = colorScheme.surface,
+                        unfocusedContainerColor = colorScheme.surface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    modifier = Modifier.weight(0.5f)
                 )
+
+                IconButton(
+                    onClick = { onQrScanClick(index) },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.qr_code_scanner),
+                        contentDescription = "QR",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+                }
+
+                IconButton(
+                    onClick = { onSignerIconClick(index) },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Choose Signer",
+                        tint = colorScheme.primary,
+                        modifier = Modifier
+                            .scale(1.2f)
+                    )
+                }
+
             }
+
+            if (index == signerKeys.lastIndex) {
+                IconButton(
+                    onClick = { removeSigner(index) },
+                    enabled = signerKeys.size > 1,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "remove",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+                }
+            }
+        }
+
+        if (swipeableState.offset.value < -sizePx / 2) {
+            Text(
+                "Remove item?",
+                color = colorScheme.onSurface.copy(alpha = 0.5f),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+                    .graphicsLayer {
+                        alpha = max(0f, -2 * swipeableState.offset.value / sizePx - 1)
+                    }
+            )
         }
     }
 
@@ -502,7 +585,7 @@ fun SignerRow(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "remove",
+                    contentDescription = "add",
                     tint = colorScheme.primary,
                     modifier = Modifier.scale(1.2f)
                 )
