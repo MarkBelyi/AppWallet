@@ -110,7 +110,8 @@ fun WalletsListScreen(navController: NavController, onCreateClick: () -> Unit, v
             viewModel.selectWallet(wallet)
             navController.navigate("${SendingRoutes.SELECT_TOKEN.replace("{tokenAddr}", wallet.addr)}?address=$address")
         },
-        onCreateClick = { onCreateClick() }
+        onCreateClick = { onCreateClick() },
+        viewModel = viewModel
     )
 }
 
