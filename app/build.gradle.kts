@@ -126,4 +126,10 @@ dependencies {
 
     // QR AdvancedVersion
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:16.1.3")
+
+    //Animation
+    implementation ("androidx.compose.animation:animation:1.3.3")
+    implementation ("androidx.compose.ui:ui:1.3.3")
+    implementation ("androidx.compose.runtime:runtime:1.3.3")
+    implementation ("androidx.compose.animation:animation:1.3.3")
 }

@@ -27,66 +27,37 @@ class AppRepository(
     private val txDAO: TxDAO
 ){
     //balans
-    suspend fun getAllBalans(): List<Balans> = balansDAO.getAll()
-
-    suspend fun getBalansCount(): Int = balansDAO.getCount()
-
-    suspend fun getOverallBalans(): List<Balans> = balansDAO.getOverall()
-
     suspend fun getAllBalansByAddr(adr: String): List<Balans> = balansDAO.getAllByAddr(adr)
-
-    suspend fun getAllBalansByNet(net: Int): List<Balans> = balansDAO.getAllByNet(net)
-
-    suspend fun deleteBalansItem(item: Balans) = balansDAO.deleteItem(item)
-
-    suspend fun deleteAllBalans() = balansDAO.deleteAll()
-
-    suspend fun addBalans(items: List<Balans>) = balansDAO.add(items)
 
     suspend fun insertBalans(item: Balans) = balansDAO.insert(item)
 
     //tokens
-    val allTokens: Flow<List<Tokens>> = tokensDAO.getLiveTokens().asFlow()
     suspend fun insertToken(item: Tokens) = tokensDAO.insert(item)
-
-    suspend fun addTokens(items: List<Tokens>) = tokensDAO.add(items)
-
-    suspend fun tokensCount() =tokensDAO.getCount()
-
-    suspend fun deleteToken(item: Tokens) = tokensDAO.deleteItem(item)
-
-    suspend fun deleteAllTokens()=tokensDAO.deleteAll()
-
-    suspend fun getAllForNet(net:Int)=tokensDAO.getAllForNet(net)
 
 
     // Wallets
     val allWallets: Flow<List<Wallets>> = walletsDAO.getLiveWallets().asFlow() // Получаем кошельки
 
-    suspend fun insertWallet(wallet: Wallets) {
-        walletsDAO.insertWallet(wallet)
-    }
-
-    suspend fun updateWalletSlistAndMinSigns(walletId: Int, slist: String, minSigns: Int) {
-        walletsDAO.updateWalletSlistAndMinSigns(walletId, slist, minSigns)
-    }
-
     suspend fun addWallets(wallets: List<Wallets>) {
         walletsDAO.addWallets(wallets)
     }
 
-    suspend fun deleteWallet(wallet: Wallets) {
-        walletsDAO.deleteWallet(wallet)
+    //NEW
+    suspend fun getWalletsByNetwork(network: Int, testNetwork: Int): List<Wallets> {
+        return walletsDAO.getWalletsByNetwork(network, testNetwork)
     }
 
-    suspend fun deleteAllWallets() {
-        walletsDAO.deleteAll()
+    suspend fun getWalletsByName(name: String): List<Wallets> {
+        return walletsDAO.getWalletsByName(name)
     }
 
-    suspend fun getCountOfWallets(): Int {
-        return walletsDAO.getCount()
+    suspend fun fetchAllWallets(): List<Wallets> {
+        return walletsDAO.fetchAllWallets()
     }
 
+    suspend fun updateWalletFlags(unid: String, newFlags: String) {
+        walletsDAO.updateWalletFlags(unid, newFlags)
+    }
 
     //Singer
     val allSigners: Flow<List<Signer>> = signersDao.getSignersByName()
@@ -107,32 +78,12 @@ class AppRepository(
         return signersDao.getSignerAddress(address)
     }
 
-    suspend fun amountOfSigner(){
-        signersDao.getCount()
-    }
-
     //Network
     val allNetworks: Flow<List<Networks>> = networksDAO.getNetworks()
 
 
-    suspend fun insertNetwork(network: Networks){
-        networksDAO.insertNetwork(network)
-    }
-
     suspend fun addNetworks(networks: List<Networks>){
         networksDAO.addNetworks(networks)
-    }
-
-    suspend fun deleteNetworks(){
-        networksDAO.deleteAll()
-    }
-
-    suspend fun deleteNetwork(network: Networks){
-        networksDAO.deleteNetwork(network)
-    }
-
-    fun amountOfNetworks(){
-        networksDAO.getNetworks()
     }
 
 
