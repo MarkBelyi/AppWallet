@@ -15,9 +15,6 @@ interface WalletsDAO {
     suspend fun getCount(): Int
 
     @Query("SELECT * FROM Wallets")
-    suspend fun fetchWallets(): List<Wallets>
-
-    @Query("SELECT * FROM Wallets")
      fun getLiveWallets(): LiveData<List<Wallets>>
 
     @Delete
@@ -34,4 +31,20 @@ interface WalletsDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWallet(wallet: Wallets)
+
+
+
+    //NEW
+    @Query("SELECT * FROM Wallets WHERE network = :network OR network = :testNetwork ORDER BY info")
+    suspend fun getWalletsByNetwork(network: Int, testNetwork: Int): List<Wallets>
+
+    @Query("SELECT * FROM Wallets WHERE info LIKE '%' || :name || '%' ORDER BY info")
+    suspend fun getWalletsByName(name: String): List<Wallets>
+
+    @Query("SELECT * FROM Wallets")
+    suspend fun fetchAllWallets(): List<Wallets>
+
+    @Query("UPDATE wallets SET myFlags = :newFlags WHERE myUNID = :unid")
+    suspend fun updateWalletFlags(unid: String, newFlags: String)
+
 }

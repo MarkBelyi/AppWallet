@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,12 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,7 +51,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
     val context = LocalContext.current
     BackHandler(onBack = onBack)
     Scaffold(
-        containerColor = colorScheme.background,
+        containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
                 title = { Text(text = wallet.info, color = colorScheme.onSurface) },
@@ -70,7 +66,25 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                             imageVector = Icons.Rounded.ArrowBack,
                             contentDescription = "Back",
                             modifier = Modifier.scale(1.2f),
-                            tint = colorScheme.primary
+                            tint = colorScheme.onSurface
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            val newFlags = if (wallet.myFlags.first() == '1') {
+                                '0' + wallet.myFlags.substring(1)
+                            } else {
+                                '1' + wallet.myFlags.substring(1)
+                            }
+                            viewModel.updateWalletFlags(wallet.myUNID, newFlags)
+                        }
+                    ) {
+                        Icon(
+                            painter = if (wallet.myFlags.first() == '1') painterResource(id = R.drawable.ic_baseline_visibility_off_24) else painterResource(id = R.drawable.ic_baseline_visibility_24),
+                            contentDescription = "Toggle Visibility",
+                            tint = colorScheme.onSurface
                         )
                     }
                 }
@@ -89,53 +103,41 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Card(
-                    border = BorderStroke(width = 0.75.dp, color = colorScheme.primary),
-                    colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OutlinedTextField(
-                        value = wallet.addr,
-                        onValueChange = {},
-                        textStyle = TextStyle(color = colorScheme.onSurface),
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = roundedShape,
-                        readOnly = true,
-                        singleLine = true,
-                        maxLines = 1,
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                val clipboardManager =
-                                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("address", wallet.addr)
-                                clipboardManager.setPrimaryClip(clip)
-                                Toast.makeText(context, R.string.copytobuffer, Toast.LENGTH_SHORT)
-                                    .show()
-                            }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.copy),
-                                    contentDescription = "Share",
-                                    tint = colorScheme.primary
-                                )
-                            }
-                        },
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            focusedContainerColor = colorScheme.surface,
-                            unfocusedContainerColor = colorScheme.surface,
-                            focusedLeadingIconColor = colorScheme.onSurface,
-                            focusedTrailingIconColor = colorScheme.onSurface
-                        )
+                OutlinedTextField(
+                    value = wallet.addr,
+                    onValueChange = {},
+                    textStyle = TextStyle(color = colorScheme.onSurface),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = roundedShape,
+                    readOnly = true,
+                    singleLine = true,
+                    maxLines = 1,
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("address", wallet.addr)
+                            clipboardManager.setPrimaryClip(clip)
+                            Toast.makeText(context, R.string.copytobuffer, Toast.LENGTH_SHORT).show()
+                        }) {
+                            Icon(painter = painterResource(id = R.drawable.copy), contentDescription = "Copy", tint = colorScheme.primary)
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        focusedContainerColor = colorScheme.surface,
+                        unfocusedContainerColor = colorScheme.surface,
+                        focusedLeadingIconColor = colorScheme.onSurface,
+                        focusedTrailingIconColor = colorScheme.onSurface
                     )
-                }
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(text = "Подписанты:", fontSize = 16.sp, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 AddressList(slist = wallet.slist, signers = signers)
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -144,21 +146,15 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Card(
-                    border = BorderStroke(width = 1.dp, color = colorScheme.primary),
-                    colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    Text(
-                        text = wallet.tokenShortNames,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(color = colorScheme.surface, shape = roundedShape)
-                            .padding(8.dp),
-                        fontSize = 14.sp,
-                        color = colorScheme.onSurface
-                    )
-                }
+                Text(
+                    text = wallet.tokenShortNames,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorScheme.surface, shape = roundedShape)
+                        .padding(8.dp),
+                    fontSize = 14.sp,
+                    color = colorScheme.onSurface
+                )
             }
         }
     }
