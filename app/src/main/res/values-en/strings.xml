@@ -8,6 +8,7 @@
     <string name="name_of_wallet">Wallet\'s name:</string>
     <string name="min_signers_count">Min signers count: </string>
     <string name="token">Token</string>
+    <string name="search">Search by name</string>
 
     //Greetings....
     <string name="hello">Hello!</string>
