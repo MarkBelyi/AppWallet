@@ -102,9 +102,6 @@ fun MainPagesActivity(
 
 }
 
-
-
-
 val actionItems = listOf(
         Triple(R.string.action_transfer, R.drawable.send_light, Actions.send),
         Triple(R.string.action_receive, R.drawable.receive_light, Actions.recieve),
@@ -126,8 +123,6 @@ fun AppBottomBar(
     currentRoute: String?,
     navigateToRoute: (String) -> Unit
 ) {
-
-
     NavigationBar(
         containerColor = colorScheme.surface,
         tonalElevation = 0.dp

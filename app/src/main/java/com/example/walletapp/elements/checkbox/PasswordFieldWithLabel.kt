@@ -32,7 +32,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.R
 import com.example.walletapp.ui.theme.newRoundedShape
-import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
 fun PasswordFieldWithLabel(
@@ -77,7 +76,7 @@ fun PasswordFieldWithLabel(
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    onImeAction() // Вызываем переданную функцию, когда пользователь нажимает "Done"
+                    onImeAction()
                 }
             ),
             textStyle = TextStyle(color = colorScheme.onSurface),
@@ -90,7 +89,6 @@ fun PasswordFieldWithLabel(
                 IconButton(onClick = {
                     isPasswordVisible = !isPasswordVisible
                 }) {
-                    // painterResource для загрузки векторного изображения из ресурсов
                     val image = painterResource(id = if (isPasswordVisible) R.drawable.ic_baseline_visibility_off_24 else R.drawable.ic_baseline_visibility_24)
                     Icon(
                         painter = image,

@@ -2,11 +2,13 @@
     <string name="app_name">Safina</string>
     <string name="user_agreement">https://safina.pro/offer</string>
 
+
     //Wallet
     <string name="no_wallets">У вас нет активных кошельков!</string>
     <string name="name_of_wallet">Имя кошелька:</string>
     <string name="min_signers_count">Мин. количество подписантов:</string>
     <string name="token">Токен</string>
+    <string name="search">Поиск по имени</string>
 
     //Greetings....
     <string name="hello">Здравствуйте!</string>
