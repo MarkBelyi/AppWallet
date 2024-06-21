@@ -26,8 +26,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,11 +57,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.Element.ClickableText
+import com.example.walletapp.PullToRefreshLazyColumn.PullToRefreshWithCustomIndicator
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 
-@Composable
+
+/*@Composable
 fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
     val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
     val context = LocalContext.current
@@ -79,8 +81,43 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
         WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel) {
             selectedWallet = null
         }
+   }
+}*/
+
+@Composable
+fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
+    val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
+    val context = LocalContext.current
+    var selectedWallet by remember { mutableStateOf<Wallets?>(null) }
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.getVisibleWallets()
     }
+
+
+    PullToRefreshWithCustomIndicator(
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            viewModel.refreshWallets(context) {
+                isRefreshing = false
+            }
+        },
+        content = {
+            if (selectedWallet == null) {
+                WalletsList(wallets = wallets, onWalletClick = { wallet ->
+                    selectedWallet = wallet
+                }, onCreateClick = onCreateClick, viewModel = viewModel)
+            } else {
+                WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel) {
+                    selectedWallet = null
+                }
+            }
+        }
+    )
 }
+
 
 @Composable
 fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCreateClick: () -> Unit, viewModel: appViewModel) {
@@ -94,9 +131,12 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
             viewModel.filterWalletsByName(newValue.text)
         }, viewModel = viewModel)
 
+
+
         LazyColumn(
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            contentPadding = PaddingValues(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxSize()
         ) {
             if (wallets.isEmpty()) {
                 items(1) {
@@ -107,7 +147,7 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
                     ) {
                         Text(
                             text = stringResource(id = R.string.no_wallets),
-                            color = colorScheme.onSurface,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.fillMaxSize(),
                             textAlign = TextAlign.Center
                         )
@@ -124,12 +164,16 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
     }
 }
 
+
+
+
+
 data class Blockchain(val id: Int, val name: String)
 
 @Composable
 fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit, viewModel: appViewModel) {
     val showPopup = remember { mutableStateOf(false) }
-    val showHidden = remember { mutableStateOf(false) }
+    val showHidden = viewModel.showTestNetworks.observeAsState(initial = false)
     val blockchains = listOf(
         Blockchain(1000, "Bitcoin (BTC)"),
         Blockchain(3000, "Ethereum (ETH)"),
@@ -191,13 +235,25 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
                             checked = showHidden.value,
-                            onCheckedChange = { showHidden.value = it },
-                            colors = CheckboxDefaults.colors(checkedColor = colorScheme.primary)
+                            onCheckedChange = {
+                                viewModel.saveShowTestNetworksPreference(it)
+                            },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = colorScheme.surface,
+                                uncheckedColor = colorScheme.primaryContainer,
+                                checkmarkColor = colorScheme.primary
+                            ),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Показать скрытые", color = colorScheme.onSurface)
+                        Text(text = "Скрытые", color = colorScheme.onSurface, modifier = Modifier.weight(1f))
                     }
-                    Divider(color = colorScheme.onSurface.copy(alpha = 0.1f), thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = 1.dp,
+                        color = colorScheme.onSurface.copy(alpha = 0.1f)
+                    )
+
                     LazyColumn {
                         item {
                             Row(
@@ -218,7 +274,6 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
                                     Icon(Icons.Rounded.Check, contentDescription = null, tint = colorScheme.primary)
                                 }
                             }
-
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                         items(blockchains) { blockchain ->
@@ -269,58 +324,6 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
     }
 }
 
-
-
-/*@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
-    val context = LocalContext.current
-    val isAddressEmpty = wallet.addr.isEmpty()
-
-    Card(
-        border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-        onClick = {
-            if (!isAddressEmpty) onWalletClick(wallet)
-        },
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = context.getString(R.string.name_of_wallet) + ": " + wallet.info,
-                style = MaterialTheme.typography.titleMedium,
-                color = colorScheme.onSurface
-            )
-            Spacer(Modifier.height(4.dp))
-
-            if (isAddressEmpty) {
-                Text(context.getString(R.string.pending_wallet), fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface, style = MaterialTheme.typography.bodyMedium)
-            } else {
-                Text(
-                    text = context.getString(R.string.Address) + ": \n${wallet.addr}",
-                    fontWeight = FontWeight.Light,
-                    color = colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    text = context.getString(R.string.token) + ": " + wallet.tokenShortNames,
-                    fontWeight = FontWeight.Light,
-                    color = colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-            Divider(color = colorScheme.onSurface.copy(alpha = 0.1f))
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = context.getString(R.string.min_signers_count) + ": ${wallet.minSignersCount}",
-                fontWeight = FontWeight.Light,
-                color = colorScheme.onSurface,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-}*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
