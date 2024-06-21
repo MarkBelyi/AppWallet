@@ -44,9 +44,10 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 
-
 class appViewModel(private val repository: AppRepository, application: Application) : AndroidViewModel(application) {
     private val context: Context = application.applicationContext
+
+    //SharedPreferences
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
 
@@ -55,7 +56,35 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         prefs.edit().putString("AuthMethod", authMethod.name).apply()
         _selectedAuthMethod.value = authMethod
     }
+
     fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
+
+    //Показывать Тестовые сети
+
+    private val _showTestNetworks = MutableLiveData<Boolean>()
+    val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks
+
+    private fun loadShowTestNetworksPreference() {
+        val prefs = context.getSharedPreferences("WalletPreferences", Context.MODE_PRIVATE)
+        _showTestNetworks.value = prefs.getBoolean("showTestNetworks", false)
+        filterWalletsBasedOnPreference()
+    }
+
+    fun saveShowTestNetworksPreference(show: Boolean) {
+        val prefs = context.getSharedPreferences("WalletPreferences", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("showTestNetworks", show).apply()
+        _showTestNetworks.value = show
+        filterWalletsBasedOnPreference()
+    }
+
+    private fun filterWalletsBasedOnPreference() {
+        if (_showTestNetworks.value == true) {
+            getAllWallets()
+        } else {
+            getVisibleWallets()
+        }
+    }
+
 
     // Wallets and Tx
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
@@ -69,20 +98,20 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     fun filterWalletsByNetwork(network: Int, testNetwork: Int) {
-        viewModelScope.launch {
-            _filteredWallets.value = repository.getWalletsByNetwork(network, testNetwork)
+        viewModelScope.launch(Dispatchers.IO) {
+            _filteredWallets.postValue(repository.getWalletsByNetwork(network, testNetwork))
         }
     }
 
     fun filterWalletsByName(name: String) {
-        viewModelScope.launch {
-            _filteredWallets.value = repository.getWalletsByName(name)
+        viewModelScope.launch(Dispatchers.IO) {
+            _filteredWallets.postValue(repository.getWalletsByName(name))
         }
     }
 
     fun getAllWallets() {
-        viewModelScope.launch {
-            _filteredWallets.value = repository.fetchAllWallets()
+        viewModelScope.launch(Dispatchers.IO) {
+            _filteredWallets.postValue(repository.fetchAllWallets())
         }
     }
 
@@ -91,13 +120,13 @@ class appViewModel(private val repository: AppRepository, application: Applicati
 
     // Method to update transaction status
     private fun updateTransactionStatus(unid: String, status: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.updateTransactionStatus(unid, status)
         }
     }
 
     // Method to fetch transactions and update their status based on server response
-    fun needSignTX(context: Context) = viewModelScope.launch {
+    fun needSignTX(context: Context) = viewModelScope.launch(Dispatchers.IO) {
         val apiResponse = GetAPIString(context, "tx_by_ec")
         if (apiResponse.isNotEmpty()) {
             try {
@@ -148,18 +177,20 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    fun signTransaction(txUnid: String) = viewModelScope.launch {
+    fun signTransaction(txUnid: String) = viewModelScope.launch(Dispatchers.IO) {
         val api = "tx_sign/$txUnid"
         try {
             val response = GetAPIString(context, api, mes = "", POST = true)
             Log.d("TransactionRequest", "Response for signing transaction $txUnid: $response")
-            updateTransactionStatus(txUnid, 2)
+            withContext(Dispatchers.Main) {
+                updateTransactionStatus(txUnid, 2)
+            }
         } catch (e: Exception) {
             Log.e("TransactionError", "Error signing transaction $txUnid", e)
         }
     }
 
-    fun rejectTransaction(txUnid: String, reason: String) = viewModelScope.launch {
+    fun rejectTransaction(txUnid: String, reason: String) = viewModelScope.launch(Dispatchers.IO) {
         val message = JSONObject().apply {
             put("ec_reject", reason)
         }.toString()
@@ -168,13 +199,15 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         try {
             val response = GetAPIString(context, api, mes = modifiedMessage, POST = true)
             Log.d("TransactionRequest", "Response for rejecting transaction $txUnid: $response")
-            updateTransactionStatus(txUnid, 3)
+            withContext(Dispatchers.Main) {
+                updateTransactionStatus(txUnid, 3)
+            }
         } catch (e: Exception) {
             Log.e("TransactionError", "Error rejecting transaction $txUnid with reason $reason", e)
         }
     }
 
-    fun fetchAndStoreTransactions(context: Context) = viewModelScope.launch {
+    fun fetchAndStoreTransactions(context: Context) = viewModelScope.launch(Dispatchers.IO) {
         val apiResponse = GetAPIString(context, "tx")
         if (apiResponse.isNotEmpty()) {
             try {
@@ -237,7 +270,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         emit(repository.getAllBalansByAddr(tokenAddr))
     }
 
-    fun sendTransaction(token: Balans, wallet: Wallets, address: String, amount: Double, info: String, context: Context) = viewModelScope.launch {
+    fun sendTransaction(token: Balans, wallet: Wallets, address: String, amount: Double, info: String, context: Context) = viewModelScope.launch(Dispatchers.IO) {
         val symbols = DecimalFormatSymbols(Locale.getDefault()).apply {
             decimalSeparator = '.'
         }
@@ -251,7 +284,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
             put("value", formattedAmount)
             put("toAddress", address)
         }
-
 
         val jsonString = transactionDetails.toString()
         val modifiedString = jsonString.substring(1, jsonString.length - 1)
@@ -287,8 +319,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                 } else if (jsonResponse.has("tx_unid")) {
                     val transactionId = jsonResponse.getString("tx_unid")
                     println("Transaction Successful: ID $transactionId")
-                    viewModelScope.launch {
-                        val  tx = TX(
+                    viewModelScope.launch(Dispatchers.IO) {
+                        val tx = TX(
                             unid = transactionId,
                             tx = "",
                             network = token.network_id,
@@ -306,71 +338,94 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         })
     }
 
-    fun addWallets(context: Context) = viewModelScope.launch {
+    fun addWallets(context: Context) = viewModelScope.launch(Dispatchers.IO) {
         val jsonString = GetAPIString(context, "wallets_2")
         val loadedWallets = parseWallets(jsonString)
         repository.addWallets(loadedWallets)
-        _filteredWallets.value = repository.fetchAllWallets()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                loadedWallets.forEach { wallet ->
-                    if (wallet.tokenShortNames.isNotBlank()) {
-                        wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
-                            val parts = token.split(" ")
-                            val amount = parts[0].toDoubleOrNull() ?: 0.0
-                            val name = parts.getOrNull(1) ?: ""
+        withContext(Dispatchers.Main) {
+            _filteredWallets.value = repository.fetchAllWallets()
+        }
+        loadedWallets.forEach { wallet ->
+            if (wallet.tokenShortNames.isNotBlank()) {
+                wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
+                    val parts = token.split(" ")
+                    val amount = parts[0].toDoubleOrNull() ?: 0.0
+                    val name = parts.getOrNull(1) ?: ""
 
-                            repository.insertToken(Tokens(wallet.network, name, wallet.addr))
-                            repository.insertBalans(Balans(name, "", wallet.addr, wallet.network, amount, 0.0))
-                        }
-                    }
+                    repository.insertToken(Tokens(wallet.network, name, wallet.addr))
+                    repository.insertBalans(Balans(name, "", wallet.addr, wallet.network, amount, 0.0))
                 }
             }
         }
     }
 
-    fun createWallet(context: Context,msg:String) = viewModelScope.launch {
-        val jsonString = GetAPIString(context,"newWallet",msg,true)
-        //в ответ получаем джейсон строку
+    fun refreshWallets(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            val jsonString = GetAPIString(context, "wallets_2")
+            val loadedWallets = parseWallets(jsonString)
+            repository.addWallets(loadedWallets)
+            withContext(Dispatchers.Main) {
+                _filteredWallets.value = repository.fetchAllWallets()
+                onComplete()
+            }
+            loadedWallets.forEach { wallet ->
+                if (wallet.tokenShortNames.isNotBlank()) {
+                    wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
+                        val parts = token.split(" ")
+                        val amount = parts[0].toDoubleOrNull() ?: 0.0
+                        val name = parts.getOrNull(1) ?: ""
+
+                        repository.insertToken(Tokens(wallet.network, name, wallet.addr))
+                        repository.insertBalans(Balans(name, "", wallet.addr, wallet.network, amount, 0.0))
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("RefreshWallets", "Error refreshing wallets", e)
+            withContext(Dispatchers.Main) {
+                onComplete()
+            }
+        }
+    }
+
+    fun createWallet(context: Context, msg: String) = viewModelScope.launch(Dispatchers.IO) {
+        val jsonString = GetAPIString(context, "newWallet", msg, true)
         val jsonconversion = JSONObject(jsonString)
-        // и смотрим что внутри:
-        if (jsonconversion.has("ERROR")) //Всё пропало, сервер долго ругался и послал нас и наш кошелёк
-            return@launch// Завершаем старания. Нужно что-то печальное юзеру сказать или значёк какой вывести..
-        if (jsonconversion.has("myUNID")) // сервер успешно зарегистрировал наш запрос и у нового кошелька будет вот такой UNID. Делать нам с ним нечего.
-        // Нужно запросить список кошельков с сервера и этот свежесозданный будет уже там на стадии [создаётся, ждите]
-            fillWallets(context)
-        // Нужно подождать пару минут и кошель появится уже и в блокчейне если всё ОК.
+        if (jsonconversion.has("ERROR")) return@launch
+        if (jsonconversion.has("myUNID")) fillWallets(context)
     }
 
     suspend fun fillWallets(context: Context) {
-        var ss: String  = GetAPIString(context, "wallets_2")
-        if (ss.isEmpty()) return;
-        if (ss == "{}") ss = "[]";
+        var ss: String = GetAPIString(context, "wallets_2")
+        if (ss.isEmpty()) return
+        if (ss == "{}") ss = "[]"
         val jarr = jsonArray(ss)
         val gg = mutableListOf<Wallets>()
-        for (i in 0 until jarr.length())
-        {val j = jarr.getJSONObject(i)
-            gg.add(Wallets(j["wallet_id"].toString().toInt(),
-                j["network"].toString().toInt(),
-                j.optString("myFlags", ""),
-                j.optString("wallet_type","0").toInt(),
-                j.optString("name",""),
-                j.optString("info",""),
-                j.optString("addr",""),
-                j.optString("addr_info",""),
-                j.optString("myUNID",""),
-                j.optString("tokenShortNames","")))
+        for (i in 0 until jarr.length()) {
+            val j = jarr.getJSONObject(i)
+            gg.add(
+                Wallets(
+                    j["wallet_id"].toString().toInt(),
+                    j["network"].toString().toInt(),
+                    j.optString("myFlags", ""),
+                    j.optString("wallet_type", "0").toInt(),
+                    j.optString("name", ""),
+                    j.optString("info", ""),
+                    j.optString("addr", ""),
+                    j.optString("addr_info", ""),
+                    j.optString("myUNID", ""),
+                    j.optString("tokenShortNames", "")
+                )
+            )
         }
         repository.addWallets(gg)
     }
 
     fun updateWalletFlags(unid: String, newFlags: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = visibilityWallet(context, unid, newFlags)
-
                 if (response.isEmpty()) {
-                    // Обновляем флаги в локальной базе данных
                     repository.updateWalletFlags(unid, newFlags)
                     Log.d("UpdateWalletFlags", "Wallet flags updated locally: $newFlags")
                 } else {
@@ -383,13 +438,10 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                     }
                 }
             } catch (e: IOException) {
-                // Обработка ошибок ввода-вывода
                 Log.e("UpdateWalletFlags", "Network error while updating wallet flags", e)
             } catch (e: JSONException) {
-                // Обработка ошибок JSON
                 Log.e("UpdateWalletFlags", "JSON error while updating wallet flags", e)
             } catch (e: Exception) {
-                // Обработка других ошибок
                 Log.e("UpdateWalletFlags", "Error updating wallet flags", e)
             }
         }
@@ -397,16 +449,26 @@ class appViewModel(private val repository: AppRepository, application: Applicati
 
     suspend fun visibilityWallet(context: Context, unid: String, newFlags: String): String {
         val apiEndpoint = "set_wallet_flag/$unid"
-        val requestBody = """{"wallet_flags":"$newFlags"}"""
+        val requestBody = "\"wallet_flags\":\"" + newFlags + "\""
         return GetAPIString(context, apiEndpoint, requestBody, POST = true)
     }
 
-    //Определение
-    val allSigners: LiveData<List<Signer>> = repository.allSigners.asLiveData()
-    val allNetworks: LiveData<List<Networks>> = repository.allNetworks.asLiveData()
+    fun getVisibleWallets() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _filteredWallets.postValue(repository.getVisibleWallets())
+        }
+    }
 
-    //Signer
-    fun updateSigner(signer: Signer) = viewModelScope.launch{
+    fun getOnlyHiddenWallets() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _filteredWallets.postValue(repository.getOnlyHiddenWallets())
+        }
+    }
+
+    // Signer
+    val allSigners: LiveData<List<Signer>> = repository.allSigners.asLiveData()
+
+    fun updateSigner(signer: Signer) = viewModelScope.launch(Dispatchers.IO) {
         repository.upsertSigner(signer)
     }
 
@@ -415,11 +477,11 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         insertSigner(newSigner)
     }
 
-    fun deleteSigner(signer: Signer) = viewModelScope.launch{
+    fun deleteSigner(signer: Signer) = viewModelScope.launch(Dispatchers.IO) {
         repository.deleteSigner(signer)
     }
 
-    fun insertSigner(signer: Signer) = viewModelScope.launch{
+    fun insertSigner(signer: Signer) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertSigner(signer)
     }
 
@@ -427,13 +489,14 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         emit(repository.getSignerAddress(address))
     }
 
-    //Network
-    fun addNetworks(context: Context) = viewModelScope.launch{
+    // Network
+    val allNetworks: LiveData<List<Networks>> = repository.allNetworks.asLiveData()
+
+    fun addNetworks(context: Context) = viewModelScope.launch(Dispatchers.IO) {
         val jsonString = GetAPIString(context, "netlist/1")
         val loadedNetworks = parseNetworks(jsonString)
         repository.addNetworks(loadedNetworks)
     }
-
 }
 
 class AppViewModelFactory(private val repository: AppRepository, private val application: Application) : ViewModelProvider.Factory {
@@ -445,3 +508,5 @@ class AppViewModelFactory(private val repository: AppRepository, private val app
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
+

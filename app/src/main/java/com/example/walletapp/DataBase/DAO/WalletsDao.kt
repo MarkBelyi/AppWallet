@@ -47,4 +47,10 @@ interface WalletsDAO {
     @Query("UPDATE wallets SET myFlags = :newFlags WHERE myUNID = :unid")
     suspend fun updateWalletFlags(unid: String, newFlags: String)
 
+    @Query("SELECT * FROM Wallets WHERE myFlags LIKE '1%'")
+    suspend fun getOnlyHiddenWallets(): List<Wallets>
+
+    @Query("SELECT * FROM Wallets WHERE myFlags NOT LIKE '1%'")
+    suspend fun getVisibleWallets(): List<Wallets>
+
 }

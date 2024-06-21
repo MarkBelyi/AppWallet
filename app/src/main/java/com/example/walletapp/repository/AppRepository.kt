@@ -42,6 +42,15 @@ class AppRepository(
         walletsDAO.addWallets(wallets)
     }
 
+    // New methods
+    suspend fun getOnlyHiddenWallets(): List<Wallets> {
+        return walletsDAO.getOnlyHiddenWallets()
+    }
+
+    suspend fun getVisibleWallets(): List<Wallets> {
+        return walletsDAO.getVisibleWallets()
+    }
+
     //NEW
     suspend fun getWalletsByNetwork(network: Int, testNetwork: Int): List<Wallets> {
         return walletsDAO.getWalletsByNetwork(network, testNetwork)
