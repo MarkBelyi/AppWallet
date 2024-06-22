@@ -10,6 +10,8 @@ val roundedShape = RoundedCornerShape(10.dp)
 
 val newRoundedShape = RoundedCornerShape(24.dp)
 
+val miniRoundedShape = RoundedCornerShape(6.dp)
+
 val topRoundedShape: Shape = RoundedCornerShape(
     topStart = 24.dp, topEnd = 24.dp, bottomEnd = 0.dp, bottomStart = 0.dp
 )
