@@ -76,6 +76,10 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
+    //для horizontal pager
+    implementation ("com.google.accompanist:accompanist-pager:0.23.1")
+    implementation ("com.google.accompanist:accompanist-pager-indicators:0.23.1")
+
     //используется для изменения UI элементов самого андроида
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
