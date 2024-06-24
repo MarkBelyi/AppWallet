@@ -54,8 +54,6 @@ import org.json.JSONObject
 fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit) {
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
     val context = LocalContext.current
-    //val isUpdatingVisibility by viewModel.visibilityUpdateStatus.observeAsState(initial = false)
-
     val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.first() == '1') }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -81,32 +79,6 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     }
                 },
                 actions = {
-                    /*if (isUpdatingVisibility) {
-                        CircularProgressIndicator(
-                            color = colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .size(24.dp)
-                        )
-                    } else {
-                        IconButton(
-                            onClick = {
-                                val newFlags = if (wallet.myFlags.first() == '1') {
-                                    '0' + wallet.myFlags.substring(1)
-                                } else {
-                                    '1' + wallet.myFlags.substring(1)
-                                }
-                                viewModel.updateWalletFlags(wallet.myUNID, newFlags)
-                            }
-                        )
-                        {
-                            Icon(
-                                painter = if (wallet.myFlags.first() == '1') painterResource(id = R.drawable.ic_baseline_visibility_off_24) else painterResource(id = R.drawable.ic_baseline_visibility_24),
-                                contentDescription = "Toggle Visibility",
-                                tint = colorScheme.onSurface
-                            )
-                        }
-                    }*/
                     IconButton(
                         onClick = {
                             isLoading = true

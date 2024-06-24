@@ -63,30 +63,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
 
     //Показывать Тестовые сети
-
     private val _showTestNetworks = MutableLiveData<Boolean>(false)
     val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks
-
-    private fun loadShowTestNetworksPreference() {
-        val prefs = context.getSharedPreferences("WalletPreferences", Context.MODE_PRIVATE)
-        _showTestNetworks.value = prefs.getBoolean("showTestNetworks", false)
-        filterWalletsBasedOnPreference()
-    }
-
-    fun saveShowTestNetworksPreference(show: Boolean) {
-        val prefs = context.getSharedPreferences("WalletPreferences", Context.MODE_PRIVATE)
-        prefs.edit().putBoolean("showTestNetworks", show).apply()
-        _showTestNetworks.value = show
-        filterWalletsBasedOnPreference()
-    }
-
-    private fun filterWalletsBasedOnPreference() {
-        if (_showTestNetworks.value == true) {
-            getAllWallets()
-        } else {
-            getVisibleWallets()
-        }
-    }
 
     // Wallets and Tx
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
@@ -94,8 +72,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     val filteredWallets: LiveData<List<Wallets>> get() = _filteredWallets
     private val _selectedBlockchain = MutableLiveData<Blockchain?>()
     val selectedBlockchain: LiveData<Blockchain?> get() = _selectedBlockchain
-
-
 
     fun filterWallets() {
         val blockchainId = _selectedBlockchain.value?.id
@@ -136,12 +112,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
             else -> networkId
         }
     }
-
-    /*init {
-        viewModelScope.launch {
-            _filteredWallets.value = repository.fetchAllWallets()
-        }
-    }*/
 
     fun filterWalletsByNetwork(network: Int, testNetwork: Int) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -443,7 +413,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         if (jsonconversion.has("myUNID")) fillWallets(context)
     }
 
-    suspend fun fillWallets(context: Context) {
+    private suspend fun fillWallets(context: Context) {
         var ss: String = GetAPIString(context, "wallets_2")
         if (ss.isEmpty()) return
         if (ss == "{}") ss = "[]"
@@ -486,7 +456,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                 val response = visibilityWallet(getApplication(), unid, newFlags)
                 repository.updateWalletFlags(unid, newFlags)
                 if (response.isEmpty()) {
-                    //repository.updateWalletFlags(unid, newFlags) ВОООООООТ ОШИБКА, МОЯ КОНЧЕННАЯ ПРОВЕРКА НА ЛОКАЛКУ, ПОЧЕМУУУУУУУУ?????????????????????????
                     Log.d("UpdateWalletFlags", "Wallet flags updated locally: $newFlags")
                 } else {
                     val jsonResponse = JSONObject(response)
@@ -497,7 +466,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         Log.d("UpdateWalletFlags", "Wallet flags updated successfully: $response")
                     }
                 }
-                //refreshFilteredWallets()
+                refreshFilteredWallets()
             } catch (e: IOException) {
                 Log.e("UpdateWalletFlags", "Network error while updating wallet flags", e)
             } catch (e: JSONException) {

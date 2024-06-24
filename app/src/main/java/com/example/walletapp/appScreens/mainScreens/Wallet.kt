@@ -69,14 +69,8 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
     val context = LocalContext.current
     val selectedWallet by viewModel.chooseWallet.observeAsState(initial = null)
     var isRefreshing by remember { mutableStateOf(false) }
-    val showHidden by viewModel.showTestNetworks.observeAsState(initial = false)
 
     LaunchedEffect(Unit) {
-        if (!showHidden) {
-            viewModel.getVisibleWallets()
-        } else {
-            viewModel.getAllWallets()
-        }
         viewModel.filterWallets()
     }
 
@@ -167,7 +161,9 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
         else -> R.drawable.history_fill1_wght400_grad0_opsz24
     }
 
-    Column {
+    Column(
+        modifier = Modifier.background(color = colorScheme.surface, shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+    ) {
         OutlinedTextField(
             value = searchText,
             onValueChange = onTextChange,
