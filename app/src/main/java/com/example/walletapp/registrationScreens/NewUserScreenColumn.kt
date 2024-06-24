@@ -51,7 +51,7 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit) {
 
 
     LaunchedEffect(Unit) {
-        delay(500) // Delay before starting the animation
+        delay(500)
         isVisible = true
     }
 

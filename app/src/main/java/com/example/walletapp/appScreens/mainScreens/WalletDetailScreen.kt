@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +30,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -49,6 +54,11 @@ import org.json.JSONObject
 fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit) {
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
     val context = LocalContext.current
+    //val isUpdatingVisibility by viewModel.visibilityUpdateStatus.observeAsState(initial = false)
+
+    val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.first() == '1') }
+    var isLoading by remember { mutableStateOf(false) }
+
     BackHandler(onBack = onBack)
     Scaffold(
         containerColor = colorScheme.inverseSurface,
@@ -63,7 +73,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                         onClick = { onBack() }
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                             contentDescription = "Back",
                             modifier = Modifier.scale(1.2f),
                             tint = colorScheme.onSurface
@@ -71,21 +81,55 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     }
                 },
                 actions = {
+                    /*if (isUpdatingVisibility) {
+                        CircularProgressIndicator(
+                            color = colorScheme.onSurface,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .size(24.dp)
+                        )
+                    } else {
+                        IconButton(
+                            onClick = {
+                                val newFlags = if (wallet.myFlags.first() == '1') {
+                                    '0' + wallet.myFlags.substring(1)
+                                } else {
+                                    '1' + wallet.myFlags.substring(1)
+                                }
+                                viewModel.updateWalletFlags(wallet.myUNID, newFlags)
+                            }
+                        )
+                        {
+                            Icon(
+                                painter = if (wallet.myFlags.first() == '1') painterResource(id = R.drawable.ic_baseline_visibility_off_24) else painterResource(id = R.drawable.ic_baseline_visibility_24),
+                                contentDescription = "Toggle Visibility",
+                                tint = colorScheme.onSurface
+                            )
+                        }
+                    }*/
                     IconButton(
                         onClick = {
-                            val newFlags = if (wallet.myFlags.first() == '1') {
+                            isLoading = true
+                            val newFlags = if (isHidden) {
                                 '0' + wallet.myFlags.substring(1)
                             } else {
                                 '1' + wallet.myFlags.substring(1)
                             }
-                            viewModel.updateWalletFlags(wallet.myUNID, newFlags)
+                            viewModel.updateWalletFlags(wallet.myUNID, newFlags) {
+                                isLoading = false
+                                setIsHidden(!isHidden)
+                            }
                         }
                     ) {
-                        Icon(
-                            painter = if (wallet.myFlags.first() == '1') painterResource(id = R.drawable.ic_baseline_visibility_off_24) else painterResource(id = R.drawable.ic_baseline_visibility_24),
-                            contentDescription = "Toggle Visibility",
-                            tint = colorScheme.onSurface
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = colorScheme.onSurface)
+                        } else {
+                            Icon(
+                                painter = if (isHidden) painterResource(id = R.drawable.ic_baseline_visibility_off_24) else painterResource(id = R.drawable.ic_baseline_visibility_24),
+                                contentDescription = "Toggle Visibility",
+                                tint = colorScheme.onSurface
+                            )
+                        }
                     }
                 }
             )

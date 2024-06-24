@@ -63,38 +63,22 @@ import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 
 
-/*@Composable
-fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
-    val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
-    val context = LocalContext.current
-    var selectedWallet by remember { mutableStateOf<Wallets?>(null) }
-
-    LaunchedEffect(Unit) {
-        viewModel.addWallets(context)
-    }
-
-    if (selectedWallet == null) {
-        WalletsList(wallets = wallets, onWalletClick = { wallet ->
-            selectedWallet = wallet
-        }, onCreateClick = onCreateClick, viewModel = viewModel)
-    } else {
-        WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel) {
-            selectedWallet = null
-        }
-   }
-}*/
-
 @Composable
 fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
     val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
     val context = LocalContext.current
-    var selectedWallet by remember { mutableStateOf<Wallets?>(null) }
+    val selectedWallet by viewModel.chooseWallet.observeAsState(initial = null)
     var isRefreshing by remember { mutableStateOf(false) }
+    val showHidden by viewModel.showTestNetworks.observeAsState(initial = false)
 
     LaunchedEffect(Unit) {
-        viewModel.getVisibleWallets()
+        if (!showHidden) {
+            viewModel.getVisibleWallets()
+        } else {
+            viewModel.getAllWallets()
+        }
+        viewModel.filterWallets()
     }
-
 
     PullToRefreshWithCustomIndicator(
         isRefreshing = isRefreshing,
@@ -107,11 +91,11 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
         content = {
             if (selectedWallet == null) {
                 WalletsList(wallets = wallets, onWalletClick = { wallet ->
-                    selectedWallet = wallet
+                    viewModel.chooseWallet(wallet)
                 }, onCreateClick = onCreateClick, viewModel = viewModel)
             } else {
                 WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel) {
-                    selectedWallet = null
+                    viewModel.chooseWallet(null)
                 }
             }
         }
@@ -131,8 +115,6 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
             viewModel.filterWalletsByName(newValue.text)
         }, viewModel = viewModel)
 
-
-
         LazyColumn(
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -147,7 +129,7 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
                     ) {
                         Text(
                             text = stringResource(id = R.string.no_wallets),
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = colorScheme.onSurface,
                             modifier = Modifier.fillMaxSize(),
                             textAlign = TextAlign.Center
                         )
@@ -166,21 +148,18 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
 
 
 
-
-
 data class Blockchain(val id: Int, val name: String)
 
 @Composable
 fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit, viewModel: appViewModel) {
     val showPopup = remember { mutableStateOf(false) }
-    val showHidden = viewModel.showTestNetworks.observeAsState(initial = false)
+    val showHidden by viewModel.showTestNetworks.observeAsState(initial = false)
     val blockchains = listOf(
         Blockchain(1000, "Bitcoin (BTC)"),
         Blockchain(3000, "Ethereum (ETH)"),
         Blockchain(5000, "Tron (TRX)")
     ).sortedBy { it.name }
-    var selectedBlockchain by remember { mutableStateOf<Blockchain?>(null) }
-
+    val selectedBlockchain by viewModel.selectedBlockchain.observeAsState(initial = null)
     val id = when (selectedBlockchain?.id) {
         1000 -> R.drawable.btc
         3000 -> R.drawable.eth
@@ -234,9 +213,9 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
-                            checked = showHidden.value,
+                            checked = showHidden,
                             onCheckedChange = {
-                                viewModel.saveShowTestNetworksPreference(it)
+                                viewModel.toggleShowHidden()
                             },
                             colors = CheckboxDefaults.colors(
                                 checkedColor = colorScheme.surface,
@@ -261,8 +240,7 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
                                     .clickable {
-                                        selectedBlockchain = null
-                                        viewModel.getAllWallets()
+                                        viewModel.updateSelectedBlockchain(null)
                                         showPopup.value = false
                                     },
                                 verticalAlignment = Alignment.CenterVertically
@@ -282,17 +260,7 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
                                     .clickable {
-                                        selectedBlockchain = blockchain
-                                        val testNetworkId = when (blockchain.id) {
-                                            1000 -> 1010
-                                            3000 -> 3040
-                                            5000 -> 5010
-                                            else -> blockchain.id
-                                        }
-                                        viewModel.filterWalletsByNetwork(
-                                            blockchain.id,
-                                            testNetworkId
-                                        )
+                                        viewModel.updateSelectedBlockchain(blockchain)
                                         showPopup.value = false
                                     },
                                 verticalAlignment = Alignment.CenterVertically
@@ -337,6 +305,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
         5000, 5010 -> R.drawable.tron
         else -> R.drawable.wait
     }
+    val isHidden = wallet.myFlags.startsWith("1")
 
     val tokensList = mutableListOf<String>()
 
@@ -350,10 +319,14 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
 
     }
 
+
+
     Card(
-        border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
+        border = BorderStroke(width = 0.5.dp, color =  if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.primary),
         onClick = {
-            if (!isAddressEmpty) onWalletClick(wallet)
+            if (!isAddressEmpty){
+                onWalletClick(wallet)
+            }
         },
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         modifier = Modifier.fillMaxWidth()
@@ -371,7 +344,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                 Icon(
                     painter = painterResource(iconResource),
                     contentDescription = "Blockchain network logo",
-                    tint = colorScheme.primary,
+                    tint = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.primary,
                     modifier = Modifier.scale(1.2f)
                 )
 
@@ -383,7 +356,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
 
                 Text(
                     text = wallet.info.uppercase(),
-                    color = colorScheme.onSurface,
+                    color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface,
                     fontSize = 16.sp
                 )
 
@@ -391,7 +364,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                     Text(
                         context.getString(R.string.pending_wallet),
                         fontWeight = FontWeight.Light,
-                        color = colorScheme.onSurface,
+                        color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface,
                         fontSize = 16.sp
                     )
                 } else {
@@ -403,7 +376,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                                 modifier = Modifier
                                     .border(
                                         width = 0.5.dp,
-                                        color = colorScheme.primary,
+                                        color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.primary,
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .padding(4.dp)
@@ -411,24 +384,40 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                                 Text(
                                     text = token,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp
+                                    fontSize = 14.sp,
+                                    color =  if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface
                                 )
                             }
                         }
                     }
                 }
             }
-
-            Box(modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(end = 8.dp)
-            ){
-                Text(
-                    text = wallet.tokenShortNames,
-                    textAlign = TextAlign.Center,
-                    fontSize = 12.sp
-                )
+            if (!isHidden){
+                Box(modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(end = 8.dp)
+                ){
+                    Text(
+                        text = wallet.tokenShortNames,
+                        textAlign = TextAlign.Center,
+                        fontSize = 12.sp,
+                        color = colorScheme.onSurface
+                    )
+                }
+            }else{
+                Box(modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(end = 8.dp)
+                ){
+                    Text(
+                        text = "Скрыт",
+                        textAlign = TextAlign.Center,
+                        fontSize = 12.sp,
+                        color = colorScheme.onSurface
+                    )
+                }
             }
+
 
         }
     }
