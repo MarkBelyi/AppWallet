@@ -366,10 +366,12 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                 } else {
                     Spacer(Modifier.height(4.dp))
 
-                    Row(modifier = Modifier.padding(4.dp)) {
-                        tokensList.forEach { token ->
+                    Row (modifier = Modifier.padding(4.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        val displayTokens = if (tokensList.size > 3) tokensList.take(3) else tokensList
+                        displayTokens.forEach { token ->
                             Box(
                                 modifier = Modifier
+                                    .padding(end = 4.dp)
                                     .border(
                                         width = 0.5.dp,
                                         color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.primary,
@@ -380,10 +382,19 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                                 Text(
                                     text = token,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    color =  if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface
+                                    fontSize = 12.sp,
+                                    color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface
                                 )
                             }
+                        }
+                        if (tokensList.size > 3) {
+                            Text(
+                                text = "+${tokensList.size - 3}",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface,
+                                modifier = Modifier.padding(4.dp)
+                            )
                         }
                     }
                 }
@@ -411,12 +422,6 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                     )
                 }
             }
-
-
-
-
-
-
         }
     }
 }
