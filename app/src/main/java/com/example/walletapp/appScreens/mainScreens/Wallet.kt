@@ -388,23 +388,21 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                     }
                 }
             }
-            if (!isHidden){
-                Box(modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(end = 8.dp)
-                ){
+
+            Box(modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(end = 8.dp)
+            ) {
+                if (!isHidden) {
                     Text(
-                        text = wallet.tokenShortNames,
+                        text = wallet.tokenShortNames.split(";")
+                            .find { it.contains("TRX") || it.contains("BTC") || it.contains("ETH") }
+                            ?: "",
                         textAlign = TextAlign.Center,
                         fontSize = 12.sp,
                         color = colorScheme.onSurface
                     )
-                }
-            }else{
-                Box(modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(end = 8.dp)
-                ){
+                } else {
                     Text(
                         text = "Скрыт",
                         textAlign = TextAlign.Center,
@@ -413,6 +411,10 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                     )
                 }
             }
+
+
+
+
 
 
         }
