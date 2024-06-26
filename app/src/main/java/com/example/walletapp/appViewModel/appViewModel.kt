@@ -66,6 +66,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     private val _showTestNetworks = MutableLiveData<Boolean>(false)
     val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks
 
+
+
     // Wallets and Tx
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
     private val _filteredWallets = MutableLiveData<List<Wallets>>()
@@ -128,6 +130,39 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     fun getAllWallets() {
         viewModelScope.launch(Dispatchers.IO) {
             _filteredWallets.postValue(repository.fetchAllWallets())
+        }
+    }
+
+    fun createNewWallet(
+        context: Context,
+        signerKeys: List<String>,
+        requiredSigners: Int,
+        selectedNetworkId: String,
+        walletNameText: String,
+        onComplete: () -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val EC = signerKeys
+                .filter { !it.isNullOrEmpty() }
+                .toList()
+
+            var ss: String = ""
+            ss = "\"slist\":{"
+            for (i in EC.indices) {
+                ss += "\"$i\":{\"type\":\"any\",\"ecaddress\":\"${EC[i]}\"}"
+                if (i < EC.size - 1) ss += ","
+            }
+
+            if (requiredSigners > 0)
+                ss += ",\"min_signs\":\"$requiredSigners\""
+            ss += "},"
+            ss += "\"network\":\"$selectedNetworkId\","
+            ss += "\"info\":\"$walletNameText\""
+
+            createWallet(context, ss)
+            withContext(Dispatchers.Main) {
+                onComplete()
+            }
         }
     }
 
