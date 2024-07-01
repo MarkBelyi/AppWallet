@@ -572,6 +572,22 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     // Signer
     val allSigners: LiveData<List<Signer>> = repository.allSigners.asLiveData()
 
+    fun addSigner(signersKeys: MutableList<String>) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                signersKeys.add("")
+            }
+        }
+    }
+
+    fun removeSigner(index: Int, signersKeys: MutableList<String>) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                signersKeys.removeAt(index)
+            }
+        }
+    }
+
     fun updateSigner(signer: Signer) = viewModelScope.launch(Dispatchers.IO) {
         repository.upsertSigner(signer)
     }
