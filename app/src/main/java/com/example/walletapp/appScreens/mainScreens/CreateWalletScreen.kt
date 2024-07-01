@@ -344,7 +344,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
             Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Text(
                     text =
-                    "Необходимое количество подписантов: ${requiredSigners.toInt()} "
+                    "Необходимое количество подписантов: ${requiredSigners} "
                             + stringResource(id = R.string.of)
                             + " ${signerKeys.size}",
 
