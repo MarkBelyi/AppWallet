@@ -356,7 +356,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
             Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Text(
                     text =
-                    "Необходимое количество подписантов: ${requiredSigners.toInt()} "
+                    "Необходимое количество подписантов: ${requiredSigners} "
                             + stringResource(id = R.string.of)
                             + " ${signerKeys.size}",
 
@@ -556,6 +556,7 @@ fun SignerRow(
     }
 
     Spacer(modifier = Modifier.height(4.dp))
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -577,13 +578,6 @@ fun SignerRow(
                     translationX = offset
                     alpha = 1f - abs(offset) / sizePx
                 }
-                /*.swipeable(
-                    state = swipeableState,
-                    anchors = anchors,
-                    enabled = signerKeys.size > 1,
-                    thresholds = { _, _ -> FractionalThreshold(0.3f) },
-                    orientation = Orientation.Horizontal
-                )*/
                 .background(
                     if (swipeableState.offset.value < -sizePx / 2) Color.Transparent else Color.Transparent,
                     shape = newRoundedShape
@@ -676,8 +670,6 @@ fun SignerRow(
         }
     }
 
-
-
     Spacer(modifier = Modifier.height(4.dp))
 
     if (index == signerKeys.lastIndex) {
@@ -687,19 +679,18 @@ fun SignerRow(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(
-                    onClick = { viewModel.addSigner(signersKeys = signerKeys) },
-                    enabled = signerKeys.size < numberOfSigner,
-                ) {
+                    onClick = { addSigner() },
+                    enabled = signerKeys.size < numberOfSigner
+                ){
                     Icon(
-                        imageVector = Icons.Default.Add,
+                        imageVector = Icons.Rounded.Add,
+
                         contentDescription = "add",
                         tint = colorScheme.primary,
                         modifier = Modifier.scale(1.2f)
                     )
-
                 }
             }
-
         }
     }
 }

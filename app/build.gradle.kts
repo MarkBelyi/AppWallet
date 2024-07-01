@@ -140,6 +140,10 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime:1.6.8")
     implementation ("androidx.compose.animation:animation:1.6.8")
 
+    //для horizontal pager
+    implementation ("androidx.compose.foundation:foundation:1.6.8")
+    implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
+
     //SwipeRefresh
     implementation (platform("androidx.compose:compose-bom:2024.06.00"))
 }
