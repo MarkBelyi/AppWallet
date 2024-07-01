@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBack
@@ -64,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.FractionalThreshold
 import androidx.wear.compose.material.rememberSwipeableState
@@ -72,7 +75,13 @@ import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -83,8 +92,8 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
     var selectingSignerIndex by remember { mutableStateOf<Int?>(null) }
     var selectingSignerIndexQR by remember { mutableStateOf<Int?>(null) }
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     val networks by viewModel.allNetworks.observeAsState(initial = emptyList())
+    val coroutineScope = rememberCoroutineScope()
 
     val numberOfSigner = 9
     var selectedNetwork by remember { mutableStateOf("") }
@@ -300,11 +309,13 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                     }
                 }
             }
+            
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(top = 8.dp)
             ){
+
                 Text(
                     text = stringResource(id = R.string.signers),
                     maxLines = 1,
@@ -322,6 +333,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
             ) {
                 items(signerKeys.size) { index ->
                     SignerRow(
+                        viewModel = viewModel,
                         index = index,
                         signerKeys = signerKeys,
                         numberOfSigner = numberOfSigner,
@@ -397,6 +409,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun SignerRow(
+    viewModel: appViewModel,
     index: Int,
     signerKeys: MutableList<String>,
     numberOfSigner: Int,
@@ -543,22 +556,148 @@ fun SignerRow(
     }
 
     Spacer(modifier = Modifier.height(4.dp))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .swipeable(
+                state = swipeableState,
+                anchors = anchors,
+                thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                orientation = Orientation.Horizontal
+            )
+            .background(Color.Transparent) // Background of the Box
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    val offset = swipeableState.offset.value
+                    translationX = offset
+                    alpha = 1f - abs(offset) / sizePx
+                }
+                /*.swipeable(
+                    state = swipeableState,
+                    anchors = anchors,
+                    enabled = signerKeys.size > 1,
+                    thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                    orientation = Orientation.Horizontal
+                )*/
+                .background(
+                    if (swipeableState.offset.value < -sizePx / 2) Color.Transparent else Color.Transparent,
+                    shape = newRoundedShape
+                )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .weight(1f)
+                    .border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape)
+                    .background(colorScheme.surface, shape = newRoundedShape)
+                    .fillMaxWidth()
+            ) {
+
+                OutlinedTextField(
+                    value = signerKeys[index],
+                    onValueChange = { signerKeys[index] = it },
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.new_signer),
+                            color = Color.Gray
+                        )
+                    },
+                    singleLine = true,
+                    shape = newRoundedShape,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = colorScheme.onSurface,
+                        unfocusedTextColor = colorScheme.onSurface,
+                        focusedContainerColor = colorScheme.surface,
+                        unfocusedContainerColor = colorScheme.surface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    modifier = Modifier.weight(0.5f)
+                )
+
+                IconButton(
+                    onClick = { onQrScanClick(index) },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.qr_code_scanner),
+                        contentDescription = "QR",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+                }
+
+                IconButton(
+                    onClick = { onSignerIconClick(index) },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Choose Signer",
+                        tint = colorScheme.primary,
+                        modifier = Modifier
+                            .scale(1.2f)
+                    )
+                }
+
+            }
+
+            if (index == signerKeys.lastIndex) {
+                IconButton(
+                    onClick = { viewModel.removeSigner(index, signerKeys) },
+                    enabled = signerKeys.size > 1,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "remove",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+                }
+            }
+        }
+
+        if (swipeableState.offset.value < -sizePx / 2) {
+            Text(
+                "Remove item?",
+                color = colorScheme.onSurface.copy(alpha = 0.5f),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+                    .graphicsLayer {
+                        alpha = max(0f, -2 * swipeableState.offset.value / sizePx - 1)
+                    }
+            )
+        }
+    }
+
+
+
+    Spacer(modifier = Modifier.height(4.dp))
 
     if (index == signerKeys.lastIndex) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(
-                onClick = { addSigner() },
-                enabled = signerKeys.size < numberOfSigner
-            ){
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = "add",
-                    tint = colorScheme.primary,
-                    modifier = Modifier.scale(1.2f)
-                )
+        if(index < 8) {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(
+                    onClick = { viewModel.addSigner(signersKeys = signerKeys) },
+                    enabled = signerKeys.size < numberOfSigner,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "add",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+
+                }
             }
 
         }
