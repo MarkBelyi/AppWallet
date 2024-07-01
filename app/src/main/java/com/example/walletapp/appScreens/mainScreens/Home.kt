@@ -3,11 +3,9 @@
 package com.example.walletapp.appScreens.mainScreens
 
 import android.content.Context
-import android.media.Image
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,14 +22,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
@@ -45,7 +45,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -56,9 +55,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -71,9 +70,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
-import androidx.wear.compose.material.swipeable
 import com.example.walletapp.DataBase.Entities.Wallets
-import com.example.walletapp.R
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
@@ -81,7 +78,6 @@ import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
-import com.google.android.gms.common.images.ImageManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.web3j.crypto.Credentials
@@ -200,8 +196,6 @@ fun Home(
 
     var showKeyDialog by remember { mutableStateOf(false) }
 
-    val lisOfWidgets = listOf(Widget("1st Page"), Widget("2nd Page"))
-
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -210,7 +204,7 @@ fun Home(
     ) {
         val (gridRef, button, assetsWidget) = createRefs()
 
-        Card(
+        Column(
             modifier = Modifier
                 .constrainAs(assetsWidget) {
                     top.linkTo(parent.top)
@@ -220,118 +214,57 @@ fun Home(
                 }
                 .background(color = colorScheme.surface, shape = newRoundedShape)
                 .padding(vertical = 12.dp)
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surface
-            )
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 120.dp)
         ) {
 //            AssetsWidget(viewModel = viewModel)
-            SwipeableWidgetList(lisOfWidgets, viewModel = viewModel)
+//            SwipeableWidgetList(lisOfWidgets, viewModel = viewModel)
+
+            val pageCount:Int = 4
+
+            val pagerState = rememberPagerState(pageCount = {
+                pageCount
+            })
+
+            val pages = listOf(
+                Page.Assets, Page.Future0, Page.Future1, Page.Future2
+            )
+
+            HorizontalPager(state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .background(color = colorScheme.surface,shape = newRoundedShape)
+                    .defaultMinSize(minHeight = 104.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                key = { it }
+            ) { pageIndex ->
+
+                when (pages[pageIndex]) {
+                    Page.Assets -> AssetsWidget(viewModel = viewModel)
+                    Page.Future0 -> Future(pageNum = pagerState.currentPage, modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
+                    Page.Future1 -> Future(pageNum = pagerState.currentPage, modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
+                    Page.Future2 -> Future(pageNum = pagerState.currentPage, modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
+                }
+            }
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                items(pageCount) { iteration ->
+                    val color = if (pagerState.currentPage == iteration) Color.LightGray else Color.DarkGray
+                    Box(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .clip(CircleShape)
+                            .background(color)
+                            .size(6.dp)
+                    )
+                }
+            }
         }
-
-//            Balances in grid view
-
-//            Row {
-//                Column(
-//                    verticalArrangement = Arrangement.spacedBy(2.dp),
-//                    modifier = Modifier
-//                        .padding(top = 8.dp, start = 24.dp)
-//                        .weight(0.5f)
-//                ) {
-//                    Row {
-//                        Text(
-//                            text = "BTC:",
-//                            fontWeight = FontWeight.Normal,
-//                            fontSize = 20.sp,
-//                            modifier = Modifier.align(alignment = Alignment.CenterVertically)
-//                        )
-//                        Box(
-//                            modifier = Modifier
-//                                .padding(start = 8.dp)
-//                                .align(alignment = Alignment.CenterVertically)
-//                                .border(
-//                                    width = 0.5.dp,
-//                                    color = colorScheme.primary,
-//                                    shape = RoundedCornerShape(8.dp)
-//                                )
-//                                .defaultMinSize(minWidth = 68.dp)
-//                                .padding(4.dp)
-//                        ) { Text(text = combineBalancesByNetworkId(1000).toString() + " btc",
-//                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 4.dp)) }
-//                    }
-//                    Row {
-//                        Text(
-//                            text = "ETH:",
-//                            fontWeight = FontWeight.Normal,
-//                            fontSize = 20.sp,
-//                            modifier = Modifier.align(alignment = Alignment.CenterVertically)
-//                        )
-//                        Box(
-//                            modifier = Modifier
-//                                .padding(start = 8.dp)
-//                                .align(alignment = Alignment.CenterVertically)
-//                                .border(
-//                                    width = 0.5.dp,
-//                                    color = colorScheme.primary,
-//                                    shape = RoundedCornerShape(8.dp)
-//                                )
-//                                .defaultMinSize(minWidth = 68.dp)
-//                                .padding(4.dp)
-//                        ) { Text(text = combineBalancesByNetworkId(3000).toString() + " eth",
-//                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 4.dp)) }
-//                    }
-//                }
-//                Column(
-//                    verticalArrangement = Arrangement.spacedBy(2.dp),
-//                    modifier = Modifier
-//                        .padding(top = 8.dp, start = 24.dp)
-//                        .weight(0.5f)
-//                ) {
-//                    Row {
-//                        Text(
-//                            text = "BNB:",
-//                            fontWeight = FontWeight.Normal,
-//                            fontSize = 20.sp,
-//                            modifier = Modifier.align(alignment = Alignment.CenterVertically)
-//                        )
-//                        Box(
-//                            modifier = Modifier
-//                                .padding(start = 8.dp)
-//                                .align(alignment = Alignment.CenterVertically)
-//                                .border(
-//                                    width = 0.5.dp,
-//                                    color = colorScheme.primary,
-//                                    shape = RoundedCornerShape(8.dp)
-//                                )
-//                                .defaultMinSize(minWidth = 68.dp)
-//                                .padding(4.dp)
-//                        ) { Text(text = combineBalancesByNetworkId(3300).toString() + " bnb",
-//                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 4.dp)) }
-//                    }
-//                    Row {
-//                        Text(
-//                            text = "TRX:",
-//                            fontWeight = FontWeight.Normal,
-//                            fontSize = 20.sp,
-//                            modifier = Modifier.align(alignment = Alignment.CenterVertically)
-//                        )
-//                        Box(
-//                            modifier = Modifier
-//                                .padding(start = 8.dp)
-//                                .align(alignment = Alignment.CenterVertically)
-//                                .border(
-//                                    width = 0.5.dp,
-//                                    color = colorScheme.primary,
-//                                    shape = RoundedCornerShape(8.dp)
-//                                )
-//                                .defaultMinSize(minWidth = 68.dp)
-//                                .padding(4.dp)
-//                        ) { Text(text = combineBalancesByNetworkId(5000).toString() + " trx",
-//                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 4.dp)) }
-//                    }
-//                }
-//            }
-
 
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
@@ -387,6 +320,22 @@ fun Home(
     }
 }
 
+sealed class Page {
+    object Assets : Page()
+    object Future0 : Page()
+    object Future1 : Page()
+    object Future2 : Page()
+}
+
+@Composable
+fun Future(pageNum: Int, modifier: Modifier){
+    Text(
+        text = "Page: $pageNum",
+        modifier = Modifier.fillMaxWidth()
+            .defaultMinSize(minHeight = 100.dp)
+    )
+}
+
 @Composable
 fun AssetsWidget(viewModel: appViewModel) {
 
@@ -394,7 +343,7 @@ fun AssetsWidget(viewModel: appViewModel) {
 
     Column (modifier = Modifier
         .fillMaxWidth()
-        .background(color = colorScheme.surface)){
+        .background(color = colorScheme.surface, shape = newRoundedShape) ){
         Text(
             text = "Мои Активы:",
             maxLines = 1,
@@ -422,68 +371,6 @@ fun AssetsWidget(viewModel: appViewModel) {
     }
 }
 
-data class Widget(
-//    val image: Painter
-    val text: String
-    )
-
-@Composable
-fun SwipeableWidgetList(listOfWidgets: List<Widget>, viewModel: appViewModel){
-
-    var currentIndex by remember{ mutableIntStateOf(0) }
-    var accumulatedDrag by remember { mutableStateOf(0f) }
-
-    val dragThreshold = 600f
-
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .defaultMinSize(minHeight = 120.dp)
-        .pointerInput(Unit) {
-            detectHorizontalDragGestures { change, dragAmount ->
-                accumulatedDrag += dragAmount
-
-                if (abs(accumulatedDrag) > dragThreshold) {
-                    if (dragAmount > 0) {
-                        currentIndex = (currentIndex + 1) % listOfWidgets.size
-                    } else if (dragAmount < 0) {
-                        currentIndex = (currentIndex - 1 + listOfWidgets.size) % listOfWidgets.size
-                    }
-                    accumulatedDrag = 0f
-                }
-                change.consume()
-            }
-        }
-    ) {
-        when(currentIndex % 3){
-            0 -> AssetsWidget(viewModel = viewModel)
-            1 -> Text(text = "2nd Page")
-        }
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .align(alignment = Alignment.BottomCenter)
-            .background(color = colorScheme.background)){
-            Row(modifier = Modifier.align(alignment = Alignment.Center)) {
-                Text(text = ".",
-                    fontSize = 24.sp)
-                Text(text = ".",
-                    fontSize = 24.sp)
-                Text(text = ".",
-                    fontSize = 24.sp)
-            }
-        }
-    }
-}
-
-@Composable
-fun WidgetItem(widget: Widget){
-
-    Box(modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center){
-        Text(text = widget.text,
-            fontSize = 24.sp)
-    }
-}
-
 fun combineBalances(wallets: List<Wallets>): Map<String, Double> {
     val balances = mutableMapOf<String, Double>()
 
@@ -506,33 +393,6 @@ fun combineBalances(wallets: List<Wallets>): Map<String, Double> {
 
     return balances
 }
-
-//@Composable
-//fun SwipeableCard(viewModel: appViewModel, modifier: Modifier) {
-//
-//    val pages = listOf(
-//        { AssetsWidget(viewModel = viewModel) },
-//        { Text() },
-//        { Text() }
-//    )
-//    val pagerState = rememberPagerState(pages.size)
-//
-//    HorizontalPager(
-//        state = pagerState,
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(300.dp) // Set a fixed height as per your requirement
-//    ) { page ->
-//        Card(
-//            modifier = Modifier
-//                .padding(16.dp)
-//                .fillMaxSize()
-//                .background(colorScheme.surface, shape = newRoundedShape)
-//        ) {
-//            pages[page]()
-//        }
-//    }
-//}
 
 @Composable
 fun BalanceCard(currency: String, balance: Double) {
