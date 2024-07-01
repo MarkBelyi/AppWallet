@@ -125,7 +125,7 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(color = colorScheme.inverseSurface)) {
+        .background(color = colorScheme.background)) {
         SearchBar(searchText, onTextChange = { newValue ->
             searchText = newValue
             viewModel.filterWalletsByName(newValue.text)
@@ -388,6 +388,8 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                 )
 
                 if (isAddressEmpty) {
+                    Spacer(Modifier.height(4.dp))
+
                     Text(
                         context.getString(R.string.pending_wallet),
                         fontWeight = FontWeight.Light,

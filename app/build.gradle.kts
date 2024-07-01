@@ -29,6 +29,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -75,6 +76,10 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    //для horizontal pager
+    implementation ("androidx.compose.foundation:foundation:1.6.8")
+    implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 
     //используется для изменения UI элементов самого андроида
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")

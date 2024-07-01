@@ -67,6 +67,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.FractionalThreshold
 import androidx.wear.compose.material.rememberSwipeableState
@@ -75,7 +76,13 @@ import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -86,8 +93,8 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
     var selectingSignerIndex by remember { mutableStateOf<Int?>(null) }
     var selectingSignerIndexQR by remember { mutableStateOf<Int?>(null) }
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     val networks by viewModel.allNetworks.observeAsState(initial = emptyList())
+    val coroutineScope = rememberCoroutineScope()
 
     val numberOfSigner = 9
     var selectedNetwork by remember { mutableStateOf("") }
@@ -326,6 +333,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
             ) {
                 items(signerKeys.size) { index ->
                     SignerRow(
+                        viewModel = viewModel,
                         index = index,
                         signerKeys = signerKeys,
                         numberOfSigner = numberOfSigner,
@@ -416,6 +424,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun SignerRow(
+    viewModel: appViewModel,
     index: Int,
     signerKeys: MutableList<String>,
     numberOfSigner: Int,
@@ -426,23 +435,21 @@ fun SignerRow(
 
     val swipeableState = rememberSwipeableState(initialValue = 0)
 
-    val sizePx = with(LocalDensity.current) { 70.dp.toPx() }
-    val anchors = mapOf(0f to 0, -sizePx to -1)
+    val sizePx = with(LocalDensity.current) { 72.dp.toPx() }
+    val anchors = mapOf(
+        0f to 0,
+        -sizePx to -1
+    )
 
-    fun addSigner() {
-        signerKeys.add("")
-    }
-
-    fun removeSigner(index: Int) {
-        signerKeys.removeAt(index)
-    }
 
     if (swipeableState.currentValue == -1) {
         LaunchedEffect(swipeableState) {
-            swipeableState.animateTo(0)
+            swipeableState.animateTo(if (swipeableState.currentValue == -1) 0 else swipeableState.currentValue)
             onDismiss(index)
         }
     }
+
+
 
     Box(
         modifier = Modifier
@@ -465,13 +472,13 @@ fun SignerRow(
                     translationX = offset
                     alpha = 1f - abs(offset) / sizePx
                 }
-                .swipeable(
+                /*.swipeable(
                     state = swipeableState,
                     anchors = anchors,
                     enabled = signerKeys.size > 1,
                     thresholds = { _, _ -> FractionalThreshold(0.3f) },
                     orientation = Orientation.Horizontal
-                )
+                )*/
                 .background(
                     if (swipeableState.offset.value < -sizePx / 2) Color.Transparent else Color.Transparent,
                     shape = newRoundedShape
@@ -535,7 +542,7 @@ fun SignerRow(
 
             if (index == signerKeys.lastIndex) {
                 IconButton(
-                    onClick = { removeSigner(index) },
+                    onClick = { viewModel.removeSigner(index, signerKeys) },
                     enabled = signerKeys.size > 1,
                 ) {
                     Icon(
@@ -564,24 +571,28 @@ fun SignerRow(
         }
     }
 
+
+
     Spacer(modifier = Modifier.height(4.dp))
 
     if (index == signerKeys.lastIndex) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(
-                onClick = { addSigner() },
-                enabled = signerKeys.size < numberOfSigner,
+        if(index < 8) {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "add",
-                    tint = colorScheme.primary,
-                    modifier = Modifier.scale(1.2f)
-                )
+                IconButton(
+                    onClick = { viewModel.addSigner(signersKeys = signerKeys) },
+                    enabled = signerKeys.size < numberOfSigner,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "add",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
 
+                }
             }
         }
     }
