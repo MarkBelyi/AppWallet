@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Signer
@@ -49,7 +51,7 @@ import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
 import org.json.JSONObject
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit) {
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
@@ -58,11 +60,12 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
     var isLoading by remember { mutableStateOf(false) }
 
     BackHandler(onBack = onBack)
+    
     Scaffold(
         containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
-                title = { Text(text = wallet.info, color = colorScheme.onSurface) },
+                title = { Text(text = wallet.info, color = colorScheme.onSurface, fontWeight = FontWeight.Light) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface
                 ),
@@ -135,7 +138,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                             clipboardManager.setPrimaryClip(clip)
                             Toast.makeText(context, R.string.copytobuffer, Toast.LENGTH_SHORT).show()
                         }) {
-                            Icon(painter = painterResource(id = R.drawable.copy), contentDescription = "Copy", tint = colorScheme.primary)
+                            Icon(painter = painterResource(id = R.drawable.copy), contentDescription = "Copy", tint = colorScheme.onSurface)
                         }
                     },
                     colors = TextFieldDefaults.colors(
@@ -163,7 +166,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = wallet.tokenShortNames,
+                    text = wallet.tokenShortNames.split(';').joinToString("\n"),
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = colorScheme.surface, shape = roundedShape)
@@ -171,6 +174,9 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     fontSize = 14.sp,
                     color = colorScheme.onSurface
                 )
+
+
+
             }
         }
     }
@@ -212,4 +218,33 @@ fun AddressList(slist: String, signers: List<Signer>) {
         }
     }
 }
+
+/*
+@Composable
+fun HiddenItemAlertDialog(isHidden: Boolean, flags: String, onDismiss: () -> Unit, ){
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss() },
+        confirmButton = {
+            Text(text = "Yes", fontSize = 12.sp, fontWeight = FontWeight.Light, color = colorScheme.onSurface)
+        },
+        dismissButton = {
+            Text(text = "No", fontSize = 12.sp, fontWeight = FontWeight.Light, color = colorScheme.onSurface)
+        },
+        title = {
+            Text(text = "Скрытый кошелек", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
+        },
+        text = {
+            Text(text = "Вы действительно хотите скрыть этот кошелек?", fontSize = 14.sp, fontWeight = FontWeight.Light, color = colorScheme.onSurface)
+        },
+        containerColor = colorScheme.surface,
+        textContentColor = colorScheme.onSurface,
+        titleContentColor = colorScheme.onSurface,
+        shape = newRoundedShape,
+        tonalElevation = 0.dp,
+        modifier = Modifier.border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape)
+
+    )
+}
+*/
 

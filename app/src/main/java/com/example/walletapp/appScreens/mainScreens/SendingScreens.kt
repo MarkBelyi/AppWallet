@@ -105,8 +105,7 @@ fun SendingScreens(
 
 @Composable
 fun WalletsListScreen(navController: NavController, onCreateClick: () -> Unit, viewModel: appViewModel, address: String) {
-    val wallets by viewModel.allWallets.observeAsState(initial = emptyList())
-
+    val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
     WalletsList(
         wallets = wallets,
         onWalletClick = { wallet ->

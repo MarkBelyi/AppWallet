@@ -124,6 +124,7 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
                         Text(
                             text = stringResource(id = R.string.no_wallets),
                             color = colorScheme.onSurface,
+                            fontWeight = FontWeight.Light,
                             modifier = Modifier.fillMaxSize(),
                             textAlign = TextAlign.Center
                         )
@@ -180,7 +181,7 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
             trailingIcon = {
                 IconButton(onClick = { showPopup.value = true }) {
                     if (selectedBlockchain == null) {
-                        Text("All", color = colorScheme.primary)
+                        Text("All", color = colorScheme.primary, fontWeight = FontWeight.Light)
                     } else {
                         Icon(painter = painterResource(id = id), contentDescription = "blockchain")
                     }
@@ -198,13 +199,14 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
         if (showPopup.value) {
             Popup(
                 alignment = Alignment.TopEnd,
-                offset = IntOffset(x = 0, y = 200),
+                offset = IntOffset(x = -16, y = 200),
                 onDismissRequest = { showPopup.value = false }
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth(0.5f)
                         .background(colorScheme.surface, shape = newRoundedShape)
+                        .border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape)
                         .padding(8.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -220,7 +222,7 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
                             ),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Скрытые", color = colorScheme.onSurface, modifier = Modifier.weight(1f))
+                        Text(text = "Скрытые", color = colorScheme.onSurface, modifier = Modifier.weight(1f), fontWeight = FontWeight.Light)
                     }
 
                     HorizontalDivider(
@@ -243,7 +245,7 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
                             ) {
                                 Icon(painter = painterResource(id = R.drawable.wallet), contentDescription = null, tint = colorScheme.onSurface)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = "Все кошельки", color = colorScheme.onSurface, modifier = Modifier.weight(1f))
+                                Text(text = "Все кошельки", color = colorScheme.onSurface, modifier = Modifier.weight(1f), fontWeight = FontWeight.Light)
                                 if (selectedBlockchain == null) {
                                     Icon(Icons.Rounded.Check, contentDescription = null, tint = colorScheme.primary)
                                 }
@@ -274,7 +276,7 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
                                     modifier = Modifier.size(24.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = blockchain.name, color = colorScheme.onSurface, modifier = Modifier.weight(1f))
+                                Text(text = blockchain.name, color = colorScheme.onSurface, modifier = Modifier.weight(1f), fontWeight = FontWeight.Light)
                                 if (selectedBlockchain == blockchain) {
                                     Icon(Icons.Rounded.Check, contentDescription = null, tint = colorScheme.primary)
                                 }
@@ -332,8 +334,8 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
 
             Box(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .weight(0.2f),
+                    .padding(end = 8.dp, top = 8.dp, bottom = 8.dp)
+                    .size(36.dp),
                 contentAlignment = Alignment.Center
             ) {
 
@@ -353,7 +355,8 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                 Text(
                     text = wallet.info.uppercase(),
                     color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal
                 )
 
                 if (isAddressEmpty) {
@@ -411,6 +414,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                             ?: "",
                         textAlign = TextAlign.Center,
                         fontSize = 12.sp,
+                        fontWeight = FontWeight.Light,
                         color = colorScheme.onSurface
                     )
                 } else {
@@ -418,6 +422,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                         text = "Скрыт",
                         textAlign = TextAlign.Center,
                         fontSize = 12.sp,
+                        fontWeight = FontWeight.Light,
                         color = colorScheme.onSurface
                     )
                 }
