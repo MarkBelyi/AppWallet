@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -60,6 +60,8 @@ fun SendingScreens(
     onCreateClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+
+    val showHidden = viewModel.showTestNetworks.observeAsState(initial = false)
     val navController = rememberNavController()
     Scaffold(
         containerColor = colorScheme.inverseSurface,
@@ -72,7 +74,7 @@ fun SendingScreens(
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -103,7 +105,7 @@ fun SendingScreens(
 
 @Composable
 fun WalletsListScreen(navController: NavController, onCreateClick: () -> Unit, viewModel: appViewModel, address: String) {
-    val wallets by viewModel.allWallets.observeAsState(initial = emptyList())
+    val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
     WalletsList(
         wallets = wallets,
         onWalletClick = { wallet ->
@@ -111,7 +113,7 @@ fun WalletsListScreen(navController: NavController, onCreateClick: () -> Unit, v
             navController.navigate("${SendingRoutes.SELECT_TOKEN.replace("{tokenAddr}", wallet.addr)}?address=$address")
         },
         onCreateClick = { onCreateClick() },
-        viewModel = viewModel
+        viewModel = viewModel,
     )
 }
 

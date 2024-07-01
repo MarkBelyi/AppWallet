@@ -14,14 +14,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -31,13 +32,11 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -310,12 +309,13 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                     }
                 }
             }
-
+            
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(top = 8.dp)
-            ) {
+            ){
+
                 Text(
                     text = stringResource(id = R.string.signers),
                     maxLines = 1,
@@ -375,30 +375,15 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
             )
 
             ElevatedButton(
-                onClick = { coroutineScope.launch{
-                    //GetAPIString(context, "newWallet", POST = true)
-                    //signerKeys - массив содержит все адреса подписантов, что юзер указал. Их отдадим на сервер через запятую
-                    val EC = signerKeys
-                        .filter { !it.isNullOrEmpty() } // отфильтруем пустые (ну а вдруг!)
-                        .toList()
-
-                    var ss:String="" // Json тело запроса
-                    ss="\"slist\":{"
-                    for (i in 0..EC.size-1) {
-                        ss += "\""+i+"\":{\"type\":" + "\"any\"," + "\"ecaddress\":\"" + EC[i] + "\"}"
-                        if (i<EC.size-1)ss+=","
-                    }
-                    // "type":"any" значит что сервер примет любой метод подписи от подписанта[смс, емаил или ECDSA] (но мы пока используем ECDSA)
-
-                    if (requiredSigners>0) // минимальное кол-во подписантов для кворума (минимум один, максимум все) когда-то был возможен ноль.
-                        ss+=",\"min_signs\":\""+requiredSigners.toString()+"\""
-                    ss+="},"
-                    // selectedNetworkid - код сети, меняется в момент смены сети юзером в поле выбора сети
-                    ss+="\"network\":\""+selectedNetworkId+"\"," // код сети блокчейна (3000 эфир, 5000 трон итд)
-                    ss+="\"info\":\""+walletNameText+"\"" // Имя кошелька
-                    // Когда ss набит инфой, шлём его на сервер:
-                    viewModel.createWallet(context,ss)
-                }
+                onClick = {
+                    viewModel.createNewWallet(
+                        context = context,
+                        signerKeys = signerKeys,
+                        requiredSigners = requiredSigners,
+                        selectedNetworkId = selectedNetworkId.toString(),
+                        walletNameText = walletNameText,
+                        onComplete = onCreateClick
+                    )
                     onCreateClick()
                 },
                 shape = newRoundedShape,
@@ -432,25 +417,145 @@ fun SignerRow(
     onQrScanClick: (Int) -> Unit,
     onDismiss: (Int) -> Unit
 ) {
-
     val swipeableState = rememberSwipeableState(initialValue = 0)
+    val sizePx = with(LocalDensity.current) { 70.dp.toPx() }
+    val anchors = mapOf(0f to 0, -sizePx to -1)
 
-    val sizePx = with(LocalDensity.current) { 72.dp.toPx() }
-    val anchors = mapOf(
-        0f to 0,
-        -sizePx to -1
-    )
+    fun addSigner() {
+        signerKeys.add("")
+    }
 
+    fun removeSigner(index: Int) {
+        signerKeys.removeAt(index)
+    }
 
     if (swipeableState.currentValue == -1) {
         LaunchedEffect(swipeableState) {
-            swipeableState.animateTo(if (swipeableState.currentValue == -1) 0 else swipeableState.currentValue)
+            swipeableState.animateTo(0)
             onDismiss(index)
         }
     }
 
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .swipeable(
+                state = swipeableState,
+                anchors = anchors,
+                thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                orientation = Orientation.Horizontal
+            )
+            .background(Color.Transparent)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    val offset = swipeableState.offset.value
+                    translationX = offset
+                    alpha = 1f - abs(offset) / sizePx
+                }
+                .swipeable(
+                    state = swipeableState,
+                    anchors = anchors,
+                    enabled = signerKeys.size > 1,
+                    thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                    orientation = Orientation.Horizontal
+                )
+                .background(
+                    if (swipeableState.offset.value < -sizePx / 2) Color.Transparent else Color.Transparent,
+                    shape = newRoundedShape
+                )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .weight(1f)
+                    .border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape)
+                    .background(colorScheme.surface, shape = newRoundedShape)
+                    .fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = signerKeys[index],
+                    onValueChange = { signerKeys[index] = it },
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.new_signer),
+                            color = Color.Gray
+                        )
+                    },
+                    singleLine = true,
+                    shape = newRoundedShape,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = colorScheme.onSurface,
+                        unfocusedTextColor = colorScheme.onSurface,
+                        focusedContainerColor = colorScheme.surface,
+                        unfocusedContainerColor = colorScheme.surface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    modifier = Modifier.weight(0.5f)
+                )
 
+                IconButton(
+                    onClick = { onQrScanClick(index) },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.qr_code_scanner),
+                        contentDescription = "QR",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+                }
 
+                IconButton(
+                    onClick = { onSignerIconClick(index) },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Choose Signer",
+                        tint = colorScheme.primary,
+                        modifier = Modifier
+                            .scale(1.2f)
+                    )
+                }
+
+            }
+
+            if (index == signerKeys.lastIndex) {
+                IconButton(
+                    onClick = { removeSigner(index) },
+                    enabled = signerKeys.size > 1,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Delete,
+                        contentDescription = "remove",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+                }
+            }
+        }
+
+        if (swipeableState.offset.value < -sizePx / 2) {
+            Text(
+                "Remove item?",
+                color = colorScheme.onSurface.copy(alpha = 0.5f),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+                    .graphicsLayer {
+                        alpha = max(0f, -2 * swipeableState.offset.value / sizePx - 1)
+                    }
+            )
+        }
+    }
+
+    Spacer(modifier = Modifier.height(4.dp))
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -594,6 +699,7 @@ fun SignerRow(
 
                 }
             }
+
         }
     }
 }

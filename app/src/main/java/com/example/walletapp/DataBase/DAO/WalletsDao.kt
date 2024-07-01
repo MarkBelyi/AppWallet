@@ -53,4 +53,7 @@ interface WalletsDAO {
     @Query("SELECT * FROM Wallets WHERE myFlags NOT LIKE '1%'")
     suspend fun getVisibleWallets(): List<Wallets>
 
+    @Query("SELECT * FROM Wallets WHERE myUNID = :unid")
+    suspend fun getWalletByUNID(unid: String): Wallets?
+
 }

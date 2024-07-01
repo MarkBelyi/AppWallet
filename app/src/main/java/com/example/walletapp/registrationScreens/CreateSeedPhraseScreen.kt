@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -231,9 +231,9 @@ fun ShowSecurityWarningDialog(showDialog: Boolean, onDismiss: () -> Unit) {
 @Composable
 fun DividerWithText(text: String, modifier: Modifier) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        Divider(modifier = Modifier.weight(1f), color = colorScheme.onSurface)
+        HorizontalDivider(modifier = Modifier.weight(1f), color = colorScheme.onSurface)
         Text(text = text, style = typography.bodyMedium, fontSize = 16.sp, modifier = Modifier.padding(horizontal = paddingColumn), color = colorScheme.onSurface)
-        Divider(modifier = Modifier.weight(1f), color = colorScheme.onSurface)
+        HorizontalDivider(modifier = Modifier.weight(1f), color = colorScheme.onSurface)
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.walletapp.appViewModel
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.util.Log
@@ -21,6 +22,7 @@ import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
 import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.Server.Getsign
+import com.example.walletapp.appScreens.mainScreens.Blockchain
 import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
 import com.example.walletapp.parse.parseWallets
@@ -45,6 +47,7 @@ import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 class appViewModel(private val repository: AppRepository, application: Application) : AndroidViewModel(application) {
+    @SuppressLint("StaticFieldLeak")
     private val context: Context = application.applicationContext
 
     //SharedPreferences
@@ -60,40 +63,55 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
 
     //Показывать Тестовые сети
-
-    private val _showTestNetworks = MutableLiveData<Boolean>()
+    private val _showTestNetworks = MutableLiveData<Boolean>(false)
     val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks
 
-    private fun loadShowTestNetworksPreference() {
-        val prefs = context.getSharedPreferences("WalletPreferences", Context.MODE_PRIVATE)
-        _showTestNetworks.value = prefs.getBoolean("showTestNetworks", false)
-        filterWalletsBasedOnPreference()
-    }
-
-    fun saveShowTestNetworksPreference(show: Boolean) {
-        val prefs = context.getSharedPreferences("WalletPreferences", Context.MODE_PRIVATE)
-        prefs.edit().putBoolean("showTestNetworks", show).apply()
-        _showTestNetworks.value = show
-        filterWalletsBasedOnPreference()
-    }
-
-    private fun filterWalletsBasedOnPreference() {
-        if (_showTestNetworks.value == true) {
-            getAllWallets()
-        } else {
-            getVisibleWallets()
-        }
-    }
 
 
     // Wallets and Tx
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
     private val _filteredWallets = MutableLiveData<List<Wallets>>()
     val filteredWallets: LiveData<List<Wallets>> get() = _filteredWallets
+    private val _selectedBlockchain = MutableLiveData<Blockchain?>()
+    val selectedBlockchain: LiveData<Blockchain?> get() = _selectedBlockchain
 
-    init {
-        viewModelScope.launch {
-            _filteredWallets.value = repository.fetchAllWallets()
+    fun filterWallets() {
+        val blockchainId = _selectedBlockchain.value?.id
+        val showHidden = _showTestNetworks.value ?: false
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val wallets = if (blockchainId != null) {
+                repository.getWalletsByNetwork(blockchainId, getTestNetworkId(blockchainId))
+            } else {
+                repository.fetchAllWallets()
+            }
+
+            val filtered = if (showHidden) {
+                wallets
+            } else {
+                wallets.filter { !it.myFlags.startsWith("1") }
+            }
+
+            _filteredWallets.postValue(filtered)
+        }
+    }
+
+    fun updateSelectedBlockchain(blockchain: Blockchain?) {
+        _selectedBlockchain.value = blockchain
+        filterWallets()
+    }
+
+    fun toggleShowHidden() {
+        _showTestNetworks.value = !(_showTestNetworks.value ?: false)
+        filterWallets()
+    }
+
+    private fun getTestNetworkId(networkId: Int): Int {
+        return when (networkId) {
+            1000 -> 1010
+            3000 -> 3040
+            5000 -> 5010
+            else -> networkId
         }
     }
 
@@ -112,6 +130,39 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     fun getAllWallets() {
         viewModelScope.launch(Dispatchers.IO) {
             _filteredWallets.postValue(repository.fetchAllWallets())
+        }
+    }
+
+    fun createNewWallet(
+        context: Context,
+        signerKeys: List<String>,
+        requiredSigners: Int,
+        selectedNetworkId: String,
+        walletNameText: String,
+        onComplete: () -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val EC = signerKeys
+                .filter { !it.isNullOrEmpty() }
+                .toList()
+
+            var ss: String = ""
+            ss = "\"slist\":{"
+            for (i in EC.indices) {
+                ss += "\"$i\":{\"type\":\"any\",\"ecaddress\":\"${EC[i]}\"}"
+                if (i < EC.size - 1) ss += ","
+            }
+
+            if (requiredSigners > 0)
+                ss += ",\"min_signs\":\"$requiredSigners\""
+            ss += "},"
+            ss += "\"network\":\"$selectedNetworkId\","
+            ss += "\"info\":\"$walletNameText\""
+
+            createWallet(context, ss)
+            withContext(Dispatchers.Main) {
+                onComplete()
+            }
         }
     }
 
@@ -244,7 +295,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
                         value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
                         init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
-                        eMSG = "", // Обработка сообщения об ошибке при необходимости
+                        eMSG = "",
                     )
                     txList.add(tx)
                 }
@@ -364,10 +415,12 @@ class appViewModel(private val repository: AppRepository, application: Applicati
             val jsonString = GetAPIString(context, "wallets_2")
             val loadedWallets = parseWallets(jsonString)
             repository.addWallets(loadedWallets)
+
             withContext(Dispatchers.Main) {
-                _filteredWallets.value = repository.fetchAllWallets()
+                filterWallets()
                 onComplete()
             }
+
             loadedWallets.forEach { wallet ->
                 if (wallet.tokenShortNames.isNotBlank()) {
                     wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
@@ -395,7 +448,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         if (jsonconversion.has("myUNID")) fillWallets(context)
     }
 
-    suspend fun fillWallets(context: Context) {
+    private suspend fun fillWallets(context: Context) {
         var ss: String = GetAPIString(context, "wallets_2")
         if (ss.isEmpty()) return
         if (ss == "{}") ss = "[]"
@@ -421,12 +474,23 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         repository.addWallets(gg)
     }
 
+    private val _chooseWallet = MutableLiveData<Wallets?>()
+    val chooseWallet: LiveData<Wallets?> get() = _chooseWallet
+
+    fun chooseWallet(wallet: Wallets?) {
+        _chooseWallet.value = wallet
+    }
+
+    private val _visibilityUpdateStatus = MutableLiveData<Boolean>()
+    val visibilityUpdateStatus: LiveData<Boolean> get() = _visibilityUpdateStatus
+
     fun updateWalletFlags(unid: String, newFlags: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            _visibilityUpdateStatus.postValue(true)
             try {
-                val response = visibilityWallet(context, unid, newFlags)
+                val response = visibilityWallet(getApplication(), unid, newFlags)
+                repository.updateWalletFlags(unid, newFlags)
                 if (response.isEmpty()) {
-                    repository.updateWalletFlags(unid, newFlags)
                     Log.d("UpdateWalletFlags", "Wallet flags updated locally: $newFlags")
                 } else {
                     val jsonResponse = JSONObject(response)
@@ -437,17 +501,56 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         Log.d("UpdateWalletFlags", "Wallet flags updated successfully: $response")
                     }
                 }
+                refreshFilteredWallets()
             } catch (e: IOException) {
                 Log.e("UpdateWalletFlags", "Network error while updating wallet flags", e)
             } catch (e: JSONException) {
                 Log.e("UpdateWalletFlags", "JSON error while updating wallet flags", e)
             } catch (e: Exception) {
                 Log.e("UpdateWalletFlags", "Error updating wallet flags", e)
+            }finally {
+                _visibilityUpdateStatus.postValue(false)
             }
         }
     }
 
-    suspend fun visibilityWallet(context: Context, unid: String, newFlags: String): String {
+    //Overloading function
+    fun updateWalletFlags(unid: String, newFlags: String, onComplete: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateWalletFlags(unid, newFlags)
+            visibilityWallet(getApplication(), unid, newFlags)
+            refreshFilteredWallets()
+            withContext(Dispatchers.Main) {
+                onComplete()
+            }
+        }
+    }
+
+    private suspend fun refreshFilteredWallets() {
+        var wallets: List<Wallets>
+        val blockchainId = _selectedBlockchain.value?.id
+        val showHidden = _showTestNetworks.value ?: false
+
+        withContext(Dispatchers.IO) {
+            wallets = if (blockchainId != null) {
+                repository.getWalletsByNetwork(blockchainId, getTestNetworkId(blockchainId))
+            } else {
+                repository.fetchAllWallets()
+            }
+
+            val filtered = if (showHidden) {
+                wallets
+            } else {
+                wallets.filter { !it.myFlags.startsWith("1") }
+            }
+
+            _filteredWallets.postValue(filtered)
+        }
+    }
+
+
+
+    private suspend fun visibilityWallet(context: Context, unid: String, newFlags: String): String {
         val apiEndpoint = "set_wallet_flag/$unid"
         val requestBody = "\"wallet_flags\":\"" + newFlags + "\""
         return GetAPIString(context, apiEndpoint, requestBody, POST = true)

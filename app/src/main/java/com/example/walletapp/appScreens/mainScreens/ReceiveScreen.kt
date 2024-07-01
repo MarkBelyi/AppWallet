@@ -11,7 +11,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -23,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,6 +37,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +49,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -65,8 +69,9 @@ object RecieveRoute {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReceiveScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClick: () -> Unit) {
-    val wallets by viewModel.allWallets.observeAsState(initial = emptyList())
+    val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
     val navController = rememberNavController()
+    var searchText by remember { mutableStateOf(TextFieldValue("")) }
 
     Scaffold(
         topBar = {
@@ -74,7 +79,7 @@ fun ReceiveScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClic
                 title = { Text(text = "Receive") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -88,40 +93,47 @@ fun ReceiveScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClic
     ) { paddingValues ->
         NavHost(navController, startDestination = RecieveRoute.RECEIVE) {
             composable(RecieveRoute.RECEIVE) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(colorScheme.inverseSurface)
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                Column(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = colorScheme.inverseSurface)
+                    .padding(paddingValues),
                 ) {
-                    if (wallets.isEmpty()) {
-                        items(1) {
-                            Column(
-                                modifier = Modifier.fillMaxSize(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = stringResource(id = R.string.no_wallets),
-                                    color = colorScheme.onSurface,
+                    SearchBar(searchText, onTextChange = { newValue ->
+                        searchText = newValue
+                        viewModel.filterWalletsByName(newValue.text)
+                    }, viewModel = viewModel)
+
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                    ) {
+                        if (wallets.isEmpty()) {
+                            items(1) {
+                                Column(
                                     modifier = Modifier.fillMaxSize(),
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                ClickableText(
-                                    text = AnnotatedString(stringResource(id = R.string.createWallet)),
-                                    onClick = { onCreateClick() },
-                                    style = TextStyle(color = colorScheme.primary)
-                                )
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = stringResource(id = R.string.no_wallets),
+                                        color = colorScheme.onSurface,
+                                        modifier = Modifier.fillMaxSize(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    ClickableText(
+                                        text = AnnotatedString(stringResource(id = R.string.createWallet)),
+                                        onClick = { onCreateClick() },
+                                        style = TextStyle(color = colorScheme.primary)
+                                    )
+                                }
                             }
-                        }
-                    } else {
-                        items(wallets) { wallet ->
-                            WalletItem(wallet = wallet, onWalletClick = {
-                                navController.navigate(RecieveRoute.SHARE_ADDRESS.replace("{walletAddr}", wallet.addr))
-                            })
+                        } else {
+                            items(wallets) { wallet ->
+                                WalletItem(wallet = wallet, onWalletClick = {
+                                    navController.navigate(RecieveRoute.SHARE_ADDRESS.replace("{walletAddr}", wallet.addr))
+                                })
+                            }
                         }
                     }
                 }
