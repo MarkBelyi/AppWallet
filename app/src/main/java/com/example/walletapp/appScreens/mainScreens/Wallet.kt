@@ -317,8 +317,6 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
 
     }
 
-
-
     Card(
         border = BorderStroke(width = 0.5.dp, color =  if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.primary),
         onClick = {

@@ -545,22 +545,24 @@ fun SignerRow(
     Spacer(modifier = Modifier.height(4.dp))
 
     if (index == signerKeys.lastIndex) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(
-                onClick = { addSigner() },
-                enabled = signerKeys.size < numberOfSigner
-            ){
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = "add",
-                    tint = colorScheme.primary,
-                    modifier = Modifier.scale(1.2f)
-                )
-            }
+        if(index < 8) {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(
+                    onClick = { addSigner() },
+                    enabled = signerKeys.size < numberOfSigner
+                ){
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = "add",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+                }
 
+            }
         }
     }
 }

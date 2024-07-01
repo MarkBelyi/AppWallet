@@ -133,6 +133,16 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
+    //TX
+    val allTX: LiveData<List<TX>> = repository.allTX.asLiveData()
+
+    // Method to update transaction status
+    private fun updateTransactionStatus(unid: String, status: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateTransactionStatus(unid, status)
+        }
+    }
+
     fun createNewWallet(
         context: Context,
         signerKeys: List<String>,
@@ -166,15 +176,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    //TX
-    val allTX: LiveData<List<TX>> = repository.allTX.asLiveData()
-
-    // Method to update transaction status
-    private fun updateTransactionStatus(unid: String, status: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateTransactionStatus(unid, status)
-        }
-    }
 
     // Method to fetch transactions and update their status based on server response
     fun needSignTX(context: Context) = viewModelScope.launch(Dispatchers.IO) {
