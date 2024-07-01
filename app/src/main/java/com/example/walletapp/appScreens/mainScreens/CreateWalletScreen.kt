@@ -444,13 +444,6 @@ fun SignerRow(
                     translationX = offset
                     alpha = 1f - abs(offset) / sizePx
                 }
-                .swipeable(
-                    state = swipeableState,
-                    anchors = anchors,
-                    enabled = signerKeys.size > 1,
-                    thresholds = { _, _ -> FractionalThreshold(0.3f) },
-                    orientation = Orientation.Horizontal
-                )
                 .background(
                     if (swipeableState.offset.value < -sizePx / 2) Color.Transparent else Color.Transparent,
                     shape = newRoundedShape
