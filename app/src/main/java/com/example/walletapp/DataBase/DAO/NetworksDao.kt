@@ -28,4 +28,11 @@ interface NetworksDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNetwork(item: Networks)
+
+    @Query("SELECT * FROM Networks Where network_id IN (1000, 3000, 5000)")
+    fun getMainNetworks(): Flow<List<Networks>>
+
+    @Query("SELECT * FROM Networks Where network_id IN (1000, 1010, 3000, 3040, 5000, 5010)")
+    fun getMainWithTestNetworks(): Flow<List<Networks>>
+
 }

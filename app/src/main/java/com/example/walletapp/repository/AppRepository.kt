@@ -3,6 +3,7 @@ package com.example.walletapp.repository
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.asFlow
 import com.example.walletapp.DataBase.DAO.BalansDAO
+import com.example.walletapp.DataBase.DAO.NetworkBalance
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
 import com.example.walletapp.DataBase.DAO.TokensDAO
@@ -34,6 +35,9 @@ class AppRepository(
     //tokens
     suspend fun insertToken(item: Tokens) = tokensDAO.insert(item)
 
+    suspend fun getCombinedBalances(): List<NetworkBalance> {
+        return balansDAO.getCombinedBalances()
+    }
 
     // Wallets
     val allWallets: Flow<List<Wallets>> = walletsDAO.getLiveWallets().asFlow() // Получаем кошельки
@@ -87,16 +91,20 @@ class AppRepository(
         return signersDao.getSignerAddress(address)
     }
 
-
-
     //Network
     val allNetworks: Flow<List<Networks>> = networksDAO.getNetworks()
-
 
     suspend fun addNetworks(networks: List<Networks>){
         networksDAO.addNetworks(networks)
     }
 
+    fun getMainNetworks(): Flow<List<Networks>> {
+        return networksDAO.getMainNetworks()
+    }
+
+    fun getMainWithTestNetworks(): Flow<List<Networks>> {
+        return networksDAO.getMainWithTestNetworks()
+    }
 
     //TX
     val allTX: Flow<List<TX>> = txDAO.getAll()

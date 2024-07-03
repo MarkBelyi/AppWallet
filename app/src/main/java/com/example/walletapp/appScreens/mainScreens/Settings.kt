@@ -4,23 +4,46 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.runtime.*
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.walletapp.ui.theme.newRoundedShape
+import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -42,16 +65,13 @@ enum class ElementType {
     CHECKBOX, SWITCH, RADIOBUTTON, ARROW
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(viewModel: appViewModel) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
     val locale = Locale.getDefault().language // Получаем текущий язык
     val folderName = if (locale == "ru") "ru" else "en" // Выбираем папку на основе языка
-
-    val jsonStr =
-        context.assets.open("$folderName/settings.json").bufferedReader().use { it.readText() }
+    val jsonStr = context.assets.open("$folderName/settings.json").bufferedReader().use { it.readText() }
     val gson = Gson()
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
@@ -89,6 +109,9 @@ fun SettingsScreen() {
                         checkedState = checkedState,
                         onCheckedChange = { newValue ->
                             sharedPreferences.edit().putBoolean(item.prefsKey, newValue).apply()
+                            if (item.prefsKey == "show_test_networks") {
+                                viewModel.updateShowTestNetworks(newValue)
+                            }
                         }
                     )
                 }
@@ -113,7 +136,6 @@ fun SettingItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
-            //.border(width = 0.1.dp, color = colorScheme.onSurface)
             .clickable {
                 if (type == ElementType.CHECKBOX || type == ElementType.SWITCH) {
                     val newCheckedState = !checkedState.value
@@ -148,7 +170,7 @@ fun SettingItem(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Divider(
+                    HorizontalDivider(
                         thickness = 0.5.dp,
                         color = colorScheme.onSurface
                     )
@@ -213,7 +235,7 @@ fun SettingItem(
                 ElementType.ARROW -> IconButton(
                     onClick = { /* Обработчик нажатия  */ }
                 ) {
-                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
                 }
             }
         }

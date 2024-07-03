@@ -61,7 +61,7 @@ fun SendingScreens(
     onBackClick: () -> Unit
 ) {
 
-    val showHidden = viewModel.showTestNetworks.observeAsState(initial = false)
+    val showHidden = viewModel.showWalletWithTestNetwork.observeAsState(initial = false)
     val navController = rememberNavController()
     Scaffold(
         containerColor = colorScheme.inverseSurface,

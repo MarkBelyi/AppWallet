@@ -103,7 +103,9 @@ fun AppActivity(
 
             6 -> MatrixRain()
 
-            7 -> SettingsScreen()
+            7 -> SettingsScreen(
+                viewModel = viewModel
+            )
 
             8 -> AddSignerScreen(
                 viewModel = viewModel,

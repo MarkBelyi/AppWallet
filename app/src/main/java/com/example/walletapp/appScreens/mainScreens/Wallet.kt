@@ -148,7 +148,7 @@ data class Blockchain(val id: Int, val name: String)
 @Composable
 fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit, viewModel: appViewModel) {
     val showPopup = remember { mutableStateOf(false) }
-    val showHidden by viewModel.showTestNetworks.observeAsState(initial = false)
+    val showHidden by viewModel.showWalletWithTestNetwork.observeAsState(initial = false)
     val blockchains = listOf(
         Blockchain(1000, "Bitcoin (BTC)"),
         Blockchain(3000, "Ethereum (ETH)"),

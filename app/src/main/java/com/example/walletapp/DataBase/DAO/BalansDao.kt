@@ -37,4 +37,16 @@ interface BalansDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: Balans)
+
+    //New
+    @Query("SELECT name, network_id, SUM(amount) AS totalAmount FROM Balans GROUP BY name, network_id")
+    suspend fun getCombinedBalances(): List<NetworkBalance>
 }
+
+
+//New
+data class NetworkBalance(
+    val name: String,
+    val network_id: Int,
+    val totalAmount: Double
+)
