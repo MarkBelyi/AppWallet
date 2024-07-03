@@ -310,6 +310,22 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     var selectedWallet: MutableLiveData<Wallets> = MutableLiveData()
     var selectedToken: MutableLiveData<Balans> = MutableLiveData()
 
+    fun getCombinedBalances(): LiveData<Map<String, Double>> = liveData {
+        val combinedBalances = repository.getCombinedBalances()
+        val balancesMap = mutableMapOf<String, Double>()
+
+        combinedBalances.forEach { networkBalance ->
+            when (networkBalance.network_id) {
+                1000, 1010 -> balancesMap["BTC"] = (balancesMap["BTC"] ?: 0.0) + networkBalance.totalAmount
+                3000, 3040 -> balancesMap["ETH"] = (balancesMap["ETH"] ?: 0.0) + networkBalance.totalAmount
+                5000, 5010 -> balancesMap["TRX"] = (balancesMap["TRX"] ?: 0.0) + networkBalance.totalAmount
+                else -> Log.d("combineBalances", "Unknown network: ${networkBalance.network_id}")
+            }
+        }
+
+        emit(balancesMap)
+    }
+
     fun selectWallet(wallet: Wallets) {
         selectedWallet.value = wallet
     }
@@ -617,6 +633,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         val loadedNetworks = parseNetworks(jsonString)
         repository.addNetworks(loadedNetworks)
     }
+
+
 }
 
 class AppViewModelFactory(private val repository: AppRepository, private val application: Application) : ViewModelProvider.Factory {
