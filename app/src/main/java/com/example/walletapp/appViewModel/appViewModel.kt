@@ -29,6 +29,7 @@ import com.example.walletapp.parse.parseWallets
 import com.example.walletapp.registrationScreens.AuthMethod
 import com.example.walletapp.repository.AppRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Call
@@ -49,10 +50,13 @@ import java.util.Locale
 class appViewModel(private val repository: AppRepository, application: Application) : AndroidViewModel(application) {
     @SuppressLint("StaticFieldLeak")
     private val context: Context = application.applicationContext
+    private val sharedPreferences = application.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
 
     //SharedPreferences
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
+
+    fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
 
     fun updateAuthMethod(authMethod: AuthMethod, context: Context) {
         val prefs = context.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE)
@@ -60,13 +64,41 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         _selectedAuthMethod.value = authMethod
     }
 
-    fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
-
-    //Показывать Тестовые сети
-    private val _showTestNetworks = MutableLiveData<Boolean>(false)
+    private val _showTestNetworks = MutableLiveData<Boolean>()
     val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks
 
+    init {
+        _showTestNetworks.value = sharedPreferences.getBoolean("show_test_networks", false)
+    }
 
+    fun updateShowTestNetworks(show: Boolean) {
+        sharedPreferences.edit().putBoolean("show_test_networks", show).apply()
+        _showTestNetworks.value = show
+        refreshNetworks()
+    }
+
+    private val _networks = MutableLiveData<List<Networks>>()
+    val networks: LiveData<List<Networks>> get() = _networks
+
+    fun refreshNetworks() {
+        viewModelScope.launch {
+            val showTestNetworks = _showTestNetworks.value ?: false
+            val networks = if (showTestNetworks) {
+                repository.getMainWithTestNetworks().first()
+            } else {
+                repository.getMainNetworks().first()
+            }
+            _networks.value = networks
+        }
+    }
+
+    init {
+        refreshNetworks()
+    }
+
+    //Показывать Кошельки с тестовыми сетями
+    private val _showWalletWithTestNetwork = MutableLiveData<Boolean>(false)
+    val showWalletWithTestNetwork: LiveData<Boolean> get() = _showWalletWithTestNetwork
 
     // Wallets and Tx
     val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
@@ -77,7 +109,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
 
     fun filterWallets() {
         val blockchainId = _selectedBlockchain.value?.id
-        val showHidden = _showTestNetworks.value ?: false
+        val showHidden = _showWalletWithTestNetwork.value ?: false
 
         viewModelScope.launch(Dispatchers.IO) {
             val wallets = if (blockchainId != null) {
@@ -102,7 +134,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     fun toggleShowHidden() {
-        _showTestNetworks.value = !(_showTestNetworks.value ?: false)
+        _showWalletWithTestNetwork.value = !(_showWalletWithTestNetwork.value ?: false)
         filterWallets()
     }
 
@@ -156,7 +188,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                 .filter { !it.isNullOrEmpty() }
                 .toList()
 
-            var ss: String = ""
+            var ss = ""
             ss = "\"slist\":{"
             for (i in EC.indices) {
                 ss += "\"$i\":{\"type\":\"any\",\"ecaddress\":\"${EC[i]}\"}"
@@ -315,12 +347,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         val balancesMap = mutableMapOf<String, Double>()
 
         combinedBalances.forEach { networkBalance ->
-            when (networkBalance.network_id) {
-                1000, 1010 -> balancesMap["BTC"] = (balancesMap["BTC"] ?: 0.0) + networkBalance.totalAmount
-                3000, 3040 -> balancesMap["ETH"] = (balancesMap["ETH"] ?: 0.0) + networkBalance.totalAmount
-                5000, 5010 -> balancesMap["TRX"] = (balancesMap["TRX"] ?: 0.0) + networkBalance.totalAmount
-                else -> Log.d("combineBalances", "Unknown network: ${networkBalance.network_id}")
-            }
+            val tokenName = networkBalance.name
+            balancesMap[tokenName] = (balancesMap[tokenName] ?: 0.0) + networkBalance.totalAmount
         }
 
         emit(balancesMap)
@@ -546,7 +574,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     private suspend fun refreshFilteredWallets() {
         var wallets: List<Wallets>
         val blockchainId = _selectedBlockchain.value?.id
-        val showHidden = _showTestNetworks.value ?: false
+        val showHidden = _showWalletWithTestNetwork.value ?: false
 
         withContext(Dispatchers.IO) {
             wallets = if (blockchainId != null) {
@@ -633,8 +661,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         val loadedNetworks = parseNetworks(jsonString)
         repository.addNetworks(loadedNetworks)
     }
-
-
 }
 
 class AppViewModelFactory(private val repository: AppRepository, private val application: Application) : ViewModelProvider.Factory {

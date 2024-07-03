@@ -3,7 +3,6 @@
 package com.example.walletapp.appScreens.mainScreens
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -12,15 +11,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -65,11 +65,9 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
-import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import com.example.walletapp.ui.theme.roundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
@@ -161,7 +159,7 @@ fun Home(
         }
     }
 
-    var showKeyDialog by remember { mutableStateOf(false) }
+    //var showKeyDialog by remember { mutableStateOf(false) }
 
     ConstraintLayout(
         modifier = Modifier
@@ -173,43 +171,32 @@ fun Home(
 
         Column(
             modifier = Modifier
+                .background(color = colorScheme.surface, shape = roundedShape)
+                .fillMaxWidth()
                 .constrainAs(assetsWidget) {
-                    top.linkTo(parent.top)
+                    top.linkTo(parent.top, margin = 8.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(gridRef.top)
                 }
-                .background(color = colorScheme.surface, shape = newRoundedShape)
-                .padding(vertical = 12.dp)
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = 120.dp)
         ) {
-
             val pageCount = 4
-
-            val pagerState = rememberPagerState(pageCount = {
-                pageCount
-            })
-
-            val pages = listOf(
-                Page.Assets, Page.Future0, Page.Future1, Page.Future2
-            )
+            val pagerState = rememberPagerState(pageCount = { pageCount })
+            val pages = listOf(Page.Assets, Page.Future0, Page.Future1, Page.Future2)
 
             HorizontalPager(state = pagerState,
                 modifier = Modifier
+                    .height(150.dp)
                     .fillMaxWidth()
-                    .align(alignment = Alignment.CenterHorizontally)
-                    .background(color = colorScheme.surface,shape = newRoundedShape)
-                    .defaultMinSize(minHeight = 104.dp),
+                    .align(alignment = Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
                 key = { it }
             ) { pageIndex ->
-
                 when (pages[pageIndex]) {
                     Page.Assets -> AssetsWidget(viewModel = viewModel)
-                    Page.Future0 -> Future(pageNum = pagerState.currentPage, modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
-                    Page.Future1 -> Future(pageNum = pagerState.currentPage, modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
-                    Page.Future2 -> Future(pageNum = pagerState.currentPage, modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
+                    Page.Future0 -> Future(pageNum = pagerState.currentPage)
+                    Page.Future1 -> Future(pageNum = pagerState.currentPage)
+                    Page.Future2 -> Future(pageNum = pagerState.currentPage)
                 }
             }
 
@@ -223,7 +210,7 @@ fun Home(
                     val color = if (pagerState.currentPage == iteration) Color.LightGray else Color.DarkGray
                     Box(
                         modifier = Modifier
-                            .padding(2.dp)
+                            .padding(2.dp, bottom = 8.dp)
                             .clip(CircleShape)
                             .background(color)
                             .size(6.dp)
@@ -249,7 +236,7 @@ fun Home(
             }
         }, modifier = Modifier
             .constrainAs(gridRef) {
-                top.linkTo(assetsWidget.bottom)
+                top.linkTo(assetsWidget.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 bottom.linkTo(button.top)
@@ -257,7 +244,7 @@ fun Home(
             }
         )
 
-        if (showKeyDialog) {
+        /*if (showKeyDialog) {
             ShowKeyDialog(onDismiss = { showKeyDialog = false })
         }
 
@@ -280,8 +267,7 @@ fun Home(
             )
         ) {
             Text("Показать ключи")
-        }
-
+        }*/
 
     }
 }
@@ -294,31 +280,28 @@ sealed class Page {
 }
 
 @Composable
-fun Future(pageNum: Int, modifier: Modifier){
+fun Future(pageNum: Int){
     Text(
         text = "Page: $pageNum",
         modifier = Modifier.fillMaxWidth()
-            .defaultMinSize(minHeight = 100.dp)
     )
 }
 
 @Composable
 fun AssetsWidget(viewModel: appViewModel) {
 
-    //val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
-
     Column (modifier = Modifier
         .fillMaxWidth()
-        .background(color = colorScheme.surface, shape = newRoundedShape) ){
+    ){
         Text(
             text = "Мои Активы:",
             maxLines = 1,
             color = colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 24.sp,
+            fontSize = 16.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier
-                .padding(top = 12.dp)
+                .padding(top = 8.dp)
                 .fillMaxWidth()
         )
 
@@ -331,53 +314,85 @@ fun AssetsWidget(viewModel: appViewModel) {
 fun BalancesView(viewModel: appViewModel) {
     val combinedBalances by viewModel.getCombinedBalances().observeAsState(initial = emptyMap())
 
-    LazyRow(
-        modifier = Modifier
-            .background(color = colorScheme.surface, shape = newRoundedShape)
-    ) {
-        items(combinedBalances.entries.toList()) { entry ->
-            BalanceCard(entry.key, entry.value)
-        }
-    }
-}
-
-fun combineBalances(wallets: List<Wallets>): Map<String, Double> {
-    val balances = mutableMapOf<String, Double>()
-
-    wallets.forEach { wallet ->
-        val tokenParts = wallet.tokenShortNames.split(" ")
-        if (tokenParts.size >= 2) {
-            val amount = tokenParts[0].toDoubleOrNull()
-
-            if (amount != null) {
-                when (wallet.network) {
-                    1000 -> balances["BTC"] = (balances["BTC"] ?: 0.0) + amount
-                    3000 -> balances["ETH"] = (balances["ETH"] ?: 0.0) + amount
-                    5000 -> balances["TRX"] = (balances["TRX"] ?: 0.0) + amount
-                    else -> Log.d("combineBalances", "Unknown network: ${wallet.network}")
+    Column(modifier = Modifier.padding(4.dp)) {
+        if (combinedBalances.isEmpty()) {
+            Text(
+                text = "У вас нет доступных активов!",
+                maxLines = 1,
+                color = colorScheme.onSurface,
+                fontWeight = FontWeight.Light,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+            )
+        }else{
+            TableHeader()
+            if (combinedBalances.size > 3) {
+                LazyColumn {
+                    items(combinedBalances.entries.filter { it.value != 0.0 }) { entry ->
+                        BalanceRow(entry.key, entry.value)
+                    }
+                }
+            } else {
+                combinedBalances.entries.filter { it.value != 0.0 }.forEach { entry ->
+                    BalanceRow(entry.key, entry.value)
                 }
             }
         }
     }
-
-    return balances
 }
 
 @Composable
-fun BalanceCard(currency: String, balance: Double) {
-    Card(
+fun TableHeader() {
+    Row(
         modifier = Modifier
-            .padding(8.dp)
-            .background(colorScheme.background, shape = newRoundedShape)
-            .padding(8.dp)
+            .padding(start = 4.dp, end = 4.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(modifier = Modifier.background(colorScheme.background)) {
-            Text(text = "$currency: $balance $currency",
-                color = colorScheme.onSurface,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp
-            )
-        }
+        Text(
+            text = "Token",
+            fontWeight = FontWeight.Normal,
+            color = colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+            fontSize = 14.sp
+        )
+        Text(
+            text = "Total Balance",
+            fontWeight = FontWeight.Normal,
+            color = colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.End,
+            fontSize = 14.sp
+        )
+    }
+}
+
+@Composable
+fun BalanceRow(currency: String, balance: Double) {
+    Row(
+        modifier = Modifier
+            .padding(start = 4.dp, end = 4.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = currency,
+            color = colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+            fontWeight = FontWeight.Light,
+            fontSize = 12.sp
+        )
+        Text(
+            text = "$balance",
+            color = colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.End,
+            fontWeight = FontWeight.Light,
+            fontSize = 12.sp
+        )
     }
 }
 

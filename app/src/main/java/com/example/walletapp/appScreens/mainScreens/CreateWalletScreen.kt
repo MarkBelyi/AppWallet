@@ -17,10 +17,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -83,7 +83,8 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
     var selectingSignerIndex by remember { mutableStateOf<Int?>(null) }
     var selectingSignerIndexQR by remember { mutableStateOf<Int?>(null) }
     val context = LocalContext.current
-    val networks by viewModel.allNetworks.observeAsState(initial = emptyList())
+    val networks by viewModel.networks.observeAsState(initial = emptyList())
+
     val coroutineScope = rememberCoroutineScope()
 
     val numberOfSigner = 9
@@ -171,7 +172,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
     LaunchedEffect(networks) {
         if (networks.isEmpty()) {
             coroutineScope.launch {
-                viewModel.addNetworks(context)
+                viewModel.refreshNetworks()
             }
         }
     }
@@ -193,7 +194,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
-                        Icon(Icons.Rounded.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                     }
                 }
             )

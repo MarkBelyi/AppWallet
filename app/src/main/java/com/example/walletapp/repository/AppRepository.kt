@@ -91,16 +91,20 @@ class AppRepository(
         return signersDao.getSignerAddress(address)
     }
 
-
-
     //Network
     val allNetworks: Flow<List<Networks>> = networksDAO.getNetworks()
-
 
     suspend fun addNetworks(networks: List<Networks>){
         networksDAO.addNetworks(networks)
     }
 
+    fun getMainNetworks(): Flow<List<Networks>> {
+        return networksDAO.getMainNetworks()
+    }
+
+    fun getMainWithTestNetworks(): Flow<List<Networks>> {
+        return networksDAO.getMainWithTestNetworks()
+    }
 
     //TX
     val allTX: Flow<List<TX>> = txDAO.getAll()
