@@ -71,6 +71,7 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.addWallets(context)
         viewModel.filterWallets()
     }
 

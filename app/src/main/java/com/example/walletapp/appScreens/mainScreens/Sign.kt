@@ -52,10 +52,10 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
     val userAddress = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        userAddress.value = GetMyAddr(context) // Get the user's address
+        userAddress.value = GetMyAddr(context)
     }
 
-    val signingState = remember { mutableStateOf(SigningState.values().find { it.ordinal == tx.status } ?: SigningState.IDLE) }
+    val signingState = remember { mutableStateOf(SigningState.entries.find { it.ordinal == tx.status } ?: SigningState.IDLE) }
     val showDialog = remember { mutableStateOf(false) }
     val rejectReason = remember { mutableStateOf("") }
 
@@ -64,13 +64,11 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
             onDismissRequest = { showDialog.value = false },
             title = { Text("Причина отказа") },
             text = {
-                Column {
-                    OutlinedTextField(
-                        value = rejectReason.value,
-                        onValueChange = { rejectReason.value = it },
-                        label = { Text("Причина") }
-                    )
-                }
+                OutlinedTextField(
+                    value = rejectReason.value,
+                    onValueChange = { rejectReason.value = it },
+                    label = { Text("Причина") }
+                )
             },
             confirmButton = {
                 Button(onClick = {

@@ -3,8 +3,10 @@ package com.example.walletapp.activity
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -57,8 +59,10 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
     ){
         AnimatedContent(
             targetState = selectedTabIndex,
+            modifier = Modifier.background(color = colorScheme.background),
             transitionSpec = {
-                anim.slideTransitionSpec()
+                //anim.slideTransitionSpec()
+                anim.fadeTransitionSpec()
             }, label = ""
         ) { screen ->
             when (screen) {

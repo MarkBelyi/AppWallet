@@ -44,9 +44,9 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit) {
     var isVisible by remember { mutableStateOf(false) }
     var termsAccepted by remember { mutableStateOf(false) }
     val logoRes = if (isSystemInDarkTheme()) {
-        R.drawable.safina_rgb_white
-    } else {
         R.drawable.safina_rgb_dark
+    } else {
+        R.drawable.safina_rgb
     }
 
 
@@ -61,9 +61,9 @@ fun NewUserScreenColumn(onCreateClick: () -> Unit, onAddClick: () -> Unit) {
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
     ) {
+
         Spacer(modifier = Modifier.weight(0.3f))
 
-        // Logo
         Image(
             painter = painterResource(id = logoRes),
             contentDescription = "Logo",
@@ -145,7 +145,6 @@ fun AnimatedContent(
 
             Spacer(modifier = Modifier.weight(0.1f))
 
-            // Checkbox with label
             CheckboxWithLabel(
                 text = stringResource(id = R.string.terms_of_use),
                 isChecked = termsAccepted,
