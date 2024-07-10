@@ -36,4 +36,7 @@ interface TxDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: TX)
+
+    @Query("SELECT status FROM TX WHERE unid = :unid")
+    suspend fun getStatus(unid: String): Int?
 }

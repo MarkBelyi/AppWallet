@@ -32,9 +32,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.walletapp.Element.CheckboxWithLabel
 import com.example.walletapp.Element.CustomButton
 import com.example.walletapp.R
-import com.example.walletapp.elements.checkbox.CheckboxWithLabel
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
 

@@ -20,7 +20,6 @@ import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
-import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.Server.Getsign
 import com.example.walletapp.appScreens.mainScreens.Blockchain
 import com.example.walletapp.parse.jsonArray
@@ -208,10 +207,11 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-
-    // Method to fetch transactions and update their status based on server response
-    fun needSignTX(context: Context) = viewModelScope.launch(Dispatchers.IO) {
+    fun needSignTX(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         val apiResponse = GetAPIString(context, "tx_by_ec")
+        withContext(Dispatchers.Main) {
+            onComplete()
+        }
         if (apiResponse.isNotEmpty()) {
             try {
                 val transactions = JSONArray(apiResponse)
@@ -233,7 +233,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         waitList.joinToString(",")
                     } ?: ""
 
-                    val status = if (waitEC.contains(GetMyAddr(context))) 1 else 5
+                    //val status = if (waitEC.contains(GetMyAddr(context))) 0 else 5
 
                     val tx = TX(
                         unid = txJson.optString("unid", ""),
@@ -250,7 +250,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         value_hex = txJson.optString("value_hex", "0"),
                         init_ts = txJson.optLong("init_ts", 0L).toInt(),
                         eMSG = "",
-                        status = status
+                        status = 0
                     )
                     txList.add(tx)
                 }
@@ -314,6 +314,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         waitList.joinToString(",")
                     } ?: ""
 
+                    val currentStatus = repository.getTransactionStatus(txJson.optString("unid", "")) ?: 0
+
                     val tx = TX(
                         unid = txJson.optString("unid", ""),
                         id = txJson.optInt("id", 0), // Парсинг ID
@@ -328,6 +330,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
                         value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
                         init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
+                        status = currentStatus,
                         eMSG = "",
                     )
                     txList.add(tx)

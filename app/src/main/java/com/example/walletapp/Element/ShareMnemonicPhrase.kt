@@ -1,4 +1,4 @@
-package com.example.walletapp.elements.checkbox
+package com.example.walletapp.Element
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher

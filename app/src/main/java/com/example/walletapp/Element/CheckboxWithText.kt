@@ -1,4 +1,4 @@
-package com.example.walletapp.elements.checkbox
+package com.example.walletapp.Element
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Checkbox
