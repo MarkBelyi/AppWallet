@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+
+
     <string name="app_name">Safina</string>
     <string name="user_agreement">https://safina.pro/offer_en</string>
+
+
+    //Purchase Screen
+
+    <string name="read_more">Read more</string>
+    <string name="show_less">Show less</string>
+
 
     //Wallet
     <string name="no_wallets">You have no active wallets!</string>

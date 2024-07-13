@@ -3,6 +3,12 @@
     <string name="user_agreement">https://safina.pro/offer</string>
 
 
+    // Purchase Screen
+
+    <string name="read_more">Больше</string>
+    <string name="show_less">Меньше</string>
+
+
     //Wallet
     <string name="no_wallets">У вас нет активных кошельков!</string>
     <string name="name_of_wallet">Имя кошелька:</string>
