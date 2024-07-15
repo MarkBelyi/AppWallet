@@ -88,6 +88,7 @@ fun Home(
     onSend: () -> Unit,
     onReceive: () -> Unit,
     onHistory: () -> Unit,
+    onPurchase: () -> Unit,
     navController: NavHostController,
 ) {
     val context = LocalContext.current
@@ -232,6 +233,7 @@ fun Home(
                 Actions.send -> onSend()
                 Actions.recieve -> onReceive()
                 Actions.history -> onHistory()
+                Actions.buyCrypto -> onPurchase()
                 else -> onMatrixClick()
             }
         }, modifier = Modifier

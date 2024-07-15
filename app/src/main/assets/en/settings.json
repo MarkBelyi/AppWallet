@@ -49,5 +49,21 @@
         "prefsKey": "change_password"
       }
     ]
+  },
+  {
+    "header": "Sytem settigns",
+    "items": [
+      {
+        "name": "Change theme",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "change_theme"
+      },{
+        "name": "Change language",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "change_language"
+      }
+    ]
   }
 ]

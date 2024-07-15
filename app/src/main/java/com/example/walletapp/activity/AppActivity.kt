@@ -22,6 +22,7 @@ import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen_v2
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.HistoryScreen
 import com.example.walletapp.appScreens.mainScreens.MatrixRain
+import com.example.walletapp.appScreens.mainScreens.PurchaseScreen
 import com.example.walletapp.appScreens.mainScreens.ReceiveScreen
 import com.example.walletapp.appScreens.mainScreens.SendingScreens
 import com.example.walletapp.appScreens.mainScreens.SettingsScreen
@@ -80,7 +81,8 @@ fun AppActivity(
                     onMatrixClick = {switchToPage(6)},
                     onSend = {switchToPage(1)},
                     onReceive = {switchToPage(9)},
-                    onHistory = {switchToPage(10)}
+                    onHistory = {switchToPage(10)},
+                    onPurchase = {switchToPage(11)}
                 )
 
                 1 -> SendingScreens(
@@ -132,6 +134,10 @@ fun AppActivity(
                 10 -> HistoryScreen(
                     viewModel = viewModel,
                     onSendingClick = {switchToPage(1)},
+                    onBackClick = {switchToPage(0)}
+                )
+
+                11 -> PurchaseScreen(
                     onBackClick = {switchToPage(0)}
                 )
             }

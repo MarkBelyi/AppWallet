@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 // Все всплывающие окна снизу и необходимые карточки, но не диалоговые окна, их не надо сюда приплетать
 // Новые цвета
 // Если все же не выбирать градиент то тогда обычный задний фон
-val Background = Color(0xFFFDFDFD)
+val Background = Color(0xFFF1F1F1)
 //val Background = Color(0xFFCCCCCC)
 val onBackground = Color(0xFFFFFFFF)
 
