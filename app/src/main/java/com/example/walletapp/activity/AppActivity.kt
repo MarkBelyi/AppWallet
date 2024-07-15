@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import com.example.walletapp.MyAnimation.MyAnimations
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
-import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
+import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen_v2
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.HistoryScreen
 import com.example.walletapp.appScreens.mainScreens.MatrixRain
@@ -107,7 +107,7 @@ fun AppActivity(
                     onBackClick = {switchToPage(3)}
                 )
 
-                5 -> CreateWalletScreen(
+                5 -> CreateWalletScreen_v2(
                     viewModel = viewModel,
                     onCreateClick = {switchToPage(0)},
                     onBackClick = {switchToPage(0)}

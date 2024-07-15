@@ -110,13 +110,17 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
         }
     ) { padding ->
         LazyColumn(
+
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+
         ) {
+
             items(1) {
+
                 Text(text = "Адрес кошелька:", fontSize = 16.sp, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -164,13 +168,22 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = wallet.tokenShortNames.split(';').joinToString("\n"),
+                Column(
+                    horizontalAlignment = Alignment.Start,
                     modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorScheme.surface, shape = roundedShape)
                         .padding(8.dp),
-                    fontSize = 14.sp,
-                    color = colorScheme.onSurface
-                )
+                ){
+                    Text(
+                        text = wallet.tokenShortNames.split(';').joinToString("\n"),
+                        modifier = Modifier
+                            .padding(8.dp),
+                        fontSize = 14.sp,
+                        color = colorScheme.onSurface
+                    )
+
+                }
 
                 /*Row(
                     horizontalArrangement = Arrangement.SpaceBetween,

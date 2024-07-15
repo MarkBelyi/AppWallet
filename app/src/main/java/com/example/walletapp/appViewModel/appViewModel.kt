@@ -640,7 +640,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     fun addNewSignerFromQR(result: String) {
-        val newSigner = Signer(name = "Новый Подписант", address = result, email = "", type = 0, telephone = "")
+        val newSigner = Signer(name = "Новый Подписант", address = result, email = "", type = 0, telephone = "", isFavorite = false)
         insertSigner(newSigner)
     }
 
