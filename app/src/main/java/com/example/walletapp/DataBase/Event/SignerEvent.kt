@@ -1,8 +1,6 @@
 package com.example.walletapp.DataBase.Event
 
-import com.example.walletapp.DataBase.Entities.Signer
-import com.example.walletapp.DataBase.ViewModel.SortType
-
+/*
 sealed interface SignerEvent {
     object SaveSigner: SignerEvent
 
@@ -18,4 +16,4 @@ sealed interface SignerEvent {
     data class SortSigners(val sortType: SortType): SignerEvent
 
     data class DeleteSigner(val signer: Signer): SignerEvent
-}
+}*/

@@ -10,7 +10,7 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
-<!--Изменил значение allowBackup на false-->
+
     <application
 
         android:name=".MainApplication"

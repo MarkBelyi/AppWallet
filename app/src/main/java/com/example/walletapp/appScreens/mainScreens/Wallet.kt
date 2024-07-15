@@ -71,6 +71,7 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.refreshWallets(context){}
         viewModel.filterWallets()
     }
 
@@ -88,9 +89,9 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
                     viewModel.chooseWallet(wallet)
                 }, onCreateClick = onCreateClick, viewModel = viewModel)
             } else {
-                WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel) {
+                WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel, onBack =  {
                     viewModel.chooseWallet(null)
-                }
+                }, onTransactionsClick = {})
             }
         }
     )

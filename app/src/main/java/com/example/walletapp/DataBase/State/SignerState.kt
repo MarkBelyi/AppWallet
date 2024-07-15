@@ -1,8 +1,6 @@
 package com.example.walletapp.DataBase.State
 
-import com.example.walletapp.DataBase.Entities.Signer
-import com.example.walletapp.DataBase.ViewModel.SortType
-
+/*
 data class SignerState(
     val signers: List<Signer> = emptyList(),
     val address: String = "",
@@ -13,4 +11,5 @@ data class SignerState(
     val isAddingSigner: Boolean = false,
     val sortType: SortType = SortType.NAME
 )
+*/
 

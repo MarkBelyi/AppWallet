@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import com.example.walletapp.Element.ClickableText
 import com.example.walletapp.Element.CustomButton
 import com.example.walletapp.Element.PasswordAlertDialog
+import com.example.walletapp.Element.PasswordFieldWithLabel
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.elements.checkbox.PasswordFieldWithLabel
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
 

@@ -180,7 +180,7 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
                         val ps = PasswordStorageHelper(con)
                         ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                         ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
-                        viewModel.insertSigner(Signer(name = con.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(con)))
+                        viewModel.insertSigner(Signer(name = con.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(con), isFavorite = false))
                         // всё хорошо, активируем кнопку шо мол можно идти дальше
                         isContinueEnabled.value = true
                     }

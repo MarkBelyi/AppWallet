@@ -144,7 +144,8 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: Regi
                         email = "",
                         telephone = "",
                         type = 1,
-                        address = GetMyAddr(context)
+                        address = GetMyAddr(context),
+                        isFavorite = false
                     )
                 )
             },

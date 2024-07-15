@@ -158,7 +158,7 @@ fun AddSignerScreen(
                 keyboardActions = KeyboardActions(onDone = {
                     // Действие для кнопки "Done"
                     focusManager.clearFocus() // Скрывает клавиатуру
-                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address))
+                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address, isFavorite = false))
                     onBackClick()
                 })
             )
@@ -175,7 +175,7 @@ fun AddSignerScreen(
                     disabledContentColor = colorScheme.onPrimaryContainer
                 ),
                 onClick = {
-                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address))
+                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address, isFavorite = false))
                     onBackClick()
                 }
             ) {

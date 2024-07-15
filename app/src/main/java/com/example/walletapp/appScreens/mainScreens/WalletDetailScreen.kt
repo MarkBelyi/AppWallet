@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,9 +50,9 @@ import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
 import org.json.JSONObject
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit) {
+fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit, onTransactionsClick: () -> Unit) {
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
     val context = LocalContext.current
     val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.first() == '1') }
@@ -111,13 +110,17 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
         }
     ) { padding ->
         LazyColumn(
+
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+
         ) {
+
             items(1) {
+
                 Text(text = "Адрес кошелька:", fontSize = 16.sp, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -165,17 +168,56 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = wallet.tokenShortNames.split(';').joinToString("\n"),
+                Column(
+                    horizontalAlignment = Alignment.Start,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = colorScheme.surface, shape = roundedShape)
                         .padding(8.dp),
-                    fontSize = 14.sp,
-                    color = colorScheme.onSurface
-                )
+                ){
+                    Text(
+                        text = wallet.tokenShortNames.split(';').joinToString("\n"),
+                        modifier = Modifier
+                            .padding(8.dp),
+                        fontSize = 14.sp,
+                        color = colorScheme.onSurface
+                    )
 
+                }
 
+                /*Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorScheme.surface, shape = roundedShape)
+                ) {
+                    Text(
+                        text = wallet.tokenShortNames.split(';').joinToString("\n"),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        fontSize = 14.sp,
+                        color = colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    IconButton(
+                        onClick = { *//*onTransactionScreen()*//* },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        enabled = true,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.send_light),
+                            contentDescription = "send_transaction",
+                            modifier = Modifier.scale(1.5f),
+                            tint = colorScheme.primary
+                        )
+                    }
+                }*/
 
             }
         }
@@ -184,6 +226,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
 @Composable
 fun AddressList(slist: String, signers: List<Signer>) {
+
     val slistJson = JSONObject(slist)
     val addresses = mutableListOf<String>()
 
@@ -217,6 +260,7 @@ fun AddressList(slist: String, signers: List<Signer>) {
             Spacer(modifier = Modifier.height(4.dp))
         }
     }
+
 }
 
 /*

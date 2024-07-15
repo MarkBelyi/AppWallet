@@ -1,20 +1,6 @@
 package com.example.walletapp.DataBase.ViewModel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.walletapp.DataBase.DAO.SignerDao
-import com.example.walletapp.DataBase.Entities.Signer
-import com.example.walletapp.DataBase.Event.SignerEvent
-import com.example.walletapp.DataBase.State.SignerState
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-
+/*
 class SignerViewModel(
     private val dao: SignerDao
 ): ViewModel() {
@@ -121,4 +107,4 @@ class SignerViewModel(
             }
         }
     }
-}
+}*/

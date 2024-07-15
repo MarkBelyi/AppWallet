@@ -1,4 +1,4 @@
-package com.example.walletapp.elements.checkbox
+package com.example.walletapp.Element
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
