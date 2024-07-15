@@ -49,5 +49,21 @@
         "prefsKey": "change_password"
       }
     ]
+  },
+  {
+    "header": "Системные настройки",
+    "items": [
+      {
+        "name": "Сменить тему",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "change_theme"
+      },{
+        "name": "Сменить язык",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "change_language"
+      }
+    ]
   }
 ]

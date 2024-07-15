@@ -80,6 +80,7 @@ import androidx.wear.compose.material.FractionalThreshold
 import androidx.wear.compose.material.rememberSwipeableState
 import androidx.wear.compose.material.swipeable
 import com.example.walletapp.DataBase.Entities.Networks
+import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
@@ -155,7 +156,7 @@ fun CreateWalletScreen_v2(
                 .background(color = MaterialTheme.colorScheme.background)
                 .padding(padding)
         ) {
-            val (gridRef, button, pager) = createRefs()
+            val (gridRef, pager) = createRefs()
 
             val pageCount = 3
             val pagerState = rememberPagerState(pageCount = { pageCount })
@@ -197,16 +198,16 @@ fun CreateWalletScreen_v2(
                             viewModel = viewModel,
                             signerKeys = signerKeys,
                             numberOfSigner = numberOfSigner,
-                            requiredSigners = requiredSigners, // Pass requiredSigners here
+                            requiredSigners = requiredSigners,
                             onRequiredSignersChange = { newRequiredSigners ->
-                                requiredSigners = newRequiredSigners // Update requiredSigners
+                                requiredSigners = newRequiredSigners
                             }
                         )
                     }
 
                 }
 
-                val coroutineScope = rememberCoroutineScope()
+
 
 
                 Row(
@@ -356,9 +357,9 @@ fun CreateWalletScreen_v2(
 }
 
 sealed class Step {
-    object Name : Step()
-    object Network : Step()
-    object Signers : Step()
+    data object Name : Step()
+    data object Network : Step()
+    data object Signers : Step()
 }
 
 @Composable
@@ -623,6 +624,7 @@ fun SignersStep(
             }
         ) {
             val signers by viewModel.allSigners.observeAsState(initial = emptyList())
+            val sortedSigners = signers.sortedWith(compareByDescending<Signer> { it.isFavorite }.thenBy { it.name })
             LazyColumn(
                 contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
                 modifier = Modifier
@@ -630,7 +632,7 @@ fun SignersStep(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                items(signers) { signer ->
+                items(sortedSigners) { signer ->
                     SignerItem(
                         signer = signer,
                         viewModel = viewModel,
@@ -694,7 +696,7 @@ fun SignersStep(
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Text(
                 text =
-                "Необходимое количество подписантов: ${requiredSigners} "
+                "Необходимое количество подписантов: $requiredSigners "
                         + stringResource(id = R.string.of)
                         + " ${signerKeys.size}",
 
