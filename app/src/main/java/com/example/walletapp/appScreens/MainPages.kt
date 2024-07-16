@@ -53,7 +53,7 @@ fun MainPagesActivity(
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit,
     onMatrixClick:() -> Unit,
-    onSend: () -> Unit,
+    onSend: (String) -> Unit,
     onReceive: () -> Unit,
     onHistory: () -> Unit,
     onPurchase: () -> Unit
@@ -86,7 +86,7 @@ fun MainPagesActivity(
                     onSignersClick,
                     onCreateWalletClick,
                     onMatrixClick,
-                    onSend,
+                    onSend = {onSend("")},
                     onReceive,
                     onHistory,
                     onPurchase,

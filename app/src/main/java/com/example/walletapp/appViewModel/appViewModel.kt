@@ -51,6 +51,18 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     private val context: Context = application.applicationContext
     private val sharedPreferences = application.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
 
+    //QR
+    private val _qrResult = MutableLiveData<String?>()
+    val qrResult: LiveData<String?> get() = _qrResult
+
+    fun setQrResult(result: String?) {
+        _qrResult.value = result
+    }
+
+    fun clearQrResult() {
+        _qrResult.value = null
+    }
+
     //SharedPreferences
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
