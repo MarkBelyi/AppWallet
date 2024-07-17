@@ -119,14 +119,6 @@ fun CreateWalletScreen_v2(
         return selectedNetwork.ifEmpty { "Network" }
     }
 
-    LaunchedEffect(networks) {
-        if (networks.isEmpty()) {
-            coroutineScope.launch {
-                viewModel.refreshNetworks()
-            }
-        }
-    }
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {

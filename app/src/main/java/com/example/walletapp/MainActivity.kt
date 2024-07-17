@@ -65,7 +65,8 @@ class MainActivity : AppCompatActivity() {
                     composable("App") {
                         AppActivity(
                             activity = this@MainActivity,
-                            viewModel = appViewModel
+                            viewModel = appViewModel,
+                            viewModelReg = registrationViewModel
                         )
                     }
                 }

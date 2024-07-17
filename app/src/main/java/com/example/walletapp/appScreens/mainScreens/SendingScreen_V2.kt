@@ -42,18 +42,18 @@ import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun SendingScreen_V2(
     viewModel: appViewModel,
     onCreateClick: () -> Unit,
     onBackClick: () -> Unit,
+    onNextClick: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { 3 })
     val coroutineScope = rememberCoroutineScope()
     val address by viewModel.qrResult.observeAsState(initial = "")
-
+    val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
 
     Scaffold(
         containerColor = colorScheme.inverseSurface,
@@ -79,6 +79,7 @@ fun SendingScreen_V2(
         ) {
             HorizontalPager(
                 state = pagerState,
+                userScrollEnabled = false
             ) { page ->
                 when (page) {
                     0 -> WalletsListScreen(
@@ -88,7 +89,8 @@ fun SendingScreen_V2(
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(page = 1)
                             }
-                        }
+                        },
+                        wallets = wallets
                     )
                     1 -> {
                         val selectedWallet by viewModel.selectedWallet.observeAsState()
@@ -105,7 +107,7 @@ fun SendingScreen_V2(
                     }
                     2 -> {
                         val selectedToken by viewModel.selectedToken.observeAsState()
-                        TransactionScreen(viewModel, selectedToken, address ?: "")
+                        TransactionScreen(viewModel, selectedToken, address ?: "", onNextClick = onNextClick)
                         viewModel.clearQrResult()
                     }
                 }
@@ -119,9 +121,10 @@ fun SendingScreen_V2(
 fun WalletsListScreen(
     viewModel: appViewModel,
     onCreateClick: () -> Unit,
-    onWalletClick: (wallet: Wallets) -> Unit
+    onWalletClick: (wallet: Wallets) -> Unit,
+    wallets: List<Wallets>
 ) {
-    val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
+
     WalletsList(
         wallets = wallets,
         onWalletClick = { wallet ->
@@ -153,7 +156,7 @@ fun SelectTokenScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAddress: String) {
+fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAddress: String, onNextClick: () -> Unit) {
 
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openQRBottomSheet by remember { mutableStateOf(false) }
@@ -252,6 +255,7 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                                     context = context
                                 )
                             }
+                            onNextClick()
                         },
                         enabled = isButtonEnabled
                     )

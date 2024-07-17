@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Signer
@@ -64,7 +65,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
         containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
-                title = { Text(text = wallet.info, color = colorScheme.onSurface, fontWeight = FontWeight.Light) },
+                title = { Text(text = wallet.info, color = colorScheme.onSurface, fontWeight = FontWeight.Light, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface
                 ),

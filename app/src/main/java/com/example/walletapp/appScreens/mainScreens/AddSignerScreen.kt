@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
@@ -107,7 +107,7 @@ fun AddSignerScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
-                        Icon(Icons.Rounded.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                     }
                 }
             )
@@ -210,7 +210,9 @@ fun CustomOutlinedTextField(
             focusedTextColor = colorScheme.onSurface,
             unfocusedTextColor = colorScheme.onSurface,
             focusedContainerColor = colorScheme.surface,
-            unfocusedContainerColor = colorScheme.surface
+            unfocusedContainerColor = colorScheme.surface,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
         ),
         maxLines = 1,
         keyboardOptions = keyboardOptions,

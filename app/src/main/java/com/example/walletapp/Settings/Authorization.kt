@@ -65,7 +65,7 @@ fun AuthModalBottomSheet(
     val context = LocalContext.current
     val passwordStorage = PasswordStorageHelper(context)
     val coroutineScope = rememberCoroutineScope()
-    val authMethod by viewModel.getAuthMethod().observeAsState(AuthMethod.PINCODE)
+    val authMethod by viewModel.getAuthMethod().observeAsState(initial = AuthMethod.PINCODE)
     val isAuthenticated = remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,

@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.WalletUtils
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun Home(
     viewModel: appViewModel,
@@ -91,6 +91,10 @@ fun Home(
     onPurchase: () -> Unit,
     navController: NavHostController,
 ) {
+
+    val networks by viewModel.networks.observeAsState(initial = emptyList())
+    val coroutineScope = rememberCoroutineScope()
+
     val context = LocalContext.current
 
     var qrScanResult by remember { mutableStateOf<String?>(null) }
@@ -101,6 +105,19 @@ fun Home(
     var openSecondBottomSheet by remember { mutableStateOf(false) }
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val secondBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    LaunchedEffect(networks) {
+        if (networks.isEmpty()) {
+            coroutineScope.launch {
+                viewModel.addNetworks(context = context)
+                viewModel.refreshNetworks()
+            }
+        }else{
+            coroutineScope.launch {
+                viewModel.refreshNetworks()
+            }
+        }
+    }
 
     LaunchedEffect(openSecondBottomSheet && !preventSecondBottomSheetReopening) {
         if (openSecondBottomSheet) {
@@ -331,7 +348,20 @@ fun BalancesView(viewModel: appViewModel) {
                     .padding(top = 8.dp)
                     .fillMaxWidth()
             )
-        }else{
+        }else if (combinedBalances.entries.isEmpty()){
+            Text(
+                text = "У вас нет доступных активов!",
+                maxLines = 1,
+                color = colorScheme.onSurface,
+                fontWeight = FontWeight.Light,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+            )
+        }
+        else{
             TableHeader()
             if (combinedBalances.size > 3) {
                 LazyColumn {
