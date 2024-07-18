@@ -27,6 +27,8 @@ import com.example.walletapp.parse.parseNetworks
 import com.example.walletapp.parse.parseWallets
 import com.example.walletapp.registrationScreens.AuthMethod
 import com.example.walletapp.repository.AppRepository
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -50,6 +52,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     @SuppressLint("StaticFieldLeak")
     private val context: Context = application.applicationContext
     private val sharedPreferences = application.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+    private val sharedPreferencesAuth = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+    private val gson = Gson()
 
     //QR
     private val _qrResult = MutableLiveData<String?>()
@@ -65,6 +69,39 @@ class appViewModel(private val repository: AppRepository, application: Applicati
 
     //SharedPreferences
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
+    val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
+
+    init {
+        _selectedAuthMethod.value = getAuthMethodFromPrefs()
+    }
+
+    fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
+
+    fun setAuthMethod(authMethod: AuthMethod) {
+        _selectedAuthMethod.value = authMethod
+        saveAuthMethodToPrefs(authMethod)
+    }
+
+    private fun saveAuthMethodToPrefs(authMethod: AuthMethod) {
+        val editor = sharedPreferences.edit()
+        val json = gson.toJson(authMethod)
+        editor.putString("auth_method", json)
+        editor.apply()
+    }
+
+    private fun getAuthMethodFromPrefs(): AuthMethod {
+        val json = sharedPreferences.getString("auth_method", null)
+        return if (json != null) {
+            gson.fromJson(json, object : TypeToken<AuthMethod>() {}.type)
+        } else {
+            AuthMethod.PASSWORD
+        }
+    }
+
+
+
+
+    /*private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
 
     fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
@@ -73,7 +110,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         val prefs = context.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE)
         prefs.edit().putString("AuthMethod", authMethod.name).apply()
         _selectedAuthMethod.value = authMethod
-    }
+    }*/
 
     private val _showTestNetworks = MutableLiveData<Boolean>()
     val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks

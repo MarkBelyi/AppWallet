@@ -1,7 +1,6 @@
 package com.example.walletapp.appScreens.mainScreens
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,11 +63,11 @@ enum class ElementType {
 }
 
 @Composable
-fun SettingsScreen(viewModel: appViewModel) {
+fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
-    val locale = Locale.getDefault().language // Получаем текущий язык
-    val folderName = if (locale == "ru") "ru" else "en" // Выбираем папку на основе языка
+    val locale = Locale.getDefault().language
+    val folderName = if (locale == "ru") "ru" else "en"
     val jsonStr = context.assets.open("$folderName/settings.json").bufferedReader().use { it.readText() }
     val gson = Gson()
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
@@ -110,11 +109,16 @@ fun SettingsScreen(viewModel: appViewModel) {
                         checkedState = checkedState,
                         onCheckedChange = { newValue ->
                             sharedPreferences.edit().putBoolean(item.prefsKey, newValue).apply()
-                            if (item.prefsKey == "show_test_networks") {
-                                viewModel.updateShowTestNetworks(newValue)
+                            when(item.prefsKey){
+                                "show_test_networks" -> viewModel.updateShowTestNetworks(newValue)
                             }
                         },
-                        secretKey = secretKey.toString()
+                        secretKey = secretKey.toString(),
+                        onClick = {
+                            when(item.prefsKey){
+                                "change_password" -> onChangePasswordClick()
+                            }
+                        }
                     )
                 }
             }
@@ -130,7 +134,8 @@ fun SettingItem(
     type: ElementType,
     checkedState: MutableState<Boolean>,
     onCheckedChange: (Boolean) -> Unit,
-    secretKey: String
+    secretKey: String,
+    onClick: () -> Unit
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -144,6 +149,9 @@ fun SettingItem(
                     val newCheckedState = !checkedState.value
                     checkedState.value = newCheckedState
                     onCheckedChange(newCheckedState)
+                }
+                else{
+                    onClick()
                 }
             }
             .border(0.75.dp, colorScheme.primary, roundedShape)
@@ -241,7 +249,7 @@ fun SettingItem(
 
                 ElementType.ARROW -> IconButton(
                     onClick = {
-                        Log.d("SettingsScreen", "Secret key: $secretKey")
+                        onClick()
                     }
                 ) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)

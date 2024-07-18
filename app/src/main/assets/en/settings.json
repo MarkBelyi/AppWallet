@@ -54,15 +54,20 @@
     "header": "Sytem settigns",
     "items": [
       {
-        "name": "Change theme",
+        "name": "Change Theme",
         "description": "",
         "type": "ARROW",
         "prefsKey": "change_theme"
       },{
-        "name": "Change language",
+        "name": "Change Language",
         "description": "",
         "type": "ARROW",
         "prefsKey": "change_language"
+      }, {
+        "name": "Delete Account",
+        "description": "Delete my account and all my data from the server",
+        "type": "ARROW",
+        "prefsKey": "delete_account"
       }
     ]
   }

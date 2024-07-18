@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import com.example.walletapp.MyAnimation.MyAnimations
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
+import com.example.walletapp.appScreens.mainScreens.ChangePasswordScreen
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen_v2
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.HistoryScreen
@@ -28,12 +29,14 @@ import com.example.walletapp.appScreens.mainScreens.SendingScreen_V2
 import com.example.walletapp.appScreens.mainScreens.SettingsScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
+import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
 
 @Composable
 fun AppActivity(
     activity: Activity,
-    viewModel: appViewModel
+    viewModel: appViewModel,
+    viewModelReg: RegistrationViewModel
 ){
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var selectedSignerAddress by remember { mutableStateOf("") }
@@ -88,7 +91,8 @@ fun AppActivity(
                 1 -> SendingScreen_V2(
                     viewModel = viewModel,
                     onCreateClick = {switchToPage(5)},
-                    onBackClick = {switchToPage(0)}
+                    onBackClick = {switchToPage(0)},
+                    onNextClick = {switchToPage(0)}
                 )
 
                 2 -> ShareAddress(
@@ -118,7 +122,8 @@ fun AppActivity(
                 6 -> MatrixRain()
 
                 7 -> SettingsScreen(
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    onChangePasswordClick = {switchToPage(12)}
                 )
 
                 8 -> AddSignerScreen(
@@ -140,6 +145,12 @@ fun AppActivity(
                 11 -> PurchaseScreen(
                     onBackClick = {switchToPage(0)}
                 )
+
+                12 -> ChangePasswordScreen(
+                    viewModelReg = viewModelReg,
+                )
+
+
             }
         }
 
