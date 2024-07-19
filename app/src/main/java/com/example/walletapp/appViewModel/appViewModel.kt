@@ -20,7 +20,6 @@ import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
-import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.Server.Getsign
 import com.example.walletapp.appScreens.mainScreens.Blockchain
 import com.example.walletapp.parse.jsonArray
@@ -28,6 +27,8 @@ import com.example.walletapp.parse.parseNetworks
 import com.example.walletapp.parse.parseWallets
 import com.example.walletapp.registrationScreens.AuthMethod
 import com.example.walletapp.repository.AppRepository
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -51,9 +52,56 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     @SuppressLint("StaticFieldLeak")
     private val context: Context = application.applicationContext
     private val sharedPreferences = application.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+    private val sharedPreferencesAuth = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+    private val gson = Gson()
+
+    //QR
+    private val _qrResult = MutableLiveData<String?>()
+    val qrResult: LiveData<String?> get() = _qrResult
+
+    fun setQrResult(result: String?) {
+        _qrResult.value = result
+    }
+
+    fun clearQrResult() {
+        _qrResult.value = null
+    }
 
     //SharedPreferences
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
+    val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
+
+    init {
+        _selectedAuthMethod.value = getAuthMethodFromPrefs()
+    }
+
+    fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
+
+    fun setAuthMethod(authMethod: AuthMethod) {
+        _selectedAuthMethod.value = authMethod
+        saveAuthMethodToPrefs(authMethod)
+    }
+
+    private fun saveAuthMethodToPrefs(authMethod: AuthMethod) {
+        val editor = sharedPreferences.edit()
+        val json = gson.toJson(authMethod)
+        editor.putString("auth_method", json)
+        editor.apply()
+    }
+
+    private fun getAuthMethodFromPrefs(): AuthMethod {
+        val json = sharedPreferences.getString("auth_method", null)
+        return if (json != null) {
+            gson.fromJson(json, object : TypeToken<AuthMethod>() {}.type)
+        } else {
+            AuthMethod.PASSWORD
+        }
+    }
+
+
+
+
+    /*private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
 
     fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
@@ -62,7 +110,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         val prefs = context.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE)
         prefs.edit().putString("AuthMethod", authMethod.name).apply()
         _selectedAuthMethod.value = authMethod
-    }
+    }*/
 
     private val _showTestNetworks = MutableLiveData<Boolean>()
     val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks
@@ -208,10 +256,11 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-
-    // Method to fetch transactions and update their status based on server response
-    fun needSignTX(context: Context) = viewModelScope.launch(Dispatchers.IO) {
+    fun needSignTX(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         val apiResponse = GetAPIString(context, "tx_by_ec")
+        withContext(Dispatchers.Main) {
+            onComplete()
+        }
         if (apiResponse.isNotEmpty()) {
             try {
                 val transactions = JSONArray(apiResponse)
@@ -233,7 +282,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         waitList.joinToString(",")
                     } ?: ""
 
-                    val status = if (waitEC.contains(GetMyAddr(context))) 1 else 5
+                    //val status = if (waitEC.contains(GetMyAddr(context))) 0 else 5
 
                     val tx = TX(
                         unid = txJson.optString("unid", ""),
@@ -250,7 +299,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         value_hex = txJson.optString("value_hex", "0"),
                         init_ts = txJson.optLong("init_ts", 0L).toInt(),
                         eMSG = "",
-                        status = status
+                        status = 0
                     )
                     txList.add(tx)
                 }
@@ -314,6 +363,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         waitList.joinToString(",")
                     } ?: ""
 
+                    val currentStatus = repository.getTransactionStatus(txJson.optString("unid", "")) ?: 0
+
                     val tx = TX(
                         unid = txJson.optString("unid", ""),
                         id = txJson.optInt("id", 0), // Парсинг ID
@@ -328,6 +379,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
                         value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
                         init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
+                        status = currentStatus,
                         eMSG = "",
                     )
                     txList.add(tx)
@@ -637,7 +689,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     fun addNewSignerFromQR(result: String) {
-        val newSigner = Signer(name = "Новый Подписант", address = result, email = "", type = 0, telephone = "")
+        val newSigner = Signer(name = "Новый Подписант", address = result, email = "", type = 0, telephone = "", isFavorite = false)
         insertSigner(newSigner)
     }
 

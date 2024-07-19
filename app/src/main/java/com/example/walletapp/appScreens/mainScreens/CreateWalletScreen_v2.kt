@@ -81,6 +81,7 @@ import androidx.wear.compose.material.FractionalThreshold
 import androidx.wear.compose.material.rememberSwipeableState
 import androidx.wear.compose.material.swipeable
 import com.example.walletapp.DataBase.Entities.Networks
+import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
@@ -119,14 +120,6 @@ fun CreateWalletScreen_v2(
         return selectedNetwork.ifEmpty { "Network" }
     }
 
-    LaunchedEffect(networks) {
-        if (networks.isEmpty()) {
-            coroutineScope.launch {
-                viewModel.refreshNetworks()
-            }
-        }
-    }
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
@@ -156,8 +149,8 @@ fun CreateWalletScreen_v2(
                 .background(color = MaterialTheme.colorScheme.background)
                 .padding(padding)
         ) {
-            val (gridRef, button, pager) = createRefs()
 
+            val (gridRef, pager) = createRefs()
             val pageCount = 3
             val pagerState = rememberPagerState(pageCount = { pageCount })
             val pages = listOf(Step.Name, Step.Network, Step.Signers)
@@ -198,16 +191,14 @@ fun CreateWalletScreen_v2(
                             viewModel = viewModel,
                             signerKeys = signerKeys,
                             numberOfSigner = numberOfSigner,
-                            requiredSigners = requiredSigners, // Pass requiredSigners here
+                            requiredSigners = requiredSigners,
                             onRequiredSignersChange = { newRequiredSigners ->
-                                requiredSigners = newRequiredSigners // Update requiredSigners
+                                requiredSigners = newRequiredSigners
                             }
                         )
                     }
 
                 }
-
-                val coroutineScope = rememberCoroutineScope()
 
 
                 Row(
@@ -357,9 +348,9 @@ fun CreateWalletScreen_v2(
 }
 
 sealed class Step {
-    object Name : Step()
-    object Network : Step()
-    object Signers : Step()
+    data object Name : Step()
+    data object Network : Step()
+    data object Signers : Step()
 }
 
 @Composable
@@ -624,6 +615,8 @@ fun SignersStep(
             }
         ) {
             val signers by viewModel.allSigners.observeAsState(initial = emptyList())
+            val sortedSigners = signers.sortedWith(compareByDescending<Signer> { it.isFavorite }.thenBy { it.name })
+
             LazyColumn(
                 contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
                 modifier = Modifier
@@ -631,7 +624,7 @@ fun SignersStep(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                items(signers) { signer ->
+                items(sortedSigners) { signer ->
                     SignerItem(
                         signer = signer,
                         viewModel = viewModel,
@@ -671,7 +664,7 @@ fun SignersStep(
                 .weight(1f),
         ) {
             items(signerKeys.size) { index ->
-                SignerRow(
+                SignerRow_v2(
                     viewModel = viewModel,
                     index = index,
                     signerKeys = signerKeys,
@@ -695,7 +688,7 @@ fun SignersStep(
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Text(
                 text =
-                "Необходимое количество подписантов: ${requiredSigners} "
+                "Необходимое количество подписантов: $requiredSigners "
                         + stringResource(id = R.string.of)
                         + " ${signerKeys.size}",
 
@@ -705,7 +698,7 @@ fun SignersStep(
             )
         }
 
-        RequiredSignersSelector(
+        RequiredSignersSelector_v2(
             numberOfSigners = signerKeys.size,
             requiredSigners = requiredSigners,
             onRequiredSignersChange = onRequiredSignersChange
@@ -716,7 +709,7 @@ fun SignersStep(
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun SignerRow(
+fun SignerRow_v2(
     viewModel: appViewModel,
     index: Int,
     signerKeys: MutableList<String>,
@@ -886,7 +879,7 @@ fun SignerRow(
 }
 
 @Composable
-fun RequiredSignersSelector(
+fun RequiredSignersSelector_v2(
     numberOfSigners: Int,
     requiredSigners: Int,
     onRequiredSignersChange: (Int) -> Unit

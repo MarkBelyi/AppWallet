@@ -105,7 +105,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
         ModalBottomSheet(
             shape = topRoundedShape,
             tonalElevation = 0.dp,
-            containerColor = colorScheme.inverseSurface,
+            containerColor = colorScheme.surface,
             sheetState = qrBottomSheetState,
             onDismissRequest = { openQRBottomSheet = false },
             dragHandle = {
@@ -132,7 +132,7 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
         ModalBottomSheet(
             shape = topRoundedShape,
             tonalElevation = 0.dp,
-            containerColor = colorScheme.inverseSurface,
+            containerColor = colorScheme.surface,
             sheetState = signerBottomSheetState,
             onDismissRequest = { openSignerBottomSheet = false },
             dragHandle = {
@@ -171,6 +171,11 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
 
     LaunchedEffect(networks) {
         if (networks.isEmpty()) {
+            coroutineScope.launch {
+                viewModel.addNetworks(context = context)
+                viewModel.refreshNetworks()
+            }
+        }else{
             coroutineScope.launch {
                 viewModel.refreshNetworks()
             }

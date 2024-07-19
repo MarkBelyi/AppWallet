@@ -63,7 +63,7 @@ import javax.crypto.Cipher
         val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
 
         // Сохраните тестовый секретный ключ при загрузке экрана настроек
-        saveTestSecretKey(sharedPreferences)
+        //saveTestSecretKey(sharedPreferences)
 
         val locale = Locale.getDefault().language
         val folderName = if (locale == "ru") "ru" else "en"
@@ -167,9 +167,9 @@ import javax.crypto.Cipher
         }
     }
 
-    fun saveTestSecretKey(sharedPreferences: SharedPreferences) {
+    /*fun saveTestSecretKey(sharedPreferences: SharedPreferences) {
         sharedPreferences.edit().putString("secret_key", "my_secret_key").apply()
-    }
+    }*/
 
     fun exportSecretKey(context: Context, sharedPreferences: SharedPreferences): String? {
         val secretKey = sharedPreferences.getString("secret_key", null)

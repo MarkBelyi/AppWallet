@@ -1,6 +1,7 @@
 package com.example.walletapp.appViewModel
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
@@ -9,7 +10,7 @@ import androidx.lifecycle.ViewModel
 class RegistrationViewModel () : ViewModel(){
     var isPhraseSent: Boolean by mutableStateOf(false)
 
-    var selectedTabIndex: Int by mutableStateOf(0)
+    var selectedTabIndex: Int by mutableIntStateOf(0)
 
     fun saveState(index: Int) {
         selectedTabIndex = index
@@ -31,7 +32,6 @@ class RegistrationViewModel () : ViewModel(){
     }
 
     fun getMnemonicList(): List<String> {
-        // Возвращаем текущее значение _mnemonicList, если оно не null, иначе возвращаем пустой список
         return _mnemonicList.value ?: emptyList()
     }
 }

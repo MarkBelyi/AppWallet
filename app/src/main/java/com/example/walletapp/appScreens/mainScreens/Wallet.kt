@@ -51,6 +51,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,6 +72,7 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.refreshWallets(context){}
         viewModel.filterWallets()
     }
 
@@ -88,9 +90,9 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
                     viewModel.chooseWallet(wallet)
                 }, onCreateClick = onCreateClick, viewModel = viewModel)
             } else {
-                WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel) {
+                WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel, onBack =  {
                     viewModel.chooseWallet(null)
-                }
+                }, onTransactionsClick = {})
             }
         }
     )
@@ -354,7 +356,9 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                     text = wallet.info.uppercase(),
                     color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 if (isAddressEmpty) {

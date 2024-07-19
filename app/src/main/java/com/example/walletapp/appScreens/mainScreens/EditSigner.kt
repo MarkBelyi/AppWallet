@@ -10,15 +10,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -29,8 +33,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.appViewModel.appViewModel
@@ -53,6 +60,7 @@ fun EditSigner(
     val addressState = remember { mutableStateOf("") }
     val telephoneState = remember { mutableStateOf("") }
     val typeState = remember { mutableStateOf("") }
+    val isAddressLocked = remember { mutableStateOf(true) }
 
     // Обновляем состояния полей, когда объект signer загружен или его данные изменены
     LaunchedEffect(signer) {
@@ -75,7 +83,7 @@ fun EditSigner(
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
-                        Icon(Icons.Rounded.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                     }
                 }
             )
@@ -101,10 +109,14 @@ fun EditSigner(
                 })
             )
 
-            CustomOutlinedTextField(
+            CustomOutlinedTextFieldWithLockIcon(
                 value = addressState.value,
                 onValueChange = { addressState.value = it },
                 placeholder = "Address",
+                isLocked = isAddressLocked.value,
+                onLockClick = {
+                    isAddressLocked.value = !isAddressLocked.value
+                },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
                     focusManager.moveFocus(FocusDirection.Down)
@@ -173,4 +185,56 @@ fun EditSigner(
             }
         }
     }
+}
+
+@Composable
+fun CustomOutlinedTextFieldWithLockIcon(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    isLocked: Boolean,
+    onLockClick: () -> Unit,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
+) {
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(),
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = {
+            Text(
+                text = placeholder,
+                fontWeight = FontWeight.Normal,
+                color = Color.Gray
+            ) },
+        singleLine = true,
+        shape = roundedShape,
+        enabled = !isLocked,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = colorScheme.onSurface,
+            unfocusedTextColor = colorScheme.onSurface,
+            focusedContainerColor = colorScheme.surface,
+            unfocusedContainerColor = colorScheme.surface,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            disabledContainerColor = colorScheme.surface,
+            disabledTextColor = colorScheme.onSurface,
+            disabledPlaceholderColor = Color.Transparent
+        ),
+        maxLines = 1,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        trailingIcon = {
+            IconButton(onClick = {
+                onLockClick()
+            }) {
+                Icon(
+                    imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.Create,
+                    contentDescription = "Lock",
+                    tint = colorScheme.primary,
+                    modifier = Modifier.scale(1.2f)
+                )
+            }
+        }
+    )
 }

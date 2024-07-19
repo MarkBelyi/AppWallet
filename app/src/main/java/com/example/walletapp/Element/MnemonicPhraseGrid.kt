@@ -1,4 +1,4 @@
-package com.example.walletapp.elements.checkbox
+package com.example.walletapp.Element
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

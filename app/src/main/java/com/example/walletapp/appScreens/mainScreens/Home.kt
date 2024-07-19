@@ -89,8 +89,13 @@ fun Home(
     onSend: () -> Unit,
     onReceive: () -> Unit,
     onHistory: () -> Unit,
+    onPurchase: () -> Unit,
     navController: NavHostController,
 ) {
+
+    val networks by viewModel.networks.observeAsState(initial = emptyList())
+    val coroutineScope = rememberCoroutineScope()
+
     val context = LocalContext.current
 
     var qrScanResult by remember { mutableStateOf<String?>(null) }
@@ -102,15 +107,13 @@ fun Home(
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val secondBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val networks by viewModel.networks.observeAsState(initial = emptyList())
-    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(networks) {
         if (networks.isEmpty()) {
             coroutineScope.launch {
                 viewModel.addNetworks(context = context)
                 viewModel.refreshNetworks()
             }
-        } else {
+        }else{
             coroutineScope.launch {
                 viewModel.refreshNetworks()
             }
@@ -169,7 +172,9 @@ fun Home(
                         openSecondBottomSheet = false
                     }
                 },
-                navController = navController
+                onSend = {
+                    onSend()
+                }
             )
 
         }
@@ -261,6 +266,7 @@ fun Home(
                 Actions.send -> onSend()
                 Actions.recieve -> onReceive()
                 Actions.history -> onHistory()
+                Actions.buyCrypto -> onPurchase()
                 else -> onMatrixClick()
             }
         }, modifier = Modifier
@@ -302,10 +308,10 @@ fun Home(
 }
 
 sealed class Page {
-    object Assets : Page()
-    object Future0 : Page()
-    object Future1 : Page()
-    object Future2 : Page()
+    data object Assets : Page()
+    data object Future0 : Page()
+    data object Future1 : Page()
+    data object Future2 : Page()
 }
 
 @Composable
@@ -357,7 +363,20 @@ fun BalancesView(viewModel: appViewModel) {
                     .padding(top = 8.dp)
                     .fillMaxWidth()
             )
-        } else {
+        }else if (combinedBalances.entries.isEmpty()){
+            Text(
+                text = "У вас нет доступных активов!",
+                maxLines = 1,
+                color = colorScheme.onSurface,
+                fontWeight = FontWeight.Light,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+            )
+        }
+        else{
             TableHeader()
             if (combinedBalances.size > 3) {
                 LazyColumn {
@@ -520,20 +539,20 @@ fun SecondBottomSheetContent(
     qrResult: String?,
     context: Context,
     onHideButtonClick: () -> Unit,
-    navController: NavHostController
+    onSend: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .height(IntrinsicSize.Min)
-    )
-    {
+    ) {
         ElevatedButton(
             onClick = {
                 if (qrResult != null) {
                     onHideButtonClick()
-                    navController.navigate("${SendingRoutes.WALLETS}?address=$qrResult")
+                    viewModel.setQrResult(qrResult)
+                    onSend()
                 } else {
                     Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
                 }
@@ -577,6 +596,7 @@ fun SecondBottomSheetContent(
         Spacer(modifier = Modifier.height(48.dp))
     }
 }
+
 
 @Composable
 fun ShowKeyDialog(onDismiss: () -> Unit) {

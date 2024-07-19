@@ -169,7 +169,7 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
                     // Итак, в итоге мы здесь имеем 12 слов.
                     if (userPhrases.filter { !it.isBlank() }.size==12) {
                         // Вот наша мнемоФраза одной строкой
-                       val mnemonic = userPhrases.joinToString(" ")
+                        val mnemonic = userPhrases.joinToString(" ")
                         // проверка на валидность фразы, ато мош юзер навтыкал слов ваще не отсюда
                         if (!MnemonicUtils.validateMnemonic(mnemonic))
                         {// проверка на валидность не прошла, всё плохо и ключи из этих слов сгенерить не получится
@@ -180,7 +180,7 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
                         val ps = PasswordStorageHelper(con)
                         ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                         ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
-                        viewModel.insertSigner(Signer(name = con.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(con)))
+                        viewModel.insertSigner(Signer(name = con.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(con), isFavorite = false))
                         // всё хорошо, активируем кнопку шо мол можно идти дальше
                         isContinueEnabled.value = true
                     }

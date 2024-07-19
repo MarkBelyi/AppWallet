@@ -10,5 +10,6 @@ data class Signer(
     val telephone: String,//Телефон также не является необходимостью
     val type: Int, // Техническое поле. принадлежность адреса владельцу
     @PrimaryKey
-    val address: String // EC-aдрес подписанта
+    val address: String, // EC-aдрес подписанта
+    val isFavorite: Boolean
 )

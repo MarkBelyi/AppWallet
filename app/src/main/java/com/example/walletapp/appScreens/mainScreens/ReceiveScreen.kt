@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +34,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -68,7 +68,16 @@ object RecieveRoute {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReceiveScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClick: () -> Unit) {
+fun ReceiveScreen(
+    viewModel: appViewModel,
+    onCreateClick: () -> Unit,
+    onBackClick: () -> Unit
+){
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.refreshWallets(context){}
+        viewModel.filterWallets()
+    }
     val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
     val navController = rememberNavController()
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
@@ -165,7 +174,7 @@ fun ShareAddressScreen(walletAddr: String, onBackClick: () -> Unit) {
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
                     }
                 }
             )

@@ -1,7 +1,5 @@
 package com.example.walletapp.appScreens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -15,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,9 +53,10 @@ fun MainPagesActivity(
     onSignersClick: () -> Unit,
     onCreateWalletClick: () -> Unit,
     onMatrixClick:() -> Unit,
-    onSend: () -> Unit,
+    onSend: (String) -> Unit,
     onReceive: () -> Unit,
     onHistory: () -> Unit,
+    onPurchase: () -> Unit
 ){
     val navController = rememberNavController()
     val bottomBarTabs = mutableListOf(BottomBarTab.Wallet, BottomBarTab.Home, BottomBarTab.Subscriptions)
@@ -88,9 +86,10 @@ fun MainPagesActivity(
                     onSignersClick,
                     onCreateWalletClick,
                     onMatrixClick,
-                    onSend,
+                    onSend = {onSend("")},
                     onReceive,
                     onHistory,
+                    onPurchase,
                     navController = navController,
                 )
             }

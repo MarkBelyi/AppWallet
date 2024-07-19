@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
                         AppActivity(
                             activity = this@MainActivity,
                             viewModel = appViewModel,
+                            viewModelReg = registrationViewModel
                             navHostController = navController
                         )
                     }

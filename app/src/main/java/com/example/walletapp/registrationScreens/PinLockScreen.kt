@@ -49,7 +49,7 @@ enum class EntryState {
 }
 
 @Composable
-fun PinLockScreen(onAction: () -> Unit, onBiometricAuthenticated: () -> Unit) {
+fun PinLockScreen(onAction: () -> Unit) {
     val pinCode = remember { mutableStateOf("") }
     val firstPinCode = remember { mutableStateOf("") }
     val entryState = remember { mutableStateOf(EntryState.ENTERING_FIRST) }

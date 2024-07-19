@@ -1,4 +1,4 @@
-package com.example.walletapp.elements.checkbox
+package com.example.walletapp.Element
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -24,7 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.example.walletapp.R
 import com.example.walletapp.ui.theme.newRoundedShape
-import com.example.walletapp.ui.theme.roundedShape
 
 
 @Composable
