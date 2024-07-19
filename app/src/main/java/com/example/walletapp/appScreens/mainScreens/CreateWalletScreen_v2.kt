@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
@@ -229,7 +228,7 @@ fun CreateWalletScreen_v2(
                         }
                     }
 
-                    var inBetweenText: String = ""
+                    var inBetweenText = ""
 
                     when (pagerState.currentPage) {
                         0 -> inBetweenText = checkWalletName(walletNameText)
@@ -247,7 +246,7 @@ fun CreateWalletScreen_v2(
                     ) {
                         Text(
                             text = inBetweenText,
-                            fontSize = 16.sp,
+                            fontSize = 12.sp,
                         )
                     }
 

@@ -1,3 +1,4 @@
+/*
 package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.foundation.background
@@ -406,3 +407,4 @@ fun CreateWalletScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBac
 
 
 
+*/
