@@ -169,7 +169,7 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
                     // Итак, в итоге мы здесь имеем 12 слов.
                     if (userPhrases.filter { !it.isBlank() }.size==12) {
                         // Вот наша мнемоФраза одной строкой
-                       val mnemonic = userPhrases.joinToString(" ")
+                        val mnemonic = userPhrases.joinToString(" ")
                         // проверка на валидность фразы, ато мош юзер навтыкал слов ваще не отсюда
                         if (!MnemonicUtils.validateMnemonic(mnemonic))
                         {// проверка на валидность не прошла, всё плохо и ключи из этих слов сгенерить не получится
