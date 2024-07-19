@@ -37,6 +37,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -54,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -65,6 +67,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
+import com.example.walletapp.R
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
@@ -167,14 +170,25 @@ fun Home(
             .background(color = colorScheme.background)
             .padding(paddingColumn)
     ) {
-        val (gridRef, button, assetsWidget) = createRefs()
+        val (gridRef, button, assetsWidget, logo) = createRefs()
+
+        Icon(
+            painter = painterResource(id = R.drawable.safina_rgb),
+            contentDescription = "Logo",
+            modifier = Modifier.scale(0.25f)
+                .constrainAs(logo){
+                    top.linkTo(parent.top, margin = 0.dp)
+                    start.linkTo(parent.start, margin = 0.dp)
+                },
+            tint = colorScheme.primary
+        )
 
         Column(
             modifier = Modifier
                 .background(color = colorScheme.surface, shape = roundedShape)
                 .fillMaxWidth()
                 .constrainAs(assetsWidget) {
-                    top.linkTo(parent.top, margin = 8.dp)
+                    top.linkTo(logo.bottom, margin = 8.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(gridRef.top)

@@ -1,9 +1,11 @@
 package com.example.walletapp.activity
 
 import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -12,9 +14,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
+import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen_v2
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.HistoryScreen
 import com.example.walletapp.appScreens.mainScreens.MatrixRain
@@ -22,13 +27,15 @@ import com.example.walletapp.appScreens.mainScreens.ReceiveScreen
 import com.example.walletapp.appScreens.mainScreens.SendingScreens
 import com.example.walletapp.appScreens.mainScreens.SettingsScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
+import com.example.walletapp.appScreens.mainScreens.SignerModeScreen
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
 import com.example.walletapp.appViewModel.appViewModel
 
 @Composable
 fun AppActivity(
     activity: Activity,
-    viewModel: appViewModel
+    viewModel: appViewModel,
+    navHostController: NavHostController
 ){
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var selectedSignerAddress by remember { mutableStateOf("") }
@@ -58,70 +65,73 @@ fun AppActivity(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        when(selectedTabIndex){
-            0 -> MainPagesActivity(
-                viewModel = viewModel,
-                onSettingsClick = {switchToPage(7)},
-                onShareClick = {switchToPage(2)},
-                onSignersClick = {switchToPage(3)},
-                onCreateWalletClick = {switchToPage(5)},
-                onMatrixClick= {switchToPage(6)},
-                onSend = {switchToPage(1)},
-                onReceive = {switchToPage(9)},
-                onHistory = {switchToPage(10)}
-            )
+            when (selectedTabIndex) {
+                0 -> MainPagesActivity(
+                    viewModel = viewModel,
+                    onSettingsClick = { switchToPage(7) },
+                    onShareClick = { switchToPage(2) },
+                    onSignersClick = { switchToPage(3) },
+                    onCreateWalletClick = { switchToPage(5) },
+                    onMatrixClick = { switchToPage(6) },
+                    onSend = { switchToPage(1) },
+                    onReceive = { switchToPage(9) },
+                    onHistory = { switchToPage(10) }
+                )
 
-            1 -> SendingScreens(
-                viewModel = viewModel,
-                onCreateClick = {switchToPage(5)},
-                onBackClick = {switchToPage(0)}
-            )
+                1 -> SendingScreens(
+                    viewModel = viewModel,
+                    onCreateClick = { switchToPage(5) },
+                    onBackClick = { switchToPage(0) }
+                )
 
-            2 -> ShareAddress(
-                onBackClick = {switchToPage(0)}
-            )
+                2 -> ShareAddress(
+                    onBackClick = { switchToPage(0) }
+                )
 
-            3 -> SignersScreen(
-                viewModel = viewModel,
-                onCurrentSignerClick = { address -> switchToPage(4, address) },
-                onAddSignerClick = {switchToPage(8)},
-                onBackClick = {switchToPage(0)}
-            )
+                3 -> SignersScreen(
+                    viewModel = viewModel,
+                    onCurrentSignerClick = { address -> switchToPage(4, address) },
+                    onAddSignerClick = { switchToPage(8) },
+                    onBackClick = { switchToPage(0) }
+                )
 
-            4 -> EditSigner(
-                viewModel = viewModel,
-                signerAddress = selectedSignerAddress,
-                onSaveClick = {switchToPage(3)},
-                onBackClick = {switchToPage(3)}
-            )
+                4 -> EditSigner(
+                    viewModel = viewModel,
+                    signerAddress = selectedSignerAddress,
+                    onSaveClick = { switchToPage(3) },
+                    onBackClick = { switchToPage(3) }
+                )
 
-            5 -> CreateWalletScreen(
-                viewModel = viewModel,
-                onCreateClick = {switchToPage(0)},
-                onBackClick = {switchToPage(0)}
-            )
+                5 -> CreateWalletScreen_v2(
+                    viewModel = viewModel,
+                    onCreateClick = { switchToPage(0) },
+                    onBackClick = { switchToPage(0) }
+                )
 
-            6 -> MatrixRain()
+                6 -> MatrixRain()
 
-            7 -> SettingsScreen(
-                viewModel = viewModel
-            )
+                7 -> SettingsScreen(
+                    viewModel = viewModel,
+                    navHostController = navHostController
+                )
 
-            8 -> AddSignerScreen(
-                viewModel = viewModel,
-                onBackClick = {switchToPage(3)}
-            )
-            9 -> ReceiveScreen(
-                viewModel = viewModel,
-                onCreateClick = { switchToPage(5) },
-                onBackClick = { switchToPage(0) }
-            )
+                8 -> AddSignerScreen(
+                    viewModel = viewModel,
+                    onBackClick = { switchToPage(3) }
+                )
 
-            10 -> HistoryScreen(
-                viewModel = viewModel,
-                onSendingClick = {switchToPage(1)},
-                onBackClick = {switchToPage(0)}
-            )
-        }
+                9 -> ReceiveScreen(
+                    viewModel = viewModel,
+                    onCreateClick = { switchToPage(5) },
+                    onBackClick = { switchToPage(0) }
+                )
+
+                10 -> HistoryScreen(
+                    viewModel = viewModel,
+                    onSendingClick = { switchToPage(1) },
+                    onBackClick = { switchToPage(0) }
+                )
+            }
+
     }
 }

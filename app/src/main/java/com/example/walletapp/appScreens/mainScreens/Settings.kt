@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.roundedShape
 import com.google.gson.Gson
@@ -66,7 +67,7 @@ enum class ElementType {
 }
 
 @Composable
-fun SettingsScreen(viewModel: appViewModel) {
+fun SettingsScreen(viewModel: appViewModel, navHostController: NavHostController) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
     val locale = Locale.getDefault().language // Получаем текущий язык
@@ -91,7 +92,7 @@ fun SettingsScreen(viewModel: appViewModel) {
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                        .padding(16.dp)
                 )
                 block.items.forEach { item ->
                     val checkedState = remember {
@@ -109,8 +110,15 @@ fun SettingsScreen(viewModel: appViewModel) {
                         checkedState = checkedState,
                         onCheckedChange = { newValue ->
                             sharedPreferences.edit().putBoolean(item.prefsKey, newValue).apply()
+                            val electronicApprovalEnabled = sharedPreferences.getBoolean("electronic_approval", false)
                             if (item.prefsKey == "show_test_networks") {
                                 viewModel.updateShowTestNetworks(newValue)
+                            }
+                            if (electronicApprovalEnabled){
+                                navHostController.navigate("SignerMode")
+                            }
+                            if (!electronicApprovalEnabled){
+                                navHostController.navigate("App")
                             }
                         }
                     )

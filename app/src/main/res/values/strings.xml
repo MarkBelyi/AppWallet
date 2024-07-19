@@ -178,7 +178,7 @@
     <string name="agree">Согласен</string>
     <string name="agree_autoexchange">Согласен на автообмен</string>
     <string name="notAgree">Не согласен</string>
-    <string name="createWallet">Создать кошелёк</string>
+    <string name="createWallet">Создать</string>
     <string name="createTransaction">Создать транзакцию</string>
     <string name="myClaims">Мои заявки</string>
     <string name="chooseChainType">Выберите тип блокчейна</string>
