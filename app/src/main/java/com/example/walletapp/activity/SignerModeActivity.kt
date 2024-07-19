@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -16,8 +15,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.wear.compose.material.MaterialTheme
 import com.example.walletapp.MyAnimation.MyAnimations
+import com.example.walletapp.appScreens.mainScreens.ChangePasswordScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
 import com.example.walletapp.appScreens.mainScreens.SignerModeScreen
 import com.example.walletapp.appViewModel.appViewModel
@@ -26,7 +25,7 @@ import com.example.walletapp.appViewModel.appViewModel
 fun SignerModeActivity(
     activity: Activity,
     navHostController: NavHostController,
-    viewModelApp: appViewModel
+    viewModel: appViewModel
 ) {
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -42,7 +41,7 @@ fun SignerModeActivity(
                 activity.finish()
             }
 
-            1 -> {
+            1, 12 -> {
                 switchToPage(0)
             }
         }
@@ -62,13 +61,19 @@ fun SignerModeActivity(
         ) { screen ->
             when (screen) {
                 0 -> SignerModeScreen(
-                    viewModel = viewModelApp,
+                    viewModel = viewModel,
                     onShareClick = { switchToPage(1) },
-                    navHostController = navHostController
+                    navHostController = navHostController,
+                    onChangePasswordClick = {switchToPage(12)}
                 )
 
                 1 -> ShareAddress(
                     onBackClick = { switchToPage(0) }
+                )
+
+                12 -> ChangePasswordScreen(
+                    onSuccessClick = {switchToPage(0)},
+                    viewModel = viewModel
                 )
             }
         }

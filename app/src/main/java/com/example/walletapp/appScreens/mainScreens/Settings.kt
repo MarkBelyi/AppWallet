@@ -64,8 +64,7 @@ enum class ElementType {
 }
 
 @Composable
-
-fun SettingsScreen(viewModel: appViewModel, navHostController: NavHostController) {
+fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit, navHostController: NavHostController) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
     val locale = Locale.getDefault().language
@@ -93,7 +92,7 @@ fun SettingsScreen(viewModel: appViewModel, navHostController: NavHostController
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
                 )
                 block.items.forEach { item ->
                     val checkedState = remember {

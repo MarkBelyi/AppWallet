@@ -74,13 +74,13 @@ class MainActivity : AppCompatActivity() {
                         AppActivity(
                             activity = this@MainActivity,
                             viewModel = appViewModel,
-                            viewModelReg = registrationViewModel
-                            navHostController = navController
+                            navHostController = navController,
                         )
                     }
                     composable("SignerMode"){
-                        SignerModeActivity(activity = this@MainActivity, navHostController = navController, viewModelApp = appViewModel)
+                        SignerModeActivity(activity = this@MainActivity, navHostController = navController, viewModel = appViewModel)
                     }
+                    
                 }
 
                 // Включаем AuthModalBottomSheet в основной тематический контент
