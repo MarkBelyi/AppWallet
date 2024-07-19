@@ -1,12 +1,14 @@
 package com.example.walletapp.activity
 
 import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -19,6 +21,11 @@ import com.example.walletapp.MyAnimation.MyAnimations
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
 import com.example.walletapp.appScreens.mainScreens.ChangePasswordScreen
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
+import com.example.walletapp.appScreens.MainPagesActivity
+import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
+import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen_v2
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.HistoryScreen
@@ -28,6 +35,7 @@ import com.example.walletapp.appScreens.mainScreens.ReceiveScreen
 import com.example.walletapp.appScreens.mainScreens.SendingScreen_V2
 import com.example.walletapp.appScreens.mainScreens.SettingsScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
+import com.example.walletapp.appScreens.mainScreens.SignerModeScreen
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
 import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
@@ -37,6 +45,7 @@ fun AppActivity(
     activity: Activity,
     viewModel: appViewModel,
     viewModelReg: RegistrationViewModel
+    navHostController: NavHostController
 ){
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var selectedSignerAddress by remember { mutableStateOf("") }
@@ -117,6 +126,7 @@ fun AppActivity(
                     viewModel = viewModel,
                     onCreateClick = {switchToPage(0)},
                     onBackClick = {switchToPage(0)}
+
                 )
 
                 6 -> MatrixRain()
@@ -124,12 +134,15 @@ fun AppActivity(
                 7 -> SettingsScreen(
                     viewModel = viewModel,
                     onChangePasswordClick = {switchToPage(12)}
+                    navHostController = navHostController
+
                 )
 
                 8 -> AddSignerScreen(
                     viewModel = viewModel,
                     onBackClick = {switchToPage(3)}
                 )
+
                 9 -> ReceiveScreen(
                     viewModel = viewModel,
                     onCreateClick = { switchToPage(5) },
@@ -150,10 +163,7 @@ fun AppActivity(
                     onSuccessClick = {switchToPage(0)},
                     viewModel = viewModel
                 )
-
-
             }
         }
-
     }
 }

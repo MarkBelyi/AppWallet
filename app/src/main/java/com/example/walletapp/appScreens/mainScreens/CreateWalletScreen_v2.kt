@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
@@ -148,8 +149,8 @@ fun CreateWalletScreen_v2(
                 .background(color = MaterialTheme.colorScheme.background)
                 .padding(padding)
         ) {
-            val (gridRef, pager) = createRefs()
 
+            val (gridRef, pager) = createRefs()
             val pageCount = 3
             val pagerState = rememberPagerState(pageCount = { pageCount })
             val pages = listOf(Step.Name, Step.Network, Step.Signers)
@@ -198,8 +199,6 @@ fun CreateWalletScreen_v2(
                     }
 
                 }
-
-
 
 
                 Row(
@@ -617,6 +616,7 @@ fun SignersStep(
         ) {
             val signers by viewModel.allSigners.observeAsState(initial = emptyList())
             val sortedSigners = signers.sortedWith(compareByDescending<Signer> { it.isFavorite }.thenBy { it.name })
+
             LazyColumn(
                 contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
                 modifier = Modifier

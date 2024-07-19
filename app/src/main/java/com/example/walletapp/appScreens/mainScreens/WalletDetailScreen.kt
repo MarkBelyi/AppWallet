@@ -62,7 +62,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
     BackHandler(onBack = onBack)
     
     Scaffold(
-        containerColor = colorScheme.inverseSurface,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(text = wallet.info, color = colorScheme.onSurface, fontWeight = FontWeight.Light, maxLines = 1, overflow = TextOverflow.Ellipsis) },

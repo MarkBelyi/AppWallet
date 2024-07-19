@@ -178,7 +178,7 @@
     <string name="agree">Agree</string>
     <string name="agree_autoexchange">Agree to auto-exchange</string>
     <string name="notAgree">Disagree</string>
-    <string name="createWallet">Create wallet</string>
+    <string name="createWallet">Create</string>
     <string name="createTransaction">Create transaction</string>
     <string name="myClaims">My requests</string>
     <string name="chooseChainType">Choose blockchain type</string>

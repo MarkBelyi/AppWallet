@@ -15,6 +15,7 @@ import com.example.walletapp.DataBase.DataBase
 import com.example.walletapp.Settings.AuthModalBottomSheet
 import com.example.walletapp.activity.AppActivity
 import com.example.walletapp.activity.RegistrationActivity
+import com.example.walletapp.activity.SignerModeActivity
 import com.example.walletapp.appViewModel.AppViewModelFactory
 import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
@@ -51,7 +52,14 @@ class MainActivity : AppCompatActivity() {
             WalletAppTheme {
                 val registrationViewModel: RegistrationViewModel by viewModels()
                 val navController = rememberNavController()
-                val startDestination = if (hasVisitedApp()) "App" else "Registration"
+                val startDestination = if (hasVisitedApp()){
+                    if(getElectronicApprovalEnabled()){
+                        "SignerMode"
+                    }
+                    else "App"
+                }  else {
+                    "Registration"
+                }
 
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("Registration") {
@@ -67,7 +75,11 @@ class MainActivity : AppCompatActivity() {
                             activity = this@MainActivity,
                             viewModel = appViewModel,
                             viewModelReg = registrationViewModel
+                            navHostController = navController
                         )
+                    }
+                    composable("SignerMode"){
+                        SignerModeActivity(activity = this@MainActivity, navHostController = navController, viewModelApp = appViewModel)
                     }
                 }
 
@@ -104,6 +116,11 @@ class MainActivity : AppCompatActivity() {
             putBoolean("continuous_authorization", enabled)
             apply()
         }
+    }
+
+    private fun getElectronicApprovalEnabled():Boolean{
+        val sharedPrefs = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+        return sharedPrefs.getBoolean("electronic_approval", false)
     }
 
     private fun requestAuth() {

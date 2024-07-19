@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.roundedShape
@@ -63,7 +64,8 @@ enum class ElementType {
 }
 
 @Composable
-fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit) {
+
+fun SettingsScreen(viewModel: appViewModel, navHostController: NavHostController) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
     val locale = Locale.getDefault().language
@@ -91,7 +93,7 @@ fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit) {
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                        .padding(16.dp)
                 )
                 block.items.forEach { item ->
                     val checkedState = remember {
@@ -109,8 +111,15 @@ fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit) {
                         checkedState = checkedState,
                         onCheckedChange = { newValue ->
                             sharedPreferences.edit().putBoolean(item.prefsKey, newValue).apply()
+                            val electronicApprovalEnabled = sharedPreferences.getBoolean("electronic_approval", false)
                             when(item.prefsKey){
                                 "show_test_networks" -> viewModel.updateShowTestNetworks(newValue)
+                            }
+                            if (item.prefsKey == "electronic_approval" && electronicApprovalEnabled){
+                                navHostController.navigate("SignerMode")
+                            }
+                            if (item.prefsKey == "electronic_approval" && !electronicApprovalEnabled){
+                                navHostController.navigate("App")
                             }
                         },
                         secretKey = secretKey.toString(),

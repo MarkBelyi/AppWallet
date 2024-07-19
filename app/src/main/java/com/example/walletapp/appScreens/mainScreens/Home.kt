@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
+import com.example.walletapp.R
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
@@ -187,14 +188,26 @@ fun Home(
             .background(color = colorScheme.background)
             .padding(paddingColumn)
     ) {
-        val (gridRef, button, assetsWidget) = createRefs()
+        val (gridRef, button, assetsWidget, logo) = createRefs()
+
+        Icon(
+            painter = painterResource(id = R.drawable.safina_rgb),
+            contentDescription = "Logo",
+            modifier = Modifier
+                .scale(0.25f)
+                .constrainAs(logo) {
+                    top.linkTo(parent.top, margin = 0.dp)
+                    start.linkTo(parent.start, margin = 0.dp)
+                },
+            tint = colorScheme.primary
+        )
 
         Column(
             modifier = Modifier
                 .background(color = colorScheme.surface, shape = roundedShape)
                 .fillMaxWidth()
                 .constrainAs(assetsWidget) {
-                    top.linkTo(parent.top, margin = 8.dp)
+                    top.linkTo(logo.bottom, margin = 8.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(gridRef.top)
@@ -227,7 +240,8 @@ fun Home(
                 horizontalArrangement = Arrangement.Center
             ) {
                 items(pageCount) { iteration ->
-                    val color = if (pagerState.currentPage == iteration) Color.LightGray else Color.DarkGray
+                    val color =
+                        if (pagerState.currentPage == iteration) Color.LightGray else Color.DarkGray
                     Box(
                         modifier = Modifier
                             .padding(2.dp, bottom = 8.dp)
@@ -301,7 +315,7 @@ sealed class Page {
 }
 
 @Composable
-fun Future(pageNum: Int){
+fun Future(pageNum: Int) {
     Text(
         text = "Page: $pageNum",
         modifier = Modifier.fillMaxWidth()
@@ -311,9 +325,10 @@ fun Future(pageNum: Int){
 @Composable
 fun AssetsWidget(viewModel: appViewModel) {
 
-    Column (modifier = Modifier
-        .fillMaxWidth()
-    ){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         Text(
             text = "Мои Активы:",
             maxLines = 1,
