@@ -89,9 +89,9 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                     onAction = {
                         if (isAddClicked) switchToPage(4) else switchToPage(2)
                     },
-                    onBiometricAuthenticated = {
+                    /*onBiometricAuthenticated = {
                         if (isAddClicked) switchToPage(4) else switchToPage(2)
-                    }
+                    }*/
                 )
                 3 -> TapSeedPhraseScreen(
                     navHostController = navHostController,

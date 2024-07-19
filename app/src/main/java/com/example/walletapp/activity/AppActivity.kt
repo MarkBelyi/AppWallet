@@ -147,7 +147,8 @@ fun AppActivity(
                 )
 
                 12 -> ChangePasswordScreen(
-                    viewModelReg = viewModelReg,
+                    onSuccessClick = {switchToPage(0)},
+                    viewModel = viewModel
                 )
 
 
