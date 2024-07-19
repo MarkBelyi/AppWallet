@@ -114,10 +114,10 @@ fun SettingsScreen(viewModel: appViewModel, navHostController: NavHostController
                             if (item.prefsKey == "show_test_networks") {
                                 viewModel.updateShowTestNetworks(newValue)
                             }
-                            if (electronicApprovalEnabled){
+                            if (item.prefsKey == "electronic_approval" && electronicApprovalEnabled){
                                 navHostController.navigate("SignerMode")
                             }
-                            if (!electronicApprovalEnabled){
+                            if (item.prefsKey == "electronic_approval" && !electronicApprovalEnabled){
                                 navHostController.navigate("App")
                             }
                         }

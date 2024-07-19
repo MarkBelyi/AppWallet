@@ -37,7 +37,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -55,7 +54,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -79,7 +77,7 @@ import kotlinx.coroutines.launch
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.WalletUtils
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun Home(
     viewModel: appViewModel,
@@ -103,6 +101,21 @@ fun Home(
     var openSecondBottomSheet by remember { mutableStateOf(false) }
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val secondBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val networks by viewModel.networks.observeAsState(initial = emptyList())
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(networks) {
+        if (networks.isEmpty()) {
+            coroutineScope.launch {
+                viewModel.addNetworks(context = context)
+                viewModel.refreshNetworks()
+            }
+        } else {
+            coroutineScope.launch {
+                viewModel.refreshNetworks()
+            }
+        }
+    }
 
     LaunchedEffect(openSecondBottomSheet && !preventSecondBottomSheetReopening) {
         if (openSecondBottomSheet) {
@@ -175,8 +188,9 @@ fun Home(
         Icon(
             painter = painterResource(id = R.drawable.safina_rgb),
             contentDescription = "Logo",
-            modifier = Modifier.scale(0.25f)
-                .constrainAs(logo){
+            modifier = Modifier
+                .scale(0.25f)
+                .constrainAs(logo) {
                     top.linkTo(parent.top, margin = 0.dp)
                     start.linkTo(parent.start, margin = 0.dp)
                 },
@@ -221,7 +235,8 @@ fun Home(
                 horizontalArrangement = Arrangement.Center
             ) {
                 items(pageCount) { iteration ->
-                    val color = if (pagerState.currentPage == iteration) Color.LightGray else Color.DarkGray
+                    val color =
+                        if (pagerState.currentPage == iteration) Color.LightGray else Color.DarkGray
                     Box(
                         modifier = Modifier
                             .padding(2.dp, bottom = 8.dp)
@@ -294,7 +309,7 @@ sealed class Page {
 }
 
 @Composable
-fun Future(pageNum: Int){
+fun Future(pageNum: Int) {
     Text(
         text = "Page: $pageNum",
         modifier = Modifier.fillMaxWidth()
@@ -304,9 +319,10 @@ fun Future(pageNum: Int){
 @Composable
 fun AssetsWidget(viewModel: appViewModel) {
 
-    Column (modifier = Modifier
-        .fillMaxWidth()
-    ){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         Text(
             text = "Мои Активы:",
             maxLines = 1,
@@ -341,7 +357,7 @@ fun BalancesView(viewModel: appViewModel) {
                     .padding(top = 8.dp)
                     .fillMaxWidth()
             )
-        }else{
+        } else {
             TableHeader()
             if (combinedBalances.size > 3) {
                 LazyColumn {
