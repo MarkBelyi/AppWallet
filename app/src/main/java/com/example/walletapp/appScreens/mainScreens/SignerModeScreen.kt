@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 fun SignerModeScreen(
     viewModel: appViewModel,
     onShareClick: () -> Unit,
+    onBackClick: () -> Unit,
     navHostController: NavHostController,
     onChangePasswordClick: () -> Unit
 ) {
@@ -90,6 +91,7 @@ fun SignerModeScreen(
             SignerModePager.Settings,
             SignerModePager.Support
         )
+
         val pageCount = 5
         val pagerState = rememberPagerState(pageCount = { pageCount }, initialPage = 2)
 
@@ -113,7 +115,7 @@ fun SignerModeScreen(
                     SignerModePager.History -> History(viewModel)
                     SignerModePager.CoSigner -> CoSigner()
                     SignerModePager.Requests -> Sign(viewModel)
-                    SignerModePager.Settings -> SettingsScreen(viewModel = viewModel, onChangePasswordClick = onChangePasswordClick, navHostController = navHostController)
+                    SignerModePager.Settings -> SettingsScreen(viewModel = viewModel, onChangePasswordClick = onChangePasswordClick, onBackClick = onBackClick, navHostController = navHostController)
                     SignerModePager.Support -> Support()
                 }
             }
@@ -243,9 +245,9 @@ fun Support(){
 }
 
 sealed class SignerModePager {
-    object History : SignerModePager()
-    object CoSigner : SignerModePager()
-    object Requests : SignerModePager()
-    object Settings : SignerModePager()
-    object Support : SignerModePager()
+    data object History : SignerModePager()
+    data object CoSigner : SignerModePager()
+    data object Requests : SignerModePager()
+    data object Settings : SignerModePager()
+    data object Support : SignerModePager()
 }

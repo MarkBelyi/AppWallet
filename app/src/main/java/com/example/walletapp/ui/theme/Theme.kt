@@ -1,7 +1,6 @@
 package com.example.walletapp.ui.theme
 
 import android.app.Activity
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -78,12 +77,12 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun WalletAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    isDarkTheme: Boolean/* = isSystemInDarkTheme()*/,
     content: @Composable () -> Unit
 ) {
 
     val colorScheme = when {
-        darkTheme -> DarkColorScheme
+        isDarkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 
@@ -98,8 +97,8 @@ fun WalletAppTheme(
 
             val windowInsetsController = WindowCompat.getInsetsController(window, view)
             WindowCompat.setDecorFitsSystemWindows(window, false)
-            windowInsetsController.isAppearanceLightStatusBars = !darkTheme
-            windowInsetsController.isAppearanceLightNavigationBars = !darkTheme
+            windowInsetsController.isAppearanceLightStatusBars = !isDarkTheme
+            windowInsetsController.isAppearanceLightNavigationBars = !isDarkTheme
 
         }
     }
