@@ -338,7 +338,9 @@ fun BalancesView(viewModel: appViewModel) {
     val combinedBalances by viewModel.getCombinedBalances().observeAsState(initial = emptyMap())
 
     Column(modifier = Modifier.padding(4.dp)) {
-        if (combinedBalances.isEmpty()) {
+        val nonZeroBalances = combinedBalances.entries.filter { it.value != 0.0 }
+
+        if (nonZeroBalances.isEmpty()) {
             Text(
                 text = "У вас нет доступных активов!",
                 maxLines = 1,
@@ -350,29 +352,16 @@ fun BalancesView(viewModel: appViewModel) {
                     .padding(top = 8.dp)
                     .fillMaxWidth()
             )
-        }else if (combinedBalances.entries.isEmpty()){
-            Text(
-                text = "У вас нет доступных активов!",
-                maxLines = 1,
-                color = colorScheme.onSurface,
-                fontWeight = FontWeight.Light,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .fillMaxWidth()
-            )
-        }
-        else{
+        } else {
             TableHeader()
-            if (combinedBalances.size > 3) {
+            if (nonZeroBalances.size > 3) {
                 LazyColumn {
-                    items(combinedBalances.entries.filter { it.value != 0.0 }) { entry ->
+                    items(nonZeroBalances) { entry ->
                         BalanceRow(entry.key, entry.value)
                     }
                 }
             } else {
-                combinedBalances.entries.filter { it.value != 0.0 }.forEach { entry ->
+                nonZeroBalances.forEach { entry ->
                     BalanceRow(entry.key, entry.value)
                 }
             }

@@ -256,7 +256,9 @@ fun AddressList(slist: String, signers: List<Signer>) {
             Text(
                 text = "${index + 1}. $address",
                 fontSize = 14.sp,
-                color = colorScheme.onSurface
+                color = colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
