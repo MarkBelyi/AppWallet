@@ -125,6 +125,7 @@ fun AppActivity(
                 7 -> SettingsScreen(
                     viewModel = viewModel,
                     onChangePasswordClick = {switchToPage(12)},
+                    onBackClick = {switchToPage(0)},
                     navHostController = navHostController
                 )
 

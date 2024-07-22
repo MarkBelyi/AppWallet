@@ -56,7 +56,7 @@
       {
         "name": "Change Theme",
         "description": "",
-        "type": "ARROW",
+        "type": "SWITCH",
         "prefsKey": "change_theme"
       },{
         "name": "Change Language",

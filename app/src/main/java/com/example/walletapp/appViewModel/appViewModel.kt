@@ -53,7 +53,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     @SuppressLint("StaticFieldLeak")
     private val context: Context = application.applicationContext
     private val sharedPreferences = application.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
-    private val sharedPreferencesAuth = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
 
     //QR
@@ -69,6 +68,24 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     //SharedPreferences
+
+    private val _isDarkTheme = MutableLiveData<Boolean>(getSavedThemePreference())
+    val isDarkTheme: LiveData<Boolean> get() = _isDarkTheme
+
+    private fun getSavedThemePreference(): Boolean {
+        return sharedPreferences.getBoolean("is_dark_theme", false)
+    }
+
+    private fun saveThemePreference(isDarkTheme: Boolean) {
+        sharedPreferences.edit().putBoolean("is_dark_theme", isDarkTheme).apply()
+    }
+
+    fun toggleTheme() {
+        val newTheme = _isDarkTheme.value?.not() ?: false
+        _isDarkTheme.value = newTheme
+        saveThemePreference(newTheme)
+    }
+
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
 
@@ -98,20 +115,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
             AuthMethod.PASSWORD
         }
     }
-
-
-
-
-    /*private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
-    private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
-
-    fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
-
-    fun updateAuthMethod(authMethod: AuthMethod, context: Context) {
-        val prefs = context.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE)
-        prefs.edit().putString("AuthMethod", authMethod.name).apply()
-        _selectedAuthMethod.value = authMethod
-    }*/
 
     private val _showTestNetworks = MutableLiveData<Boolean>()
     val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks
