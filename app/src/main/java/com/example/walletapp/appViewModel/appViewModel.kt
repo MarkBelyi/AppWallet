@@ -20,6 +20,7 @@ import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
+import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.Server.Getsign
 import com.example.walletapp.appScreens.mainScreens.Blockchain
 import com.example.walletapp.parse.jsonArray
@@ -256,7 +257,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    fun needSignTX(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    /*fun needSignTX(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         val apiResponse = GetAPIString(context, "tx_by_ec")
         withContext(Dispatchers.Main) {
             onComplete()
@@ -297,6 +298,74 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         info = txJson.optString("info", ""),
                         tx_value = txJson.optString("value", "0").replace(",", "").toDouble(),
                         value_hex = txJson.optString("value_hex", "0"),
+                        init_ts = txJson.optLong("init_ts", 0L).toInt(),
+                        eMSG = "",
+                        status = 0
+                    )
+                    txList.add(tx)
+                }
+                repository.insertAllTransactions(txList)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+    }*/
+
+
+    fun needSignTX(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+        val apiResponse = GetAPIString(context, "tx_by_ec")
+        withContext(Dispatchers.Main) {
+            onComplete()
+        }
+        if (apiResponse.isNotEmpty()) {
+            try {
+                val transactions = JSONArray(apiResponse)
+                val txList = mutableListOf<TX>()
+                val myAddress = GetMyAddr(context) // Получение адреса пользователя
+
+                for (i in 0 until transactions.length()) {
+                    val txJson = transactions.getJSONObject(i)
+                    val tokenParts = txJson.optString("token", "").split(":::")
+                    val networkToken = tokenParts[0]
+                    val tokenId = tokenParts.getOrElse(1) { "" }.split("###")[0]
+
+                    val waitEC = txJson.optJSONArray("wait")?.let { waitArray ->
+                        val waitList = mutableListOf<String>()
+                        for (j in 0 until waitArray.length()) {
+                            val waitObject = waitArray.optJSONObject(j)
+                            if (waitObject != null) {
+                                waitList.add(waitObject.optString("ecaddress", ""))
+                            }
+                        }
+                        waitList.joinToString(",")
+                    } ?: ""
+
+                    val signedEC = txJson.optJSONArray("signed")?.let { signedArray ->
+                        val signedList = mutableListOf<String>()
+                        for (j in 0 until signedArray.length()) {
+                            val signedObject = signedArray.optJSONObject(j)
+                            if (signedObject != null) {
+                                signedList.add(signedObject.optString("ecaddress", ""))
+                            }
+                        }
+                        signedList.joinToString(",")
+                    } ?: ""
+
+                    // Проверка, является ли пользователь подписантом
+                    if (!waitEC.contains(myAddress)) continue
+
+                    val tx = TX(
+                        unid = txJson.optString("unid", ""),
+                        id = txJson.optInt("id", 0),
+                        tx = txJson.optString("tx", ""),
+                        minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1,
+                        waitEC = waitEC,
+                        signedEC = signedEC,
+                        network = networkToken.toIntOrNull() ?: 0,
+                        token = tokenId,
+                        to_addr = txJson.optString("to_addr", ""),
+                        info = txJson.optString("info", ""),
+                        tx_value = txJson.optString("tx_value", "0").replace(",", "").toDouble(),
                         init_ts = txJson.optLong("init_ts", 0L).toInt(),
                         eMSG = "",
                         status = 0
@@ -474,11 +543,11 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                             network = token.network_id,
                             token = token.name,
                             to_addr = address,
-                            info = wallet.info,
+                            info = info,
                             tx_value = formattedAmount.toDouble(),
                             from = wallet.name
                         )
-                        repository.insertTransaction(tx)
+                        //repository.insertTransaction(tx)
                         println("Transaction ID saved to database successfully.")
                     }
                 }

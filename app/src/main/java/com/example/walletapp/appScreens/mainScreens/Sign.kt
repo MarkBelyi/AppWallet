@@ -136,19 +136,29 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
                     text = "Info: ${tx.info}",
                     style = MaterialTheme.typography.bodyLarge,
                     overflow = TextOverflow.Ellipsis,
-                    color = colorScheme.onSurface
+                    color = colorScheme.onSurface,
+                    maxLines = 1
                 )
                 Text(
                     text = "To: ${tx.to_addr}",
                     style = MaterialTheme.typography.bodySmall,
                     overflow = TextOverflow.Ellipsis,
-                    color = colorScheme.onSurface
+                    color = colorScheme.onSurface,
+                    maxLines = 1
                 )
                 Text(
                     text = "Amount: ${tx.network}: ${tx.tx_value}",
                     style = MaterialTheme.typography.bodySmall,
                     overflow = TextOverflow.Ellipsis,
-                    color = colorScheme.onSurface
+                    color = colorScheme.onSurface,
+                    maxLines = 1
+                )
+                Text(
+                    text = "Unid: ${tx.unid}",
+                    style = MaterialTheme.typography.bodySmall,
+                    overflow = TextOverflow.Ellipsis,
+                    color = colorScheme.onSurface,
+                    maxLines = 1
                 )
 
                 when (tx.status) {

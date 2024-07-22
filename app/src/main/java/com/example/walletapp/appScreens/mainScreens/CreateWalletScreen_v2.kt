@@ -246,6 +246,7 @@ fun CreateWalletScreen_v2(
                     ) {
                         Text(
                             text = inBetweenText,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 12.sp,
                         )
                     }
