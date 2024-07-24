@@ -1,4 +1,4 @@
-package com.example.walletapp.appScreens.mainScreens
+package com.example.walletapp.Settings
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -329,7 +329,6 @@ fun PASSWORDScreen(onClick: () -> Unit, viewModel: appViewModel){
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ){
-
         CreatePasswordScreenWithoutPIN(onNextAction = { onClick() }, viewModel = viewModel)
 
     }

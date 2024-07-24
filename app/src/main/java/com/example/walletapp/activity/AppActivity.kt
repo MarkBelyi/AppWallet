@@ -17,9 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.example.walletapp.MyAnimation.MyAnimations
+import com.example.walletapp.Settings.ChangeLanguageScreen
+import com.example.walletapp.Settings.ChangePasswordScreen
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
-import com.example.walletapp.appScreens.mainScreens.ChangePasswordScreen
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen_v2
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.HistoryScreen
@@ -125,6 +126,7 @@ fun AppActivity(
                 7 -> SettingsScreen(
                     viewModel = viewModel,
                     onChangePasswordClick = {switchToPage(12)},
+                    onChangeLanguageClick = {switchToPage(13)},
                     onBackClick = {switchToPage(0)},
                     navHostController = navHostController
                 )
@@ -153,6 +155,11 @@ fun AppActivity(
                 12 -> ChangePasswordScreen(
                     onSuccessClick = {switchToPage(0)},
                     viewModel = viewModel
+                )
+
+                13 -> ChangeLanguageScreen(
+                    viewModel = viewModel,
+                    onBackClick = {switchToPage(7)}
                 )
             }
         }

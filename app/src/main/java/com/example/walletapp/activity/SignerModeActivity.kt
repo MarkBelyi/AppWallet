@@ -16,7 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.example.walletapp.MyAnimation.MyAnimations
-import com.example.walletapp.appScreens.mainScreens.ChangePasswordScreen
+import com.example.walletapp.Settings.ChangeLanguageScreen
+import com.example.walletapp.Settings.ChangePasswordScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
 import com.example.walletapp.appScreens.mainScreens.SignerModeScreen
 import com.example.walletapp.appViewModel.appViewModel
@@ -65,7 +66,8 @@ fun SignerModeActivity(
                     onShareClick = { switchToPage(1) },
                     navHostController = navHostController,
                     onBackClick = {switchToPage(0)},
-                    onChangePasswordClick = {switchToPage(12)}
+                    onChangePasswordClick = {switchToPage(12)},
+                    onChangeLanguageClick = {switchToPage(13)}
                 )
 
                 1 -> ShareAddress(
@@ -75,6 +77,10 @@ fun SignerModeActivity(
                 12 -> ChangePasswordScreen(
                     onSuccessClick = {switchToPage(0)},
                     viewModel = viewModel
+                )
+                13 -> ChangeLanguageScreen(
+                    viewModel = viewModel,
+                    onBackClick = {switchToPage(0)}
                 )
             }
         }

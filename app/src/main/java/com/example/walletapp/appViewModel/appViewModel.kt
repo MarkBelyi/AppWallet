@@ -86,6 +86,43 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         saveThemePreference(newTheme)
     }
 
+    // SharedPreferences - Language
+    private val _isEnglishLanguage = MutableLiveData<Boolean>(getSavedLanguagePreference())
+    val isEnglishLanguage: LiveData<Boolean> get() = _isEnglishLanguage
+
+    private fun getSavedLanguagePreference(): Boolean {
+        return sharedPreferences.getBoolean("is_english_language", isSystemLanguageEnglish())
+    }
+
+    private fun saveLanguagePreference(isEnglishLanguage: Boolean) {
+        sharedPreferences.edit().putBoolean("is_english_language", isEnglishLanguage).apply()
+    }
+
+    internal fun isSystemLanguageEnglish(): Boolean {
+        val currentLocale = Locale.getDefault().language
+        return currentLocale == "en"
+    }
+
+    fun toggleLanguage() {
+        val newLanguage = _isEnglishLanguage.value?.not() ?: true
+        _isEnglishLanguage.value = newLanguage
+        saveLanguagePreference(newLanguage)
+        updateLocale(newLanguage)
+    }
+
+    private fun updateLocale(isEnglishLanguage: Boolean) {
+        val locale = if (isEnglishLanguage) {
+            Locale("en")
+        } else {
+            Locale("ru")
+        }
+        Locale.setDefault(locale)
+        val config = context.resources.configuration
+        config.setLocale(locale)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+    }
+
+    //AuthMethod
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
     val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
 
