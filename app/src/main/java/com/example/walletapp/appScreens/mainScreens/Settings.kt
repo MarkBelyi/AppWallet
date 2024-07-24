@@ -1,7 +1,14 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -69,12 +76,58 @@ enum class ElementType {
 fun SettingsScreen(viewModel: appViewModel) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
-    val locale = Locale.getDefault().language // Получаем текущий язык
-    val folderName = if (locale == "ru") "ru" else "en" // Выбираем папку на основе языка
+    val locale = Locale.getDefault().language
+    val folderName = if (locale == "ru") "ru" else "en"
     val jsonStr = context.assets.open("$folderName/settings.json").bufferedReader().use { it.readText() }
     val gson = Gson()
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
+
+    val exportKeyLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        Log.e("exportKeyLauncher", "Result received")
+        Toast.makeText(context, "Export result received", Toast.LENGTH_SHORT).show()
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                Log.e("exportKeyLauncher", "Uri received: $uri")
+                Toast.makeText(context, "Export URI received: $uri", Toast.LENGTH_SHORT).show()
+                viewModel.exportKey(context, uri)
+            }
+        }
+    }
+
+    val importKeyLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        Log.e("importKeyLauncher", "Result received")
+        Toast.makeText(context, "Import result received", Toast.LENGTH_SHORT).show()
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                Log.e("importKeyLauncher", "Uri received: $uri")
+                Toast.makeText(context, "Import URI received: $uri", Toast.LENGTH_SHORT).show()
+                viewModel.importKey(context, uri)
+            }
+        }
+    }
+
+    fun showExportKeyDialog() {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            putExtra(Intent.EXTRA_TITLE, "Keys.h2k")
+            setType("*/*")
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/octet-stream"))
+        }
+        Log.e("showExportKeyDialog", "Launching export key dialog")
+        Toast.makeText(context, "Launching export key dialog", Toast.LENGTH_SHORT).show()
+        exportKeyLauncher.launch(intent)
+    }
+
+    fun showImportKeyDialog() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            setType("*/*")
+        }
+        Log.e("showImportKeyDialog", "Launching import key dialog")
+        Toast.makeText(context, "Launching import key dialog", Toast.LENGTH_SHORT).show()
+        importKeyLauncher.launch(intent)
+    }
 
     Scaffold(
         containerColor = colorScheme.background,
@@ -111,6 +164,12 @@ fun SettingsScreen(viewModel: appViewModel) {
                             sharedPreferences.edit().putBoolean(item.prefsKey, newValue).apply()
                             if (item.prefsKey == "show_test_networks") {
                                 viewModel.updateShowTestNetworks(newValue)
+                            }
+                        },
+                        onArrowClick = {
+                            when(item.prefsKey){
+                                "import_secret_key" -> showImportKeyDialog()
+                                "export_secret_key" -> showExportKeyDialog()
                             }
                         }
                     )
@@ -249,7 +308,7 @@ fun SettingItem(
     type: ElementType,
     prefsKey: String,
     sharedPreferences: SharedPreferences,
-    onSettingChange: (Boolean) -> Unit // Callback for when a setting is changed
+    onSettingChange: (Boolean) -> Unit
 ) {
     var checkedState by remember { mutableStateOf(sharedPreferences.getBoolean(prefsKey, false)) }
 
