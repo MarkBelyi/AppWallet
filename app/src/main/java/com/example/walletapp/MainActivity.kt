@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +52,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val isDarkTheme by appViewModel.isDarkTheme.observeAsState(initial = false)
+            val isDarkTheme by appViewModel.isDarkTheme.observeAsState(initial = isSystemInDarkTheme())
+
             WalletAppTheme(isDarkTheme) {
                 val registrationViewModel: RegistrationViewModel by viewModels()
                 val navController = rememberNavController()

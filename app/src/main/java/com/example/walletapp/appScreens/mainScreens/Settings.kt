@@ -66,7 +66,7 @@ enum class ElementType {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit, onBackClick: () -> Unit, navHostController: NavHostController) {
+fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit, onChangeLanguageClick: () -> Unit, onBackClick: () -> Unit, navHostController: NavHostController) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
     val locale = Locale.getDefault().language
@@ -75,7 +75,6 @@ fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit, o
     val gson = Gson()
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
-
 
     Scaffold(
         containerColor = colorScheme.background,
@@ -131,6 +130,7 @@ fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit, o
                             when(item.prefsKey){
                                 "show_test_networks" -> viewModel.updateShowTestNetworks(newValue)
                                 "change_theme" -> viewModel.toggleTheme()
+
                             }
                             if (item.prefsKey == "electronic_approval" && electronicApprovalEnabled){
                                 navHostController.navigate("SignerMode")
@@ -142,6 +142,7 @@ fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit, o
                         onClick = {
                             when(item.prefsKey){
                                 "change_password" -> onChangePasswordClick()
+                                "change_language" -> onChangeLanguageClick()
                             }
                         }
                     )

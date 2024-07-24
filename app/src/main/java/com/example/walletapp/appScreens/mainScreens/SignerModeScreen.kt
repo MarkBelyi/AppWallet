@@ -55,7 +55,8 @@ fun SignerModeScreen(
     onShareClick: () -> Unit,
     onBackClick: () -> Unit,
     navHostController: NavHostController,
-    onChangePasswordClick: () -> Unit
+    onChangePasswordClick: () -> Unit,
+    onChangeLanguageClick: () -> Unit
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -115,7 +116,12 @@ fun SignerModeScreen(
                     SignerModePager.History -> History(viewModel)
                     SignerModePager.CoSigner -> CoSigner()
                     SignerModePager.Requests -> Sign(viewModel)
-                    SignerModePager.Settings -> SettingsScreen(viewModel = viewModel, onChangePasswordClick = onChangePasswordClick, onBackClick = onBackClick, navHostController = navHostController)
+                    SignerModePager.Settings -> SettingsScreen(
+                        viewModel = viewModel,
+                        onChangePasswordClick = onChangePasswordClick,
+                        onBackClick = onBackClick,
+                        onChangeLanguageClick = onChangeLanguageClick,
+                        navHostController = navHostController)
                     SignerModePager.Support -> Support()
                 }
             }
