@@ -142,6 +142,7 @@ fun TokenItem(balans: Balans, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(8.dp),
         border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
+        shape = newRoundedShape,
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface
         )

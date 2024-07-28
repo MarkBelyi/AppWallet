@@ -3,6 +3,7 @@ package com.example.walletapp.appViewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.content.res.Configuration
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -20,7 +21,6 @@ import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
-import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.Server.Getsign
 import com.example.walletapp.appScreens.mainScreens.Blockchain
 import com.example.walletapp.parse.jsonArray
@@ -54,6 +54,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     private val context: Context = application.applicationContext
     private val sharedPreferences = application.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
     private val gson = Gson()
+    private val application = application
 
     //QR
     private val _qrResult = MutableLiveData<String?>()
@@ -67,13 +68,22 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         _qrResult.value = null
     }
 
-    //SharedPreferences
-
-    private val _isDarkTheme = MutableLiveData<Boolean>(getSavedThemePreference())
+    //SharedPreferences - Theme
+    private val _isDarkTheme = MutableLiveData(getInitialThemePreference())
     val isDarkTheme: LiveData<Boolean> get() = _isDarkTheme
 
-    private fun getSavedThemePreference(): Boolean {
-        return sharedPreferences.getBoolean("is_dark_theme", false)
+    private fun getInitialThemePreference(): Boolean {
+        val savedPreference = sharedPreferences.getBoolean("is_dark_theme", false)
+        return if (sharedPreferences.contains("is_dark_theme")) {
+            savedPreference
+        } else {
+            val currentNightMode = application.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+            when (currentNightMode) {
+                Configuration.UI_MODE_NIGHT_YES -> true
+                Configuration.UI_MODE_NIGHT_NO -> false
+                else -> false
+            }
+        }
     }
 
     private fun saveThemePreference(isDarkTheme: Boolean) {
@@ -87,7 +97,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     // SharedPreferences - Language
-    private val _isEnglishLanguage = MutableLiveData<Boolean>(getSavedLanguagePreference())
+    private val _isEnglishLanguage = MutableLiveData(getSavedLanguagePreference())
     val isEnglishLanguage: LiveData<Boolean> get() = _isEnglishLanguage
 
     private fun getSavedLanguagePreference(): Boolean {
@@ -154,7 +164,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     private val _showTestNetworks = MutableLiveData<Boolean>()
-    val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks
 
     init {
         _showTestNetworks.value = sharedPreferences.getBoolean("show_test_networks", false)
@@ -190,7 +199,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     val showWalletWithTestNetwork: LiveData<Boolean> get() = _showWalletWithTestNetwork
 
     // Wallets and Tx
-    val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
     private val _filteredWallets = MutableLiveData<List<Wallets>>()
     val filteredWallets: LiveData<List<Wallets>> get() = _filteredWallets
     private val _selectedBlockchain = MutableLiveData<Blockchain?>()
@@ -236,21 +244,9 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    fun filterWalletsByNetwork(network: Int, testNetwork: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _filteredWallets.postValue(repository.getWalletsByNetwork(network, testNetwork))
-        }
-    }
-
     fun filterWalletsByName(name: String) {
         viewModelScope.launch(Dispatchers.IO) {
             _filteredWallets.postValue(repository.getWalletsByName(name))
-        }
-    }
-
-    fun getAllWallets() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _filteredWallets.postValue(repository.fetchAllWallets())
         }
     }
 
@@ -264,6 +260,12 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
+    fun updateTransactionRejectReason(unid: String, reason: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateTransactionRejectReason(unid, reason)
+        }
+    }
+
     fun createNewWallet(
         context: Context,
         signerKeys: List<String>,
@@ -274,7 +276,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val EC = signerKeys
-                .filter { !it.isNullOrEmpty() }
+                .filter { /*!it.isNullOrEmpty()*/ it.isNotEmpty() }
                 .toList()
 
             var ss = ""
@@ -297,61 +299,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    /*fun needSignTX(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
-        val apiResponse = GetAPIString(context, "tx_by_ec")
-        withContext(Dispatchers.Main) {
-            onComplete()
-        }
-        if (apiResponse.isNotEmpty()) {
-            try {
-                val transactions = JSONArray(apiResponse)
-                val txList = mutableListOf<TX>()
-                for (i in 0 until transactions.length()) {
-                    val txJson = transactions.getJSONObject(i)
-                    val tokenParts = txJson.optString("token", "").split(":::")
-                    val networkToken = tokenParts[0]
-                    val tokenId = tokenParts.getOrElse(1) { "" }.split("###")[0]
-
-                    val waitEC = txJson.optJSONArray("wait")?.let { waitArray ->
-                        val waitList = mutableListOf<String>()
-                        for (j in 0 until waitArray.length()) {
-                            val waitObject = waitArray.optJSONObject(j)
-                            if (waitObject != null) {
-                                waitList.add(waitObject.optString("ecaddress", ""))
-                            }
-                        }
-                        waitList.joinToString(",")
-                    } ?: ""
-
-                    //val status = if (waitEC.contains(GetMyAddr(context))) 0 else 5
-
-                    val tx = TX(
-                        unid = txJson.optString("unid", ""),
-                        id = txJson.optInt("id", 0),
-                        tx = txJson.optString("tx", ""),
-                        minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1,
-                        waitEC = waitEC,
-                        signedEC = "",
-                        network = networkToken.toIntOrNull() ?: 0,
-                        token = tokenId,
-                        to_addr = txJson.optString("to_addr", ""),
-                        info = txJson.optString("info", ""),
-                        tx_value = txJson.optString("value", "0").replace(",", "").toDouble(),
-                        value_hex = txJson.optString("value_hex", "0"),
-                        init_ts = txJson.optLong("init_ts", 0L).toInt(),
-                        eMSG = "",
-                        status = 0
-                    )
-                    txList.add(tx)
-                }
-                repository.insertAllTransactions(txList)
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-        }
-    }*/
-
-
     fun needSignTX(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         val apiResponse = GetAPIString(context, "tx_by_ec")
         withContext(Dispatchers.Main) {
@@ -361,7 +308,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
             try {
                 val transactions = JSONArray(apiResponse)
                 val txList = mutableListOf<TX>()
-                val myAddress = GetMyAddr(context) // Получение адреса пользователя
+                //val myAddress = GetMyAddr(context) // Получение адреса пользователя
 
                 for (i in 0 until transactions.length()) {
                     val txJson = transactions.getJSONObject(i)
@@ -392,7 +339,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                     } ?: ""
 
                     // Проверка, является ли пользователь подписантом
-                    if (!waitEC.contains(myAddress)) continue
+                    //if (!waitEC.contains(myAddress)) continue
 
                     val tx = TX(
                         unid = txJson.optString("unid", ""),
@@ -443,6 +390,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
             Log.d("TransactionRequest", "Response for rejecting transaction $txUnid: $response")
             withContext(Dispatchers.Main) {
                 updateTransactionStatus(txUnid, 3)
+                updateTransactionRejectReason(txUnid, reason)
             }
         } catch (e: Exception) {
             Log.e("TransactionError", "Error rejecting transaction $txUnid with reason $reason", e)

@@ -41,7 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,8 +71,11 @@ fun EditSigner(
         typeState.value = signer?.type?.toString() ?: ""
     }
 
+    //AlertDialog для подтверждения сохранения изменений
+    //TODO(сделать AlertDialog для подтверждения сохранения изменений)
+
     Scaffold(
-        containerColor = colorScheme.inverseSurface,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(text = "Edit Signer", color = colorScheme.onSurface) },
@@ -160,7 +163,7 @@ fun EditSigner(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 48.dp, max = 64.dp),
-                shape = roundedShape,
+                shape = newRoundedShape,
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = colorScheme.primary,
                     contentColor = colorScheme.onPrimary,
@@ -208,7 +211,7 @@ fun CustomOutlinedTextFieldWithLockIcon(
                 color = Color.Gray
             ) },
         singleLine = true,
-        shape = roundedShape,
+        shape = newRoundedShape,
         enabled = !isLocked,
         colors = TextFieldDefaults.colors(
             focusedTextColor = colorScheme.onSurface,
@@ -219,7 +222,8 @@ fun CustomOutlinedTextFieldWithLockIcon(
             focusedIndicatorColor = Color.Transparent,
             disabledContainerColor = colorScheme.surface,
             disabledTextColor = colorScheme.onSurface,
-            disabledPlaceholderColor = Color.Transparent
+            disabledPlaceholderColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
         ),
         maxLines = 1,
         keyboardOptions = keyboardOptions,

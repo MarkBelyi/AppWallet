@@ -55,7 +55,6 @@ fun AddSignerScreen(
 ) {
     val focusManager = LocalFocusManager.current
 
-    //val scope = rememberCoroutineScope()
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openQRBottomSheet by remember { mutableStateOf(false) }
 
@@ -63,6 +62,9 @@ fun AddSignerScreen(
     var address by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var telephone by remember { mutableStateOf("") }
+
+    //AlertDialog для подтверждения сохранения изменений
+    //TODO(сделать AlertDialog для подтверждения сохранения изменений создания нового подписанта)
 
     fun updateState(updateFunc: (String) -> Unit): (String) -> Unit = { newValue ->
         updateFunc(newValue)
@@ -99,7 +101,6 @@ fun AddSignerScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Add Signer", color = colorScheme.onSurface) },
-                //modifier = Modifier.shadow(elevation = 10.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface,
@@ -167,7 +168,7 @@ fun AddSignerScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 48.dp, max = 64.dp),
-                shape = roundedShape,
+                shape = newRoundedShape,
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = colorScheme.primary,
                     contentColor = colorScheme.onPrimary,
@@ -205,7 +206,7 @@ fun CustomOutlinedTextField(
                 color = Color.Gray
             ) },
         singleLine = true,
-        shape = roundedShape,
+        shape = newRoundedShape,
         colors = TextFieldDefaults.colors(
             focusedTextColor = colorScheme.onSurface,
             unfocusedTextColor = colorScheme.onSurface,

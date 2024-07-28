@@ -121,6 +121,10 @@ class AppRepository(
         txDAO.updateTransactionStatus(unid, status)
     }
 
+    suspend fun updateTransactionRejectReason(unid: String, reason: String) {
+        txDAO.updateTransactionRejectReason(unid, reason)
+    }
+
     suspend fun getTransactionStatus(unid: String): Int? {
         return txDAO.getStatus(unid)
     }

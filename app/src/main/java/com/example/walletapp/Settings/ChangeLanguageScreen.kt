@@ -47,8 +47,8 @@ fun ChangeLanguageScreen(
     val selectedLanguage by viewModel.isEnglishLanguage.observeAsState(
         initial = viewModel.isSystemLanguageEnglish()
     )
-    val currentLocale = if (selectedLanguage) Locale("en") else Locale("ru")
 
+    val currentLocale = if (selectedLanguage) Locale("en") else Locale("ru")
 
     Scaffold(
         containerColor = colorScheme.background,

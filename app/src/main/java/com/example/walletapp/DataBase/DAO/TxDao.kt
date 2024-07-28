@@ -22,6 +22,9 @@ interface TxDAO {
     @Query("UPDATE TX SET status = :status WHERE unid = :unid")
     suspend fun updateTransactionStatus(unid: String, status: Int)
 
+    @Query("UPDATE TX SET deny = :reason WHERE unid = :unid")
+    suspend fun updateTransactionRejectReason(unid: String, reason: String)
+
     @Query("SELECT * FROM TX WHERE tx = '' ")
     suspend fun getWhoHasNotTX(): List<TX>
 

@@ -366,6 +366,7 @@ fun NameStep(walletNameText: String, onNameChange: (String) -> Unit) {
             text = "Введите имя кошелька:",
             fontSize = 20.sp,
             color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         )
@@ -400,8 +401,8 @@ fun NameStep(walletNameText: String, onNameChange: (String) -> Unit) {
 
         Text(
             text = "Зачем это нужно? ",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -409,8 +410,9 @@ fun NameStep(walletNameText: String, onNameChange: (String) -> Unit) {
 
         Text(
             text = "Имя вашего кошелька поможет вам легко идентифицировать его среди других кошельков. Это особенно полезно, если вы используете несколько кошельков для различных целей, например, для личных и рабочих нужд.",
-            fontSize = 16.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Light,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 12.dp)
@@ -418,8 +420,9 @@ fun NameStep(walletNameText: String, onNameChange: (String) -> Unit) {
 
         Text(
             text = "Выбор уникального и запоминающегося имени сделает использование вашего кошелька более удобным.",
-            fontSize = 16.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Light,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
     }
@@ -444,6 +447,7 @@ fun NetworkStep(
             text = "Выберите блокчейн-сеть кошелька:",
             fontSize = 20.sp,
             color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         )
@@ -520,8 +524,8 @@ fun NetworkStep(
         }
 
         Text(
-            text = "Зачем это нужно? ",
-            fontSize = 24.sp,
+            text = "Зачем это нужно?",
+            fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
@@ -530,8 +534,9 @@ fun NetworkStep(
 
         Text(
             text = "Разные блокчейн-сети предлагают различные функции и уровни безопасности. Выбор сети зависит от ваших целей и нужд.",
-            fontSize = 16.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Light,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 12.dp)
@@ -547,7 +552,8 @@ fun NetworkStep(
 
         Text(
             text = text,
-            fontSize = 16.sp,
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Light,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
@@ -575,7 +581,7 @@ fun SignersStep(
         ModalBottomSheet(
             shape = topRoundedShape,
             tonalElevation = 0.dp,
-            containerColor = MaterialTheme.colorScheme.inverseSurface,
+            containerColor = MaterialTheme.colorScheme.background,
             sheetState = qrBottomSheetState,
             onDismissRequest = { openQRBottomSheet = false },
             dragHandle = {
@@ -602,7 +608,7 @@ fun SignersStep(
         ModalBottomSheet(
             shape = topRoundedShape,
             tonalElevation = 0.dp,
-            containerColor = MaterialTheme.colorScheme.inverseSurface,
+            containerColor = MaterialTheme.colorScheme.background,
             sheetState = signerBottomSheetState,
             onDismissRequest = { openSignerBottomSheet = false },
             dragHandle = {

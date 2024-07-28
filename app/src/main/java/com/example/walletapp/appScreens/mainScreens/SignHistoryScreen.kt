@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +31,7 @@ import com.example.walletapp.appViewModel.appViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBackClick: () -> Unit) {
+fun SignHistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBackClick: () -> Unit) {
     //val context = LocalContext.current
     val allTX by viewModel.allTX.observeAsState(initial = emptyList())
 
@@ -42,7 +44,7 @@ fun HistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBackCli
         containerColor = colorScheme.inverseSurface,
         topBar = {
             TopAppBar(
-                title = { Text("Choose", color = colorScheme.onSurface) },
+                title = { Text("History", color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface
@@ -59,13 +61,14 @@ fun HistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBackCli
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.surface)
+                .background(colorScheme.background)
                 .padding(paddingValues)
         ) {
             if(allTX.isNotEmpty()){
-                TXScreens(viewModel = viewModel)
+                TXScreensHistory(viewModel = viewModel)
             }
             else{
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "You don't have any transactions!",
                     color = colorScheme.onSurface,
@@ -79,5 +82,26 @@ fun HistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBackCli
             }
         }
 
+    }
+}
+
+@Composable
+fun TXScreensHistory(viewModel: appViewModel) {
+    val txs by viewModel.allTX.observeAsState(initial = emptyList())
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorScheme.background)
+    ) {
+        items(txs) { tx ->
+            SignItem(
+                tx = tx,
+                onSign = { viewModel.signTransaction(tx.unid) },
+                onReject = { reason ->
+                    viewModel.rejectTransaction(tx.unid, reason = reason)
+
+                }
+            )
+        }
     }
 }

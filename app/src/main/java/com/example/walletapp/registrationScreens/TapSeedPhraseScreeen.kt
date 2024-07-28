@@ -231,7 +231,7 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
 
     @Composable
     fun SmallWordBox(word: String?, onClick: () -> Unit) {
-        val textColor = if (word in initiallyBottomWords) colorScheme.secondary else colorScheme.onSurface
+        val textColor = if (word in initiallyBottomWords) colorScheme.primary else colorScheme.onSurface
         Box(
             modifier = Modifier
                 .border(

@@ -1,7 +1,7 @@
 package com.example.walletapp.appScreens.mainScreens
 
 import android.content.Context
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.Locale
@@ -165,7 +165,9 @@ fun SettingItem(
     Card(
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface,
+            contentColor = colorScheme.onSurface
         ),
+        shape = newRoundedShape,
         onClick = {
             if (type == ElementType.CHECKBOX || type == ElementType.SWITCH) {
                 val newCheckedState = !checkedState.value
@@ -176,10 +178,10 @@ fun SettingItem(
                 onClick()
             }
         },
+        border = BorderStroke(0.5.dp, colorScheme.primary),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .border(0.75.dp, colorScheme.primary, roundedShape)
 
     ) {
         Row(

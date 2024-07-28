@@ -68,8 +68,8 @@ import androidx.navigation.NavHostController
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
-import com.example.walletapp.ui.theme.roundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -87,7 +87,7 @@ fun Home(
     onMatrixClick: () -> Unit,
     onSend: () -> Unit,
     onReceive: () -> Unit,
-    onHistory: () -> Unit,
+    onSignHistory: () -> Unit,
     onPurchase: () -> Unit,
     navController: NavHostController,
 ) {
@@ -131,6 +131,7 @@ fun Home(
             containerColor = colorScheme.surface,
             sheetState = qrBottomSheetState,
             onDismissRequest = { openQRBottomSheet = false },
+            tonalElevation = 0.dp,
             dragHandle = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -187,11 +188,11 @@ fun Home(
             .background(color = colorScheme.background)
             .padding(paddingColumn)
     ) {
-        val (gridRef, button, assetsWidget) = createRefs()
+        val (gridRef, assetsWidget) = createRefs()
 
         Column(
             modifier = Modifier
-                .background(color = colorScheme.surface, shape = roundedShape)
+                .background(color = colorScheme.surface, shape = newRoundedShape)
                 .fillMaxWidth()
                 .constrainAs(assetsWidget) {
                     top.linkTo(parent.top)
@@ -208,6 +209,7 @@ fun Home(
                 modifier = Modifier
                     .height(150.dp)
                     .fillMaxWidth()
+                    .background(color = colorScheme.surface, shape = newRoundedShape)
                     .align(alignment = Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
                 key = { it }
@@ -243,25 +245,22 @@ fun Home(
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
                 Actions.settings -> onSettingsClick()
-                Actions.QR -> {
-                    openQRBottomSheet = true
-                }
-
+                Actions.QR -> { openQRBottomSheet = true }
                 Actions.shareMyAddr -> onShareClick()
                 Actions.signers -> onSignersClick()
                 Actions.createWallet -> onCreateWalletClick()
                 Actions.send -> onSend()
                 Actions.recieve -> onReceive()
-                Actions.history -> onHistory()
+                Actions.signHistory -> onSignHistory()
                 Actions.buyCrypto -> onPurchase()
                 else -> onMatrixClick()
             }
         }, modifier = Modifier
             .constrainAs(gridRef) {
-                top.linkTo(assetsWidget.bottom, margin = 16.dp)
+                top.linkTo(assetsWidget.bottom, margin = 8.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-                bottom.linkTo(button.top)
+                bottom.linkTo(parent.bottom, margin = 8.dp)
                 width = Dimension.fillToConstraints
             }
         )
@@ -432,7 +431,7 @@ fun ActionGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = modifier
-            .background(color = colorScheme.surface, shape = roundedShape),
+            .background(color = colorScheme.surface, shape = newRoundedShape),
     ) {
         items(actionItems) { actionItem ->
             ActionCell(
@@ -445,7 +444,6 @@ fun ActionGrid(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionCell(
     text: String,
@@ -460,7 +458,7 @@ fun ActionCell(
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface
         ),
-        shape = roundedShape,
+        shape = newRoundedShape,
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         interactionSource = interactionSource
     ) {
@@ -533,7 +531,7 @@ fun SecondBottomSheetContent(
                     Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
                 }
             },
-            shape = roundedShape,
+            shape = newRoundedShape,
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp, max = 64.dp),
@@ -557,7 +555,7 @@ fun SecondBottomSheetContent(
                     Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
                 }
             },
-            shape = roundedShape,
+            shape = newRoundedShape,
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp, max = 64.dp),
