@@ -93,6 +93,7 @@ fun Home(
 ) {
 
     val networks by viewModel.networks.observeAsState(initial = emptyList())
+
     val coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
