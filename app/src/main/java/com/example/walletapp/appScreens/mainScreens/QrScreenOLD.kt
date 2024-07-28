@@ -31,7 +31,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -105,7 +108,11 @@ fun QrScreen(onScanResult: (String) -> Unit) {
                     .aspectRatio(1f) // Сохраняет соотношение сторон квадрата 1:1
             )
         } else {
-            Text("Требуется разрешение на использование камеры")
+            Text(
+                text = "Требуется разрешение на использование камеры",
+                textAlign = TextAlign.Center, color = colorScheme.onSurface,
+                fontWeight = FontWeight.Light, fontSize = 12.sp
+            )
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -62,7 +64,7 @@ fun SendingScreen_V2(
     val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
 
     Scaffold(
-        containerColor = colorScheme.inverseSurface,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Choose", color = colorScheme.onSurface) },
@@ -85,7 +87,8 @@ fun SendingScreen_V2(
         ) {
             HorizontalPager(
                 state = pagerState,
-                userScrollEnabled = false
+                userScrollEnabled = false,
+                verticalAlignment = Alignment.Top
             ) { page ->
                 when (page) {
                     0 -> WalletsListScreen(
@@ -150,7 +153,11 @@ fun SelectTokenScreen(
 ) {
     val balansList by viewModel.getBalansForTokenAddress(tokenAddr).observeAsState(initial = emptyList())
 
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier.background(color = colorScheme.background),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         items(balansList) { balans ->
             TokenItem(balans = balans, onClick = {
                 viewModel.selectToken(balans)

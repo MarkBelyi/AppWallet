@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -43,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,9 +78,14 @@ fun SignersScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(8.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            item {
+                AddSignerCard(
+                    onClick = { onAddSignerClick() }
+                )
+            }
             items(sortedSigners) { signer ->
                 SignerItem(
                     signer = signer,
@@ -91,12 +95,6 @@ fun SignersScreen(
                     }
                 )
             }
-            item {
-                AddSignerCard(
-                    onClick = { onAddSignerClick() }
-                )
-            }
-
         }
 
     }
@@ -106,7 +104,7 @@ fun SignersScreen(
 fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Unit) {
     Card(
         onClick = {onClick(signer.address)},
-        shape = roundedShape,
+        shape = newRoundedShape,
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface,
             contentColor = colorScheme.onSurface
@@ -205,7 +203,6 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSignerCard(onClick: () -> Unit) {
 
@@ -215,12 +212,12 @@ fun AddSignerCard(onClick: () -> Unit) {
     ){
         Card(
             modifier = Modifier
-                .width(48.dp)
                 .height(48.dp), // Высота карточки
-            shape = roundedShape,
+            shape = newRoundedShape,
             colors = CardDefaults.cardColors(
                 containerColor = colorScheme.surface
             ),
+            border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
             onClick = onClick
         ) {
             Box(

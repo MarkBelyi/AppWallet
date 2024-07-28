@@ -34,10 +34,10 @@ import com.example.walletapp.markAsVisitedApp
 enum class Actions{
     send,
     recieve,
-    history,
+    signHistory,
     createWallet,
     buyCrypto,
-    exchangeCrypto,
+    txHistory,
     shareMyAddr,
     signers,
     coSigner,
@@ -55,7 +55,7 @@ fun MainPagesActivity(
     onMatrixClick:() -> Unit,
     onSend: (String) -> Unit,
     onReceive: () -> Unit,
-    onHistory: () -> Unit,
+    onSignHistory: () -> Unit,
     onPurchase: () -> Unit
 ){
     val navController = rememberNavController()
@@ -88,7 +88,7 @@ fun MainPagesActivity(
                     onMatrixClick,
                     onSend = {onSend("")},
                     onReceive,
-                    onHistory,
+                    onSignHistory,
                     onPurchase,
                     navController = navController,
                 )
@@ -104,10 +104,10 @@ fun MainPagesActivity(
 val actionItems = listOf(
         Triple(R.string.action_transfer, R.drawable.send_light, Actions.send),
         Triple(R.string.action_receive, R.drawable.receive_light, Actions.recieve),
-        Triple(R.string.action_history, R.drawable.history_light, Actions.history),
+        Triple(R.string.action_sign_history, R.drawable.sign_history, Actions.signHistory),
         Triple(R.string.action_create_wallet, R.drawable.create_light, Actions.createWallet),
         Triple(R.string.action_buy_crypto, R.drawable.buy_light, Actions.buyCrypto),
-        Triple(R.string.action_exchange_crypto, R.drawable.exchange_light, Actions.exchangeCrypto),
+        Triple(R.string.action_tx_history, R.drawable.history_light, Actions.txHistory),
         Triple(R.string.action_share_my_address, R.drawable.share_light, Actions.shareMyAddr),
         Triple(R.string.action_signers, R.drawable.signers_light, Actions.signers),
         Triple(R.string.action_co_signer, R.drawable.cosigner_light, Actions.coSigner),

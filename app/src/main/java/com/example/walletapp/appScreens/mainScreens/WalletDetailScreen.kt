@@ -48,7 +48,7 @@ import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
 import org.json.JSONObject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,6 +63,8 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
     
     Scaffold(
         containerColor = colorScheme.background,
+        modifier = Modifier
+            .fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = { Text(text = wallet.info, color = colorScheme.onSurface, fontWeight = FontWeight.Light, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -111,18 +113,16 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
         }
     ) { padding ->
         LazyColumn(
-
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
-
         ) {
 
             items(1) {
 
-                Text(text = "Адрес кошелька:", fontSize = 16.sp, color = colorScheme.onSurface)
+                Text(text = "Адрес кошелька:", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -131,7 +131,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     onValueChange = {},
                     textStyle = TextStyle(color = colorScheme.onSurface),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = roundedShape,
+                    shape = newRoundedShape,
                     readOnly = true,
                     singleLine = true,
                     maxLines = 1,
@@ -157,7 +157,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = "Подписанты:", fontSize = 16.sp, color = colorScheme.onSurface)
+                Text(text = "Подписанты:", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -173,7 +173,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(color = colorScheme.surface, shape = roundedShape)
+                        .background(color = colorScheme.surface, shape = newRoundedShape)
                         .padding(8.dp),
                 ){
                     Text(
@@ -249,7 +249,7 @@ fun AddressList(slist: String, signers: List<Signer>) {
         horizontalAlignment = Alignment.Start,
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = colorScheme.surface, shape = roundedShape)
+            .background(color = colorScheme.surface, shape = newRoundedShape)
             .padding(8.dp),
     ) {
         addresses.forEachIndexed { index, address ->

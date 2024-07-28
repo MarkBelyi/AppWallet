@@ -321,12 +321,13 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
     }
 
     Card(
-        border = BorderStroke(width = 0.5.dp, color =  if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.primary),
+        border = BorderStroke(width = 0.5.dp, color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.primary),
         onClick = {
             if (!isAddressEmpty){
                 onWalletClick(wallet)
             }
         },
+        shape = newRoundedShape,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -337,7 +338,12 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(28.dp)
-                    .background(if (network in listOf(5010, 1010, 3040)) colorScheme.primary else Color.Transparent, shape = RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)),
+                    .background(
+                        color = when {
+                            isHidden -> colorScheme.onSurface.copy(alpha = 0.5f)
+                            network in listOf(5010, 1010, 3040) -> colorScheme.primary
+                            else -> Color.Transparent
+                        }, shape = RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (network in listOf(5010, 1010, 3040)) {
