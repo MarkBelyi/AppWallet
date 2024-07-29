@@ -32,7 +32,6 @@ import com.example.walletapp.appViewModel.appViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignHistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBackClick: () -> Unit) {
-    //val context = LocalContext.current
     val allTX by viewModel.allTX.observeAsState(initial = emptyList())
 
     /*LaunchedEffect(key1 = allTX) {
@@ -41,7 +40,7 @@ fun SignHistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBac
     }*/
 
     Scaffold(
-        containerColor = colorScheme.inverseSurface,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("History", color = colorScheme.onSurface) },
@@ -99,7 +98,6 @@ fun TXScreensHistory(viewModel: appViewModel) {
                 onSign = { viewModel.signTransaction(tx.unid) },
                 onReject = { reason ->
                     viewModel.rejectTransaction(tx.unid, reason = reason)
-
                 }
             )
         }

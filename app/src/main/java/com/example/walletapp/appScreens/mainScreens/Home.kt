@@ -89,6 +89,7 @@ fun Home(
     onReceive: () -> Unit,
     onSignHistory: () -> Unit,
     onPurchase: () -> Unit,
+    onTxHistory: () -> Unit,
     navController: NavHostController,
 ) {
 
@@ -254,6 +255,7 @@ fun Home(
                 Actions.recieve -> onReceive()
                 Actions.signHistory -> onSignHistory()
                 Actions.buyCrypto -> onPurchase()
+                Actions.txHistory -> onTxHistory()
                 else -> onMatrixClick()
             }
         }, modifier = Modifier
