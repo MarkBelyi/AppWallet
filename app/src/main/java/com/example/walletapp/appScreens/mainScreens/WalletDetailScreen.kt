@@ -56,7 +56,7 @@ import org.json.JSONObject
 fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit, onTransactionsClick: () -> Unit) {
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
     val context = LocalContext.current
-    val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.first() == '1') }
+    val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.isNotEmpty() && wallet.myFlags.first() == '1') }
     var isLoading by remember { mutableStateOf(false) }
 
     BackHandler(onBack = onBack)

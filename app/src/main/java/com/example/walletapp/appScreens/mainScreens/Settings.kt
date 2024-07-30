@@ -49,7 +49,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.MainActivity
+import com.example.walletapp.R
 import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.DESCrypt
@@ -150,18 +152,17 @@ fun SettingsScreen(
                 if (!isBigInteger(text)) { Toast.makeText(context, "Неправильный ключ", Toast.LENGTH_SHORT).show(); return@let}
                 val k: ECKeyPair = ECKeyPair.create(BigInteger(text))
 
-                ps.setData("MyPrivateKey",k.privateKey.toString(16).toByteArray())
-                ps.setData("MyPublicKey",k.publicKey.toString(16).toByteArray())
+                ps.setData("MyPrivateKey",k.privateKey.toByteArray())
+                ps.setData("MyPublicKey",k.publicKey.toByteArray())
 
                 //Если не предусмотрена мультиюзерность(а её у нас вроде нет..), то нужно очистить таблицы с балансами, кошельками и всем что осталось от предыдущих владельцев, ведь новый ключ - новые данные
                 viewModel.clearDataBase()
 
                 //Теперь это наш текущий ключ.
-                //viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context) "123123123123", isFavorite = false))
                 val pk_new = ps.getData("MyPublicKey")
                 println("Public Key: {$pk_new}")
                 println(GetMyAddr(context))
-
+                viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
 
                 val builder: AlertDialog.Builder = AlertDialog.Builder(context)
                 builder.create()
