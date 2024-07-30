@@ -146,7 +146,8 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appVi
 @Composable
 fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifier, viewModel: appViewModel) {
     val userPhrases = remember { mutableStateListOf(*Array(12) { "" }) }
-    val con=LocalContext.current
+    val con = LocalContext.current
+
     @Composable
     fun WordInputBox(index: Int) {
         TextField(
@@ -158,33 +159,38 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
             maxLines = 1,
             shape = newRoundedShape,
             onValueChange = { newValue ->
-                if (newValue.contains(" ")) {
-                    val words = newValue.split(" ").filterNot { it.isBlank() }
+                // Установить значение слова, даже если оно пустое
+                val trimmedValue = newValue.trim()
+                if (trimmedValue.contains(" ")) {
+                    val words = trimmedValue.split(" ").filterNot { it.isBlank() }
                     words.forEachIndexed { wordIndex, word ->
-                        if (wordIndex < userPhrases.size) {
-                            userPhrases[wordIndex] = word
+                        val targetIndex = index + wordIndex
+                        if (targetIndex < userPhrases.size) {
+                            userPhrases[targetIndex] = word
                         }
                     }
-                } else userPhrases[index] = newValue
-                    // Итак, в итоге мы здесь имеем 12 слов.
-                    if (userPhrases.filter { !it.isBlank() }.size==12) {
-                        // Вот наша мнемоФраза одной строкой
-                        val mnemonic = userPhrases.joinToString(" ")
-                        // проверка на валидность фразы, ато мош юзер навтыкал слов ваще не отсюда
-                        if (!MnemonicUtils.validateMnemonic(mnemonic))
-                        {// проверка на валидность не прошла, всё плохо и ключи из этих слов сгенерить не получится
-                            Toast.makeText(con, R.string.toast_write_seed_phrase, Toast.LENGTH_SHORT).show(); isContinueEnabled.value = false; return@TextField }
-                        // ну раз мы добрались досюда, значит всё круто. Создаём ключи по фразе:
-                        val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on", mnemonic)
-                        // Сохраняем эти ключи в наше шифрохранилище
-                        val ps = PasswordStorageHelper(con)
-                        ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
-                        ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
-                        viewModel.insertSigner(Signer(name = con.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(con), isFavorite = false))
-                        // всё хорошо, активируем кнопку шо мол можно идти дальше
-                        isContinueEnabled.value = true
+                } else {
+                    userPhrases[index] = trimmedValue
+                }
+
+                // Проверка на наличие всех 12 слов и их валидность
+                if (userPhrases.filter { it.isNotBlank() }.size == 12) {
+                    val mnemonic = userPhrases.joinToString(" ")
+                    if (!MnemonicUtils.validateMnemonic(mnemonic)) {
+                        Toast.makeText(con, R.string.toast_write_seed_phrase, Toast.LENGTH_SHORT).show()
+                        isContinueEnabled.value = false
+                        return@TextField
                     }
 
+                    val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on", mnemonic)
+                    val ps = PasswordStorageHelper(con)
+                    ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
+                    ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
+                    viewModel.insertSigner(Signer(name = con.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(con), isFavorite = false))
+                    isContinueEnabled.value = true
+                } else {
+                    isContinueEnabled.value = false
+                }
             },
             modifier = modifier
                 .aspectRatio(2f)
@@ -198,9 +204,7 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
                     shape = newRoundedShape,
                     clip = true
                 )
-                .background(
-                    color = colorScheme.surface
-                )
+                .background(color = colorScheme.surface)
                 .padding(1.dp),
             singleLine = true,
             colors = TextFieldDefaults.colors(
@@ -231,4 +235,5 @@ fun Write(isContinueEnabled: MutableState<Boolean>, modifier: Modifier = Modifie
         }
     }
 }
+
 

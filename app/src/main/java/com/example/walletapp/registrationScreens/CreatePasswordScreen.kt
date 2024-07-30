@@ -109,7 +109,7 @@ fun CreatePasswordScreen(
 
         CustomButton(
             text = stringResource(id = R.string.button_continue),
-            enabled = isPasswordValid,
+            enabled = true,
             onClick = {
                 if (isPasswordValid) {
                     viewModel.setAuthMethod(authMethod = AuthMethod.PASSWORD)

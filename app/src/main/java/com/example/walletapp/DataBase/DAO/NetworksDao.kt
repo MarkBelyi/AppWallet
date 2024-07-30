@@ -35,4 +35,7 @@ interface NetworksDAO {
     @Query("SELECT * FROM Networks Where network_id IN (1000, 1010, 3000, 3040, 5000, 5010)")
     fun getMainWithTestNetworks(): Flow<List<Networks>>
 
+    @Query("DELETE FROM Networks")
+    fun clearNetworks()
+
 }

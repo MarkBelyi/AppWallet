@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
-import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,8 +23,6 @@ import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
 import com.example.walletapp.Server.Getsign
 import com.example.walletapp.appScreens.mainScreens.Blockchain
-import com.example.walletapp.helper.DESCrypt
-import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
 import com.example.walletapp.parse.parseWallets
@@ -48,9 +44,7 @@ import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.web3j.crypto.ECKeyPair
 import java.io.IOException
-import java.math.BigInteger
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -72,94 +66,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
 
     fun clearQrResult() {
         _qrResult.value = null
-    }
-
-    //Settings Secret Key
-    fun storePrivateKey(context: Context, privateKey: ByteArray) {
-        val hexString = privateKey.joinToString("") { "%02x".format(it) }
-        val ps = PasswordStorageHelper(context)
-        ps.setData("MyPrivateKey", hexString.toByteArray(Charsets.UTF_8))
-        Log.e("storeKey", "Storing Private Key (Hex): $hexString")
-    }
-
-    fun retrievePrivateKey(context: Context): ByteArray? {
-        val ps = PasswordStorageHelper(context)
-        val hexString = ps.getData("MyPrivateKey") ?: return null
-        val hexStringStr = String(hexString, Charsets.UTF_8).replace(Regex("[^0-9a-fA-F]"), "")
-        Log.e("retrieveKey", "Retrieved Private Key (Hex, sanitized): $hexStringStr")
-        return hexStringStr.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
-    }
-
-    fun exportKey(context: Context, uri: Uri) {
-        try {
-            Log.d("exportKey", "Entered exportKey function")
-            val outputStream = context.contentResolver.openOutputStream(uri)!!
-            val privKey = retrievePrivateKey(context)
-
-            if (privKey == null) {
-                Log.e("exportKey", "Private key is null")
-                return
-            }
-
-            val realPriv = BigInteger(1, privKey).toString(16)
-            Log.d("exportKey", "Real Private Key (Hex): $realPriv")
-
-            val encrypt = DESCrypt.encrypt(realPriv)
-            Log.d("exportKey", "Encrypted Key: ${encrypt.joinToString()}")
-
-            outputStream.write(encrypt)
-            outputStream.flush()
-            outputStream.close()
-        } catch (e: Exception) {
-            Log.e("exportKey", "Exception in exportKey: ${e.message}")
-        }
-    }
-
-    fun importKey(context: Context, uri: Uri) {
-        try {
-            Log.e("importKey", "Entered importKey function")
-            val inputStream = context.contentResolver.openInputStream(uri)!!
-            val bytes = inputStream.readBytes()
-            inputStream.close()
-
-            Log.e("import", "Read Encrypted Key: ${bytes.joinToString()}")
-            Toast.makeText(context, "Read Encrypted Key: ${bytes.joinToString()}", Toast.LENGTH_LONG).show()
-
-            val decrypt = DESCrypt.decrypt(bytes)
-            val text = String(decrypt, Charsets.UTF_8).trim()
-            Log.e("import", "Decrypted text: $text")
-            Toast.makeText(context, "Decrypted text: $text", Toast.LENGTH_LONG).show()
-
-            if (!isBigInteger(text)) {
-                Log.e("import", "Invalid key format: $text")
-                Toast.makeText(context, "Invalid key format: $text", Toast.LENGTH_LONG).show()
-                Toast.makeText(context, "Invalid key format", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            val k: ECKeyPair = ECKeyPair.create(BigInteger(text, 16))
-
-            val ps = PasswordStorageHelper(context)
-            val hexPrivateKey = k.privateKey.toString(16)
-            ps.setData("MyPrivateKey", hexPrivateKey.toByteArray(Charsets.UTF_8))
-            ps.setData("MyPublicKey", k.publicKey.toString(16).toByteArray(Charsets.UTF_8))
-            Log.e("importKey", "Storing Private Key (Hex): $hexPrivateKey")
-
-            Toast.makeText(context, "Import completed", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Log.e("importKey", "Exception in importKey: ${e.message}")
-            Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun isBigInteger(str: String): Boolean {
-        return try {
-            BigInteger(str)
-            true
-        } catch (e: NumberFormatException) {
-            Log.e("isBigInteger", "Invalid BigInteger format: $str")
-            false
-        }
     }
 
     //SharedPreferences - Theme
@@ -863,6 +769,14 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         val jsonString = GetAPIString(context, "netlist/1")
         val loadedNetworks = parseNetworks(jsonString)
         repository.addNetworks(loadedNetworks)
+    }
+
+
+    //DataBase
+    fun clearDataBase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.clearDataBase()
+        }
     }
 }
 
