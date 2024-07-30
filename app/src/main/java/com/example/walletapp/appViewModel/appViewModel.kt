@@ -770,6 +770,14 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         val loadedNetworks = parseNetworks(jsonString)
         repository.addNetworks(loadedNetworks)
     }
+
+
+    //DataBase
+    fun clearDataBase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.clearDataBase()
+        }
+    }
 }
 
 class AppViewModelFactory(private val repository: AppRepository, private val application: Application) : ViewModelProvider.Factory {

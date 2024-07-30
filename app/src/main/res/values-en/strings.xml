@@ -65,7 +65,7 @@
     <string name="button_see_seed">Show Mnemonic Phrase</string>
     <string name="tap_seed_phrase">Collect the Mnemonic Phrase</string>
     <string name="write_seed_phrase">Write the Mnemonic Phrase</string>
-    <string name="seed_phrase_paste">You need to write the mnemonic phrase by hand, or press and hold to paste it into any cell</string>
+    <string name="seed_phrase_paste">You need to write the mnemonic phrase by hand, or press and hold to paste it into first cell</string>
 
     <string name="toast_write_seed_phrase">The entered phrase does not match</string>
 

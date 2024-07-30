@@ -38,4 +38,7 @@ interface TokensDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: Tokens)
+
+    @Query("DELETE FROM Tokens")
+    fun clearTokens()
 }

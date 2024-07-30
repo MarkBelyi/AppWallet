@@ -37,4 +37,7 @@ interface SignerDao{
 
     @Query("SELECT * FROM signers ORDER BY telephone ASC")
     fun getSignersByTelephone(): Flow<List<Signer>>
+
+    @Query("DELETE FROM signers")
+    fun clearSigners()
 }

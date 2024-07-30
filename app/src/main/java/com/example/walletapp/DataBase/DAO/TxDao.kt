@@ -42,4 +42,7 @@ interface TxDAO {
 
     @Query("SELECT status FROM TX WHERE unid = :unid")
     suspend fun getStatus(unid: String): Int?
+
+    @Query("DELETE FROM TX")
+    fun clearTXs()
 }

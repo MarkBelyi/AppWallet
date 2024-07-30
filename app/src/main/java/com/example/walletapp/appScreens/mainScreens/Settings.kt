@@ -1,6 +1,13 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,10 +49,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.walletapp.MainActivity
+import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.helper.DESCrypt
+import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.helper.isBigInteger
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.web3j.crypto.ECKeyPair
+import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 import java.util.Locale
 
 data class SettingsBlock(
@@ -66,15 +81,110 @@ enum class ElementType {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit, onChangeLanguageClick: () -> Unit, onBackClick: () -> Unit, navHostController: NavHostController) {
+fun SettingsScreen(
+    viewModel: appViewModel,
+    onChangePasswordClick: () -> Unit,
+    onChangeLanguageClick: () -> Unit,
+    onBackClick: () -> Unit,
+    navHostController: NavHostController
+) {
     val context = LocalContext.current
-    val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+    val sharedPreferences =
+        context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
     val locale = Locale.getDefault().language
     val folderName = if (locale == "ru") "ru" else "en"
-    val jsonStr = context.assets.open("$folderName/settings.json").bufferedReader().use { it.readText() }
+    val jsonStr =
+        context.assets.open("$folderName/settings.json").bufferedReader().use { it.readText() }
     val gson = Gson()
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
+
+    val bookmarkExportFilePicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                //val ddff: String? = result.data?.data?.path
+                result.data?.data?.let { uri ->
+                    val outputStream = context.contentResolver.openOutputStream(uri)!!
+                    val ps = PasswordStorageHelper(context)
+                    val privKey = ps.getData("MyPrivateKey") ?: return@let ""
+                    //val realpriv = String(privKey).toBigInteger(16).toString()
+                    val realpriv = BigInteger(1, privKey).toString()
+                    val encrypt = DESCrypt.encrypt(realpriv)
+                    outputStream.write(encrypt)
+                    outputStream.flush()
+                    outputStream.close()
+                    Toast.makeText(
+                        context,
+                        androidx.appcompat.R.string.abc_action_mode_done,
+                        Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        }
+
+    fun showExportBookmarksDialog() {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            putExtra(Intent.EXTRA_TITLE, "SafinaKeys.sfn");
+            setType("*/*") // That's needed for some reason, crashes otherwise
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/octet-stream"))
+        }
+        bookmarkExportFilePicker.launch(intent) // See bookmarkImportFilePicker declaration below for result handler
+    }
+
+    val bookmarkImportFilePicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let{ uri ->
+                val inputStream = context.contentResolver.openInputStream(uri)!!
+                val bytes = inputStream.readBytes()
+                inputStream.close()
+                val ps = PasswordStorageHelper(context)
+
+                val pk = ps.getData("MyPublicKey")
+                println("Public Key: {$pk}")
+                println(GetMyAddr(context))
+
+                val decrypt = DESCrypt.decrypt(bytes)
+                val text=String(decrypt, StandardCharsets.UTF_8)
+                if (!isBigInteger(text)) { Toast.makeText(context, "Неправильный ключ", Toast.LENGTH_SHORT).show(); return@let}
+                val k: ECKeyPair = ECKeyPair.create(BigInteger(text))
+
+                ps.setData("MyPrivateKey",k.privateKey.toString(16).toByteArray())
+                ps.setData("MyPublicKey",k.publicKey.toString(16).toByteArray())
+
+                //Если не предусмотрена мультиюзерность(а её у нас вроде нет..), то нужно очистить таблицы с балансами, кошельками и всем что осталось от предыдущих владельцев, ведь новый ключ - новые данные
+                viewModel.clearDataBase()
+
+                //Теперь это наш текущий ключ.
+                //viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context) "123123123123", isFavorite = false))
+                val pk_new = ps.getData("MyPublicKey")
+                println("Public Key: {$pk_new}")
+                println(GetMyAddr(context))
+
+
+                val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+                builder.create()
+                builder.setTitle(androidx.appcompat.R.string.abc_action_mode_done)
+                builder.setMessage(androidx.appcompat.R.string.abc_action_mode_done)
+                builder.setPositiveButton("OK") { _, _ ->
+                    // Переход на главный экран
+                    val intent = Intent(context, MainActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
+                }
+                builder.show()
+            }
+        }
+    }
+
+    fun showImportBookmarksDialog() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            setType("*/*")
+        }
+        bookmarkImportFilePicker.launch(intent) // See bookmarkImportFilePicker declaration below for result handler
+    }
 
     Scaffold(
         containerColor = colorScheme.background,
@@ -126,23 +236,26 @@ fun SettingsScreen(viewModel: appViewModel, onChangePasswordClick: () -> Unit, o
                         checkedState = checkedState,
                         onCheckedChange = { newValue ->
                             sharedPreferences.edit().putBoolean(item.prefsKey, newValue).apply()
-                            val electronicApprovalEnabled = sharedPreferences.getBoolean("electronic_approval", false)
-                            when(item.prefsKey){
+                            val electronicApprovalEnabled =
+                                sharedPreferences.getBoolean("electronic_approval", false)
+                            when (item.prefsKey) {
                                 "show_test_networks" -> viewModel.updateShowTestNetworks(newValue)
                                 "change_theme" -> viewModel.toggleTheme()
 
                             }
-                            if (item.prefsKey == "electronic_approval" && electronicApprovalEnabled){
+                            if (item.prefsKey == "electronic_approval" && electronicApprovalEnabled) {
                                 navHostController.navigate("SignerMode")
                             }
-                            if (item.prefsKey == "electronic_approval" && !electronicApprovalEnabled){
+                            if (item.prefsKey == "electronic_approval" && !electronicApprovalEnabled) {
                                 navHostController.navigate("App")
                             }
                         },
                         onClick = {
-                            when(item.prefsKey){
+                            when (item.prefsKey) {
                                 "change_password" -> onChangePasswordClick()
                                 "change_language" -> onChangeLanguageClick()
+                                "import_secret_key" -> showImportBookmarksDialog()
+                                "export_secret_key" -> showExportBookmarksDialog()
                             }
                         }
                     )
@@ -173,8 +286,7 @@ fun SettingItem(
                 val newCheckedState = !checkedState.value
                 checkedState.value = newCheckedState
                 onCheckedChange(newCheckedState)
-            }
-            else{
+            } else {
                 onClick()
             }
         },
@@ -207,7 +319,7 @@ fun SettingItem(
                     fontWeight = FontWeight.Normal,
                 )
 
-                if(subtitle.isNotEmpty()){
+                if (subtitle.isNotEmpty()) {
 
                     Spacer(modifier = Modifier.height(4.dp))
 

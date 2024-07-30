@@ -56,7 +56,8 @@ fun MainPagesActivity(
     onSend: (String) -> Unit,
     onReceive: () -> Unit,
     onSignHistory: () -> Unit,
-    onPurchase: () -> Unit
+    onPurchase: () -> Unit,
+    onTxHistory: () -> Unit
 ){
     val navController = rememberNavController()
     val bottomBarTabs = mutableListOf(BottomBarTab.Wallet, BottomBarTab.Home, BottomBarTab.Subscriptions)
@@ -76,20 +77,21 @@ fun MainPagesActivity(
     ) { padding ->
         NavHost(navController, startDestination = BottomBarTab.Home.route, Modifier.padding(padding)) {
             composable(BottomBarTab.Wallet.route) {
-                Wallet(viewModel, onCreateWalletClick)
+                Wallet(viewModel = viewModel, onCreateWalletClick)
             }
             composable(BottomBarTab.Home.route) {
                 Home(
-                    viewModel,
-                    onSettingsClick,
-                    onShareClick,
-                    onSignersClick,
-                    onCreateWalletClick,
-                    onMatrixClick,
+                    viewModel = viewModel,
+                    onSettingsClick = onSettingsClick,
+                    onShareClick = onShareClick,
+                    onSignersClick = onSignersClick,
+                    onCreateWalletClick = onCreateWalletClick,
+                    onMatrixClick = onMatrixClick,
                     onSend = {onSend("")},
-                    onReceive,
-                    onSignHistory,
-                    onPurchase,
+                    onReceive = onReceive,
+                    onSignHistory = onSignHistory,
+                    onPurchase = onPurchase,
+                    onTxHistory = onTxHistory,
                     navController = navController,
                 )
             }

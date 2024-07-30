@@ -56,4 +56,7 @@ interface WalletsDAO {
     @Query("SELECT * FROM Wallets WHERE myUNID = :unid")
     suspend fun getWalletByUNID(unid: String): Wallets?
 
+    @Query("DELETE FROM Wallets")
+    fun clearWallets()
+
 }

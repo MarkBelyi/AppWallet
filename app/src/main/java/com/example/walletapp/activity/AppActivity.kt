@@ -31,6 +31,7 @@ import com.example.walletapp.appScreens.mainScreens.SettingsScreen
 import com.example.walletapp.appScreens.mainScreens.ShareAddress
 import com.example.walletapp.appScreens.mainScreens.SignHistoryScreen
 import com.example.walletapp.appScreens.mainScreens.SignersScreen
+import com.example.walletapp.appScreens.mainScreens.TxHistoryScreen
 import com.example.walletapp.appViewModel.appViewModel
 
 @Composable
@@ -87,7 +88,8 @@ fun AppActivity(
                     onSend = {switchToPage(1)},
                     onReceive = {switchToPage(9)},
                     onSignHistory = {switchToPage(10)},
-                    onPurchase = {switchToPage(11)}
+                    onPurchase = {switchToPage(11)},
+                    onTxHistory = {switchToPage(14)}
                 )
 
                 1 -> SendingScreen_V2(
@@ -161,6 +163,11 @@ fun AppActivity(
                 13 -> ChangeLanguageScreen(
                     viewModel = viewModel,
                     onBackClick = {switchToPage(7)}
+                )
+
+                14 -> TxHistoryScreen(
+                    viewModel = viewModel,
+                    onBackClick = {switchToPage(0)}
                 )
             }
         }

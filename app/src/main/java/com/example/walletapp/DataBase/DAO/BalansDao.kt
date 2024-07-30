@@ -41,6 +41,9 @@ interface BalansDAO {
     //New
     @Query("SELECT name, network_id, SUM(amount) AS totalAmount FROM Balans GROUP BY name, network_id")
     suspend fun getCombinedBalances(): List<NetworkBalance>
+
+    @Query("DELETE FROM Balans")
+    fun clearBalans()
 }
 
 

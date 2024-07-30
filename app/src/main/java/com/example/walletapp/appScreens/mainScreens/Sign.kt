@@ -1,7 +1,7 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,15 +10,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -45,7 +46,6 @@ import com.example.walletapp.PullToRefreshLazyColumn.PullToRefreshWithCustomIndi
 import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
-import com.example.walletapp.ui.theme.roundedShape
 
 @Composable
 fun Sign(viewModel: appViewModel) {
@@ -125,9 +125,9 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
     Card(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .border(width = 0.5.dp, color = colorScheme.primary, shape = roundedShape)
             .fillMaxWidth(),
-        shape = roundedShape,
+        shape = newRoundedShape,
+        border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface
         )
@@ -139,59 +139,56 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            if (tx.status == 2) {
-                Icon(
-                    Icons.Rounded.Check, // Замените на ваш ресурс галочки
-                    contentDescription = null,
-                    tint = colorScheme.error,
-                    modifier = Modifier.padding(end = 16.dp).scale(1.4f)
-                )
-            } else if (tx.status == 3) {
-                Icon(
-                    Icons.Rounded.Close, // Замените на ваш ресурс крестика
-                    contentDescription = null,
-                    tint = colorScheme.error,
-                    modifier = Modifier.padding(end = 16.dp).scale(1.4f)
-                )
-            }
-
-            Column {
+            Column(
+                modifier = Modifier.weight(0.9f)
+            ) {
                 Text(
                     text = tx.info,
-                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Normal,
                     overflow = TextOverflow.Ellipsis,
                     color = colorScheme.onSurface,
                     maxLines = 1
                 )
                 Text(
                     text = "To address: ${tx.to_addr}",
-                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
                     color = colorScheme.onSurface,
                     maxLines = 1
                 )
                 Text(
                     text = "Amount: ${tx.tx_value} ${tx.token}",
-                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
                     color = colorScheme.onSurface,
                     maxLines = 1
                 )
 
-
-
                 when (tx.status) {
                     0 -> { // IDLE
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            OutlinedButton(onClick = {
-                                onSign()
-                            }) {
+                            OutlinedButton(
+                                onClick = { onSign() },
+                                shape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp, topEnd = 0.dp, bottomEnd = 0.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = colorScheme.onSurface,
+                                    containerColor = colorScheme.surface
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 Text("Sign")
                             }
-                            OutlinedButton(onClick = {
-                                showDialog.value = true
-                            }) {
+                            OutlinedButton(onClick = { showDialog.value = true },
+                                shape = RoundedCornerShape(topStart = 0.dp, bottomStart = 0.dp, topEnd = 24.dp, bottomEnd = 24.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = colorScheme.onSurface,
+                                    containerColor = colorScheme.surface
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 Text("Reject")
                             }
                         }
@@ -199,19 +196,45 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
                     2 -> { // SIGNED
                         Text(
                             text = "Транзакция подписана вами",
-                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Light,
                             overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            color = colorScheme.onSurface
+                            maxLines = 2,
+                            color = colorScheme.primary
                         )
                     }
                     3 -> { // REJECTED
                         Text(
                             text = "Отказано вами по причине: ${tx.deny}",
-                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Light,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             color = colorScheme.error
+                        )
+                    }
+                }
+            }
+
+            Column(
+                modifier = if(tx.status == 0) {Modifier} else {Modifier.weight(0.1f)},
+                verticalArrangement = Arrangement.Center
+            ){
+                when (tx.status) {
+                    2 -> {
+                        Icon(
+                            Icons.Rounded.Check,
+                            contentDescription = null,
+                            tint = colorScheme.error,
+                            modifier = Modifier.scale(1.4f)
+                        )
+                    }
+                    3 -> {
+                        Icon(
+                            Icons.Rounded.Close,
+                            contentDescription = null,
+                            tint = colorScheme.error,
+                            modifier = Modifier.scale(1.4f)
                         )
                     }
                 }

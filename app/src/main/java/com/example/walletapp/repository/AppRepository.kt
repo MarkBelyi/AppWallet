@@ -128,4 +128,13 @@ class AppRepository(
     suspend fun getTransactionStatus(unid: String): Int? {
         return txDAO.getStatus(unid)
     }
+
+    suspend fun clearDataBase() {
+        signersDao.clearSigners()
+        networksDAO.clearNetworks()
+        walletsDAO.clearWallets()
+        tokensDAO.clearTokens()
+        balansDAO.clearBalans()
+        txDAO.clearTXs()
+    }
 }
