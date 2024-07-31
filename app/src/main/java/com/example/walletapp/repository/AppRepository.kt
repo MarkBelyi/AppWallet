@@ -2,6 +2,7 @@ package com.example.walletapp.repository
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.asFlow
+import com.example.walletapp.DataBase.DAO.AllTxDAO
 import com.example.walletapp.DataBase.DAO.BalansDAO
 import com.example.walletapp.DataBase.DAO.NetworkBalance
 import com.example.walletapp.DataBase.DAO.NetworksDAO
@@ -9,6 +10,7 @@ import com.example.walletapp.DataBase.DAO.SignerDao
 import com.example.walletapp.DataBase.DAO.TokensDAO
 import com.example.walletapp.DataBase.DAO.TxDAO
 import com.example.walletapp.DataBase.DAO.WalletsDAO
+import com.example.walletapp.DataBase.Entities.AllTX
 import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
@@ -25,7 +27,8 @@ class AppRepository(
     private val walletsDAO: WalletsDAO,
     private val tokensDAO: TokensDAO,
     private val balansDAO: BalansDAO,
-    private val txDAO: TxDAO
+    private val txDAO: TxDAO,
+    private val allTxDAO: AllTxDAO
 ){
     //balans
     suspend fun getAllBalansByAddr(adr: String): List<Balans> = balansDAO.getAllByAddr(adr)
@@ -106,7 +109,7 @@ class AppRepository(
         return networksDAO.getMainWithTestNetworks()
     }
 
-    //TX
+    //SignTX
     val allTX: Flow<List<TX>> = txDAO.getAll()
 
     suspend fun insertTransaction(tx: TX) {
@@ -129,6 +132,31 @@ class AppRepository(
         return txDAO.getStatus(unid)
     }
 
+    //AllUserTX
+    val allUserTX: Flow<List<AllTX>> = allTxDAO.getAll()
+
+    suspend fun insertUserTransaction(tx: AllTX) {
+        allTxDAO.insert(tx)
+    }
+
+    suspend fun insertAllUserTransactions(txList: List<AllTX>) {
+        allTxDAO.add(txList)
+    }
+
+    suspend fun updateUserTransactionStatus(unid: String, status: Int) {
+        allTxDAO.updateTransactionStatus(unid, status)
+    }
+
+    suspend fun updateUserTransactionRejectReason(unid: String, reason: String) {
+        allTxDAO.updateTransactionRejectReason(unid, reason)
+    }
+
+    suspend fun getUserTransactionStatus(unid: String): Int? {
+        return allTxDAO.getStatus(unid)
+    }
+
+
+    //DataBase
     suspend fun clearDataBase() {
         signersDao.clearSigners()
         networksDAO.clearNetworks()
@@ -136,5 +164,6 @@ class AppRepository(
         tokensDAO.clearTokens()
         balansDAO.clearBalans()
         txDAO.clearTXs()
+        allTxDAO.clearTXs()
     }
 }

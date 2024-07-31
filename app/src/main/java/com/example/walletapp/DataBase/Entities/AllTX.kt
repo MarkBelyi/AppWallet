@@ -3,10 +3,9 @@ package com.example.walletapp.DataBase.Entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 
-
-//Это для подписаний транзакция
+//Это для просмотр всех транзакций
 @Entity(primaryKeys = ["unid"]) //транзакции
-data class TX(
+data class AllTX(
     @ColumnInfo(collate = ColumnInfo.NOCASE) val unid: String="",  // unid транзакции на сервере
     val id:Int=0, // id транзакции на сервере
     @ColumnInfo(collate = ColumnInfo.NOCASE) val tx:String="", //реальный хэш транзакции в сети блокчейна
@@ -41,7 +40,7 @@ data class TX(
     val cancel:Int=0, // транзакция отменена. Пока не используется
     val deny:String="", // транзакция запрещена. Используется для хранения причины отказа ИСПОЛЬЗУЕТСЯ
     val from:String="", // откуда. Пока резервное поле
-    val status:Int=0, // резервное поле
+    val status:Int=0, // Используется для
     val type:Int=0, // резервное поле
     val r1:String="" // резервное поле
 )

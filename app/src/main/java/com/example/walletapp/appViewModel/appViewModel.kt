@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.example.walletapp.DataBase.Entities.AllTX
 import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
@@ -397,12 +398,15 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
+    //HistoryScreenTX
+    val allUserTX: LiveData<List<AllTX>> = repository.allUserTX.asLiveData()
+
     fun fetchAndStoreTransactions(context: Context) = viewModelScope.launch(Dispatchers.IO) {
         val apiResponse = GetAPIString(context, "tx")
         if (apiResponse.isNotEmpty()) {
             try {
                 val transactions = JSONArray(apiResponse)
-                val txList = mutableListOf<TX>()
+                val txList = mutableListOf<AllTX>()
                 for (i in 0 until transactions.length()) {
                     val txJson = transactions.getJSONObject(i)
                     val tokenParts = txJson.optString("token", "").split(":::")
@@ -420,28 +424,28 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         waitList.joinToString(",")
                     } ?: ""
 
-                    val currentStatus = repository.getTransactionStatus(txJson.optString("unid", "")) ?: 0
 
-                    val tx = TX(
+
+                    val tx = AllTX(
                         unid = txJson.optString("unid", ""),
                         id = txJson.optInt("id", 0), // Парсинг ID
                         tx = txJson.optString("tx", ""), // Обработка null для tx
                         minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1, // Парсинг min_sign
-                        waitEC = waitEC, // EC Адреса подписантов, подписи которых ждёт транзакция
-                        signedEC = "", // Подписи подписантов пока не обрабатываются, можно добавить аналогично waitEC при необходимости
-                        network = networkToken.toIntOrNull() ?: 0, // Обработка network ID
-                        token = tokenId,
-                        to_addr = txJson.optString("to_addr", ""),
-                        info = txJson.optString("info", ""), // Парсинг info
+                        init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
                         tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
                         value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
-                        init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
-                        status = currentStatus,
+                        to_addr = txJson.optString("to_addr", ""),
+                        token = tokenId,
+                        network = networkToken.toIntOrNull() ?: 0, // Обработка network ID
+                        info = txJson.optString("info", ""), // Парсинг info
+
+                        waitEC = waitEC, // EC Адреса подписантов, подписи которых ждёт транзакция
+                        signedEC = "", // Подписи подписантов пока не обрабатываются, можно добавить аналогично waitEC при необходимости
                         eMSG = "",
                     )
                     txList.add(tx)
                 }
-                repository.insertAllTransactions(txList)
+                repository.insertAllUserTransactions(txList)
             } catch (e: JSONException) {
                 e.printStackTrace()
             }

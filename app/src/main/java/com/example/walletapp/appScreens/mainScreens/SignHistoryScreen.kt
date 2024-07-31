@@ -19,10 +19,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.Element.ClickableText
@@ -33,11 +35,16 @@ import com.example.walletapp.appViewModel.appViewModel
 @Composable
 fun SignHistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBackClick: () -> Unit) {
     val allTX by viewModel.allTX.observeAsState(initial = emptyList())
+    val context = LocalContext.current
 
     /*LaunchedEffect(key1 = allTX) {
         //Нужно переделать внутри чтобы статусы не обновлялись
         //viewModel.fetchAndStoreTransactions(context = context)
     }*/
+
+    LaunchedEffect(Unit) {
+        viewModel.needSignTX(context = context){}
+    }
 
     Scaffold(
         containerColor = colorScheme.background,
