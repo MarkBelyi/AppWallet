@@ -201,7 +201,7 @@ fun Home(
                     bottom.linkTo(gridRef.top)
                 }
         ) {
-            val pageCount = 4
+            val pageCount = 1//4
             val pagerState = rememberPagerState(pageCount = { pageCount })
             val pages = listOf(Page.Assets/*, Page.Future0, Page.Future1, Page.Future2*/)
 

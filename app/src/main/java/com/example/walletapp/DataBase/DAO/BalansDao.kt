@@ -39,7 +39,8 @@ interface BalansDAO {
     suspend fun insert(item: Balans)
 
     //New
-    @Query("SELECT name, network_id, SUM(amount) AS totalAmount FROM Balans GROUP BY name, network_id")
+    //@Query("SELECT name, network_id, SUM(amount) AS totalAmount FROM Balans GROUP BY name, network_id")
+    @Query("SELECT name, network_id, SUM(amount) AS totalAmount FROM Balans WHERE network_id NOT IN (5010, 6010, 3310, 3040, 1010) GROUP BY name, network_id")
     suspend fun getCombinedBalances(): List<NetworkBalance>
 
     @Query("DELETE FROM Balans")
