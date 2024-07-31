@@ -5,17 +5,25 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -56,8 +64,28 @@ import org.json.JSONObject
 fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit, onTransactionsClick: () -> Unit) {
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
     val context = LocalContext.current
-    val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.first() == '1') }
+    val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.isNotEmpty() && wallet.myFlags.first() == '1') }
     var isLoading by remember { mutableStateOf(false) }
+    var showHiddenDialog by remember { mutableStateOf(false) }
+
+    // Показ диалогового окна для подтверждения скрытия кошелька
+    if (showHiddenDialog) {
+        HiddenItemAlertDialog(isHidden = isHidden, onDismiss = { confirm ->
+            showHiddenDialog = false
+            if (confirm) {
+                isLoading = true
+                val newFlags = if (isHidden) {
+                    '0' + wallet.myFlags.substring(1)
+                } else {
+                    '1' + wallet.myFlags.substring(1)
+                }
+                viewModel.updateWalletFlags(wallet.myUNID, newFlags) {
+                    isLoading = false
+                    setIsHidden(!isHidden)
+                }
+            }
+        })
+    }
 
     BackHandler(onBack = onBack)
     
@@ -67,7 +95,40 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
             .fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = wallet.info, color = colorScheme.onSurface, fontWeight = FontWeight.Light, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier.fillMaxSize()
+                    ){
+                        if(wallet.network in listOf(5010, 1010, 3040)){
+                            Card(
+                                shape = newRoundedShape,
+                                border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = colorScheme.surface,
+                                    contentColor = colorScheme.onSurface
+                                )
+                            ) {
+                                Text(
+                                    text = "TEST",
+                                    maxLines = 1,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    modifier = Modifier.padding(horizontal = 12.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = wallet.info,
+                            color = colorScheme.onSurface,
+                            fontWeight = FontWeight.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface
                 ),
@@ -84,7 +145,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     }
                 },
                 actions = {
-                    IconButton(
+                    /*IconButton(
                         onClick = {
                             isLoading = true
                             val newFlags = if (isHidden) {
@@ -96,6 +157,21 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                                 isLoading = false
                                 setIsHidden(!isHidden)
                             }
+                        }
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = colorScheme.onSurface)
+                        } else {
+                            Icon(
+                                painter = if (isHidden) painterResource(id = R.drawable.ic_baseline_visibility_off_24) else painterResource(id = R.drawable.ic_baseline_visibility_24),
+                                contentDescription = "Toggle Visibility",
+                                tint = colorScheme.onSurface
+                            )
+                        }
+                    }*/
+                    IconButton(
+                        onClick = {
+                            showHiddenDialog = true
                         }
                     ) {
                         if (isLoading) {
@@ -165,7 +241,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = "Баланс:", fontSize = 16.sp, color = colorScheme.onSurface)
+                Text(text = "Баланс:", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -185,6 +261,8 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     )
 
                 }
+
+
 
                 /*Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -250,7 +328,7 @@ fun AddressList(slist: String, signers: List<Signer>) {
         modifier = Modifier
             .fillMaxWidth()
             .background(color = colorScheme.surface, shape = newRoundedShape)
-            .padding(8.dp),
+            .padding(12.dp),
     ) {
         addresses.forEachIndexed { index, address ->
             Text(
@@ -266,32 +344,49 @@ fun AddressList(slist: String, signers: List<Signer>) {
 
 }
 
-/*
 @Composable
-fun HiddenItemAlertDialog(isHidden: Boolean, flags: String, onDismiss: () -> Unit, ){
+fun HiddenItemAlertDialog(isHidden: Boolean, onDismiss: (Boolean) -> Unit) {
     AlertDialog(
-        onDismissRequest = {
-            onDismiss() },
+        onDismissRequest = { onDismiss(false) },
         confirmButton = {
-            Text(text = "Yes", fontSize = 12.sp, fontWeight = FontWeight.Light, color = colorScheme.onSurface)
+            Text(
+                text = "Yes",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface,
+                modifier = Modifier.clickable { onDismiss(true) }.padding(16.dp)
+            )
         },
         dismissButton = {
-            Text(text = "No", fontSize = 12.sp, fontWeight = FontWeight.Light, color = colorScheme.onSurface)
+            Text(
+                text = "No",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface,
+                modifier = Modifier.clickable { onDismiss(false) }.padding(16.dp)
+            )
         },
         title = {
-            Text(text = "Скрытый кошелек", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
+            Text(
+                text = if (isHidden) "Показать кошелек" else "Скрытый кошелек",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onSurface
+            )
         },
         text = {
-            Text(text = "Вы действительно хотите скрыть этот кошелек?", fontSize = 14.sp, fontWeight = FontWeight.Light, color = colorScheme.onSurface)
+            Text(
+                text = if (isHidden) "Вы действительно больше не хотите скрывать этот кошелек?" else "Вы действительно хотите скрыть этот кошелек?",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
+            )
         },
         containerColor = colorScheme.surface,
         textContentColor = colorScheme.onSurface,
         titleContentColor = colorScheme.onSurface,
         shape = newRoundedShape,
         tonalElevation = 0.dp,
-        modifier = Modifier.border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape)
-
     )
 }
-*/
 

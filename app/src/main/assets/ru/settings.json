@@ -19,6 +19,12 @@
         "description": "BitcoinTest, TronTest, EthereumTest...",
         "type": "CHECKBOX",
         "prefsKey": "show_test_networks"
+      },
+      {
+        "name": "Продвинутый пользователь",
+        "description": "Возможность в создании кошелька",
+        "type": "SWITCH",
+        "prefsKey": "advanced_user"
       }
     ]
   },

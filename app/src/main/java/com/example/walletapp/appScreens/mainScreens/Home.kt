@@ -182,8 +182,6 @@ fun Home(
         }
     }
 
-    //var showKeyDialog by remember { mutableStateOf(false) }
-
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -205,7 +203,7 @@ fun Home(
         ) {
             val pageCount = 4
             val pagerState = rememberPagerState(pageCount = { pageCount })
-            val pages = listOf(Page.Assets, Page.Future0, Page.Future1, Page.Future2)
+            val pages = listOf(Page.Assets/*, Page.Future0, Page.Future1, Page.Future2*/)
 
             HorizontalPager(state = pagerState,
                 modifier = Modifier
@@ -218,9 +216,9 @@ fun Home(
             ) { pageIndex ->
                 when (pages[pageIndex]) {
                     Page.Assets -> AssetsWidget(viewModel = viewModel)
-                    Page.Future0 -> Future(pageNum = pagerState.currentPage)
+                    /*Page.Future0 -> Future(pageNum = pagerState.currentPage)
                     Page.Future1 -> Future(pageNum = pagerState.currentPage)
-                    Page.Future2 -> Future(pageNum = pagerState.currentPage)
+                    Page.Future2 -> Future(pageNum = pagerState.currentPage)*/
                 }
             }
 
@@ -267,40 +265,14 @@ fun Home(
                 width = Dimension.fillToConstraints
             }
         )
-
-        /*if (showKeyDialog) {
-            ShowKeyDialog(onDismiss = { showKeyDialog = false })
-        }
-
-        ElevatedButton(
-            onClick = {
-                showKeyDialog = true
-            },
-            shape = roundedShape,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp, max = 64.dp)
-                .constrainAs(button)
-                {
-                    top.linkTo(gridRef.bottom, margin = 16.dp)
-                    bottom.linkTo(parent.bottom)
-                },
-            colors = ButtonDefaults.elevatedButtonColors(
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary,
-            )
-        ) {
-            Text("Показать ключи")
-        }*/
-
     }
 }
 
 sealed class Page {
     data object Assets : Page()
-    data object Future0 : Page()
+    /*data object Future0 : Page()
     data object Future1 : Page()
-    data object Future2 : Page()
+    data object Future2 : Page()*/
 }
 
 @Composable
@@ -430,7 +402,6 @@ fun ActionGrid(
     modifier: Modifier = Modifier
 ) {
     val columns = 3
-
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = modifier
@@ -441,22 +412,23 @@ fun ActionGrid(
                 text = stringResource(actionItem.first),
                 imageVector = actionItem.second,
                 onClick = { onItemClick(actionItem.third) },
+                modifier = Modifier
             )
         }
     }
 }
 
-
 @Composable
 fun ActionCell(
     text: String,
     imageVector: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Card(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .aspectRatio(1.4f),
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface
@@ -468,7 +440,7 @@ fun ActionCell(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
         ) {
@@ -478,12 +450,12 @@ fun ActionCell(
                 Icon(
                     painter = painterResource(id = imageVector),
                     contentDescription = text,
-                    modifier = Modifier
+                    modifier = modifier
                         .scale(1.4f),
                     tint = colorScheme.primary
                 )
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(modifier.height(8.dp))
             Box(
                 contentAlignment = Alignment.Center
             ) {

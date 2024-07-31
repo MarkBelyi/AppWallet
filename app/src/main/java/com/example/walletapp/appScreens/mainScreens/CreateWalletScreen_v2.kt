@@ -82,6 +82,7 @@ import androidx.wear.compose.material.swipeable
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
+import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
@@ -99,11 +100,13 @@ fun CreateWalletScreen_v2(
 
     val context = LocalContext.current
     val networks by viewModel.networks.observeAsState(initial = emptyList())
+    val iam = GetMyAddr(context)
 
     val coroutineScope = rememberCoroutineScope()
 
     val numberOfSigner = 9
     val signerKeys = remember { mutableStateListOf("") }
+    val IamSigner = remember {mutableStateListOf(iam)}
 
     var walletNameText by remember { mutableStateOf("") }
     var selectedNetwork by remember { mutableStateOf("") }

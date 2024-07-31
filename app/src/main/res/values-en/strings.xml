@@ -19,7 +19,7 @@
     <string name="action_sign_history">Sign history</string>
     <string name="action_create_wallet">Create Wallet</string>
     <string name="action_buy_crypto">Buy</string>
-    <string name="action_tx_history">Transactions history</string>
+    <string name="action_tx_history">Transactions</string>
     <string name="action_share_my_address">Share</string>
     <string name="action_signers">Signers</string>
     <string name="action_co_signer">Co-Signer</string>
@@ -91,8 +91,6 @@
     <string name="cybersecurity_title">Security Warning</string>
     <string name="cybersecurity_body">Do not take screenshots or use screen recording apps while your mnemonic phrase is displayed. This could compromise the security of your wallet.</string>
     <string name="Understand">Understand</string>
-
-
 
     //Resources OLD
     <string name="app_package_name">com.app.wallet2</string>

@@ -1,7 +1,6 @@
 package com.example.walletapp.appScreens.mainScreens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -137,9 +136,9 @@ fun SelectTokenScreen(navController: NavController, viewModel: appViewModel, tok
 @Composable
 fun TokenItem(balans: Balans, onClick: () -> Unit) {
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
             .padding(8.dp),
         border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
         shape = newRoundedShape,
