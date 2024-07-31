@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
@@ -16,7 +15,7 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetValue
@@ -42,7 +41,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.helper.PasswordStorageHelper
@@ -141,24 +142,34 @@ fun PasswordInputField(onPasswordSubmitted: (String) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.surface)
+            .background(color = colorScheme.surface)
             .padding(paddingColumn)
         ) {
 
         Spacer(modifier = Modifier.weight(0.2f))
+
+        Text(
+            text = "Введите пароль",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.weight(0.05f))
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             placeholder = { Text(
                 text = stringResource(id = R.string.password_name),
-                color = MaterialTheme.colorScheme.scrim,
+                color = colorScheme.scrim,
                 fontWeight = FontWeight.Normal
             ) },
             singleLine = true,
             maxLines = 1,
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+            textStyle = TextStyle(color = colorScheme.onSurface),
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 56.dp, max = 72.dp),
@@ -171,20 +182,20 @@ fun PasswordInputField(onPasswordSubmitted: (String) -> Unit) {
                     Icon(
                         painter = image,
                         contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = colorScheme.onSurfaceVariant
                     )
                 }
             },
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                focusedLabelColor = MaterialTheme.colorScheme.primary,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
-                cursorColor = MaterialTheme.colorScheme.primary
+                focusedContainerColor = colorScheme.surface,
+                focusedLabelColor = colorScheme.primary,
+                unfocusedContainerColor = colorScheme.surface,
+                unfocusedLabelColor = colorScheme.onBackground,
+                cursorColor = colorScheme.primary
             ),
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.weight(0.1f))
 
         ElevatedButton(
             onClick = { onPasswordSubmitted(password) },
@@ -200,10 +211,10 @@ fun PasswordInputField(onPasswordSubmitted: (String) -> Unit) {
             enabled = password.isNotEmpty(),
             shape = newRoundedShape,
             colors = ButtonDefaults.elevatedButtonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary,
+                disabledContainerColor = colorScheme.primaryContainer,
+                disabledContentColor = colorScheme.onPrimaryContainer
             )
         ) {
             Text(

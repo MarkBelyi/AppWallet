@@ -101,6 +101,7 @@ fun SettingsScreen(
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
 
+    //export and import
     val bookmarkExportFilePicker =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -109,7 +110,6 @@ fun SettingsScreen(
                     val outputStream = context.contentResolver.openOutputStream(uri)!!
                     val ps = PasswordStorageHelper(context)
                     val privKey = ps.getData("MyPrivateKey") ?: return@let ""
-                    //val realpriv = String(privKey).toBigInteger(16).toString()
                     val realpriv = BigInteger(1, privKey).toString()
                     val encrypt = DESCrypt.encrypt(realpriv)
                     outputStream.write(encrypt)
@@ -257,6 +257,7 @@ fun SettingsScreen(
                                 "change_language" -> onChangeLanguageClick()
                                 "import_secret_key" -> showImportBookmarksDialog()
                                 "export_secret_key" -> showExportBookmarksDialog()
+                                "advanced_user" -> {}
                             }
                         }
                     )

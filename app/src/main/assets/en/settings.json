@@ -19,6 +19,12 @@
         "description": "BitcoinTest, TronTest, EthereumTest...",
         "type": "CHECKBOX",
         "prefsKey": "show_test_networks"
+      },
+      {
+        "name": "Advanced User",
+        "description": "Opportunity for creating wallet",
+        "type": "SWITCH",
+        "prefsKey": "advanced_user"
       }
     ]
   },

@@ -1,6 +1,12 @@
 package com.example.walletapp.Settings
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -27,6 +33,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -49,6 +56,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.Element.CustomButton
@@ -56,18 +64,22 @@ import com.example.walletapp.Element.PasswordAlertDialog
 import com.example.walletapp.Element.PasswordFieldWithLabel
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.helper.DESCrypt
 import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.helper.isBigInteger
 import com.example.walletapp.registrationScreens.AuthMethod
 import com.example.walletapp.registrationScreens.PinLockScreen
 import com.example.walletapp.registrationScreens.checkPasswordsMatch
 import com.example.walletapp.registrationScreens.isPasswordValid
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
-import com.example.walletapp.ui.theme.roundedShape
 import kotlinx.coroutines.launch
 import org.web3j.crypto.Credentials
+import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.MnemonicUtils
 import org.web3j.crypto.WalletUtils
+import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -88,7 +100,8 @@ fun ChangePasswordScreen(onSuccessClick: () -> Unit, viewModel: appViewModel){
                 coroutineScope.launch {
                     state.animateScrollToPage(page = 1)
                 }
-            })
+            },
+                context = context)
             1 -> ChooseAuthMethod(onPINclick = {
                 coroutineScope.launch {
                     state.animateScrollToPage(page = 2)
@@ -114,22 +127,78 @@ fun ChangePasswordScreen(onSuccessClick: () -> Unit, viewModel: appViewModel){
 }
 
 @Composable
-fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit){
+fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit, context: Context){
     val isContinueEnabled = remember { mutableStateOf(false) }
+    val isKeyMatching = remember { mutableStateOf(false) } // Состояние для проверки совпадения ключей
+
+    val bookmarkImportFilePicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val inputStream = context.contentResolver.openInputStream(uri)!!
+                val bytes = inputStream.readBytes()
+                inputStream.close()
+
+                val decrypt = DESCrypt.decrypt(bytes)
+                val text = String(decrypt, StandardCharsets.UTF_8)
+                if (!isBigInteger(text)) {
+                    Toast.makeText(context, "Неправильный ключ", Toast.LENGTH_SHORT).show()
+                    return@let
+                }
+                val k: ECKeyPair = ECKeyPair.create(BigInteger(text))
+
+                // Проверка схожести ключей
+                val currentPrivateKey = ps.getData("MyPrivateKey")
+                if (k.privateKey.toByteArray().contentEquals(currentPrivateKey)) {
+                    Toast.makeText(context, "Импортируемый ключ совпадает с вашим ключем", Toast.LENGTH_SHORT).show()
+                    isKeyMatching.value = true
+                    onClick()
+                } else {
+                    Toast.makeText(context, "Импортируемый ключ не совпадает с вашим ключем", Toast.LENGTH_SHORT).show()
+                    isKeyMatching.value = false
+                }
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = colorScheme.surface)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ){
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(0.3f))
+
+        Text(
+            text = "Введите мнемоническую фразу",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.weight(0.1f))
 
         WriteForCheck(isContinueEnabled = isContinueEnabled, ps = ps)
 
-        Spacer(modifier = Modifier.weight(0.5f))
+        Spacer(modifier = Modifier.weight(0.1f))
+
+        Text(
+            text = stringResource(id = R.string.seed_phrase_paste),
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
+            ),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(8.dp)
+        )
+
+        Spacer(modifier = Modifier.weight(0.8f))
 
         CustomButton(
             text = stringResource(id = R.string.button_continue),
@@ -137,7 +206,24 @@ fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit){
             enabled = isContinueEnabled.value,
         )
 
-        Spacer(modifier = Modifier.weight(0.5f))
+        Spacer(modifier = Modifier.weight(0.05f))
+
+        TextButton(
+            onClick = {
+                bookmarkImportFilePicker.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                })
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = newRoundedShape,
+            enabled = true,
+        ) {
+            Text("Импорт ключей из файла")
+        }
+
+        Spacer(modifier = Modifier.weight(0.45f))
+
 
     }
 }
@@ -161,14 +247,20 @@ fun WriteForCheck(isContinueEnabled: MutableState<Boolean>, ps: PasswordStorageH
             maxLines = 1,
             shape = newRoundedShape,
             onValueChange = { newValue ->
-                if (newValue.contains(" ")) {
-                    val words = newValue.split(" ").filterNot { it.isBlank() }
+
+                val trimmedValue = newValue.trim()
+                if (trimmedValue.contains(" ")) {
+                    val words = trimmedValue.split(" ").filterNot { it.isBlank() }
                     words.forEachIndexed { wordIndex, word ->
-                        if (wordIndex < userPhrases.size) {
-                            userPhrases[wordIndex] = word
+                        val targetIndex = index + wordIndex
+                        if (targetIndex < userPhrases.size) {
+                            userPhrases[targetIndex] = word
                         }
                     }
-                } else userPhrases[index] = newValue
+                } else {
+                    userPhrases[index] = trimmedValue
+                }
+
                 // Итак, в итоге мы здесь имеем 12 слов.
                 if (userPhrases.filter { it.isNotBlank() }.size==12) {
                     // Вот наша мнемоФраза одной строкой
@@ -237,23 +329,33 @@ fun WriteForCheck(isContinueEnabled: MutableState<Boolean>, ps: PasswordStorageH
     }
 }
 
-
 @Composable
 fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit){
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = colorScheme.surface)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ){
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(0.75f))
+
+        Text(
+            text = "Выберите тип авторизации",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Card(
             onClick = { onPINclick() },
             modifier = Modifier.fillMaxWidth(),
-            shape = roundedShape,
+            shape = newRoundedShape,
             border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
             colors = CardDefaults.cardColors(
                 containerColor = colorScheme.surface
@@ -277,7 +379,7 @@ fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit){
         Card(
             onClick = { onPASSclick() },
             modifier = Modifier.fillMaxWidth(),
-            shape = roundedShape,
+            shape = newRoundedShape,
             border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
             colors = CardDefaults.cardColors(
                 containerColor = colorScheme.surface
@@ -390,7 +492,7 @@ fun CreatePasswordScreenWithoutPIN(
 
         CustomButton(
             text = stringResource(id = R.string.button_continue),
-            enabled = isPasswordValid,
+            enabled = true,
             onClick = {
                 if (isPasswordValid) {
                     viewModel.setAuthMethod(authMethod = AuthMethod.PASSWORD)

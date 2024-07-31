@@ -14,12 +14,12 @@
     <string name="hello">Здравствуйте!</string>
 
     //action itmems
-    <string name="action_transfer">Перевести</string>
+    <string name="action_transfer">Отправить</string>
     <string name="action_receive">Получить</string>
     <string name="action_sign_history">История запросов</string>
     <string name="action_create_wallet">Создать кошелек</string>
     <string name="action_buy_crypto">Купить</string>
-    <string name="action_tx_history">История транзакций</string>
+    <string name="action_tx_history">Транзакции</string>
     <string name="action_share_my_address">Поделиться</string>
     <string name="action_signers">Подписанты</string>
     <string name="action_co_signer">Соподписант</string>
@@ -91,7 +91,6 @@
     <string name="cybersecurity_title">Предупреждение о безопасности</string>
     <string name="cybersecurity_body">Не делайте скриншоты и не используйте приложения для записи экрана, пока отображается ваша мнемоническая фраза. Это может поставить под угрозу безопасность вашего кошелька.</string>
     <string name="Understand">Понятно</string>
-
 
 
     //resources OLD
