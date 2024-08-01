@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.navigation.NavHostController
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.MainActivity
@@ -60,6 +62,7 @@ import com.example.walletapp.helper.isBigInteger
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.json.JSONObject
 import org.web3j.crypto.ECKeyPair
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
@@ -187,6 +190,62 @@ fun SettingsScreen(
         bookmarkImportFilePicker.launch(intent) // See bookmarkImportFilePicker declaration below for result handler
     }
 
+    fun deleteAccount(){
+        val builder = AlertDialog.Builder(context)
+        builder.setMessage(context.getString(R.string.delete_me_warning))
+            .setCancelable(true)
+            .setPositiveButton(context.getString(R.string.yes)) {_, _ ->
+
+            }
+    }
+    fun deleteMyAccountClick() {
+        val builder = android.app.AlertDialog.Builder(context)
+        builder.setTitle(context.getString(R.string.delete_me_reason))
+        val input = EditText(context)
+
+        builder.setView(input)
+        builder.setPositiveButton(context.getString(R.string.delete)) { dialog, which ->
+            val reason = input.text.toString()
+            var s: String = NW().GetNetString(context, "uuid")
+            val json = JSONObject(s)
+            if (json.has("uuid")) s = json["uuid"].toString()
+            val body = "\"uuid\":\"$s\",\"reason\":\"$reason\"" //  val z:String=NW().GetNetString(this@Settings,"erase_account\\$s",body,true)
+            val z = "{\"STATUS\":\"DONE\"}"
+            if (z.equals("{\"STATUS\":\"DONE\"}")) { // Всё, сервер нас успешно замочил. Удалим наши ключи
+                // Начинаем локальную зачистку:
+                val ps = PasswordStorageHelper(context)
+                ps.remove("MyPublicKey");
+                ps.remove("MyPrivateKey");
+                context.getSharedPreferences(context.getString(R.string.preferens_file_name), 0).edit().clear().apply();
+
+
+                //Теперь оповестим юзера о том что всё удалено и закроем приложение
+                builder.setMessage(context.getString(R.string.user_deleted))
+                    .setPositiveButton("OK") { _, _ -> (context as Activity).finishAffinity() }
+                    .setOnDismissListener { (context as Activity).finishAffinity() }
+                builder.create().show()
+            }
+        }
+        builder.setNegativeButton(context.getString(R.string.cancel)) { dialog, which -> dialog.cancel() }
+        builder.show()}
+
+    fun requestDeletionReason(){
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle(context.getString(R.string.delete_me_reason))
+        val input = EditText(context)
+        builder.setView(input)
+        builder.setPositiveButton(context.getString(R.string.delete)){dialog, _ ->
+            val reason = input.text.toString()
+            deleteMyAccountClick(reason)
+        }
+        builder.setNegativeButton(context.getString(R.string.cancel)){dialog, _ ->
+            dialog.cancel()
+        }
+        builder.show()
+    }
+
+
+
     Scaffold(
         containerColor = colorScheme.background,
         topBar = {
@@ -261,6 +320,7 @@ fun SettingsScreen(
                                 "change_language" -> onChangeLanguageClick()
                                 "import_secret_key" -> showImportBookmarksDialog()
                                 "export_secret_key" -> showExportBookmarksDialog()
+                                "delete_account" -> deleteAccount()
                             }
                         }
                     )
