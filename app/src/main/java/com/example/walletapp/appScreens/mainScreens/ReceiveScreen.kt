@@ -11,7 +11,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +22,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +33,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,7 +56,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.walletapp.QR.generateQRCode
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
 
 object RecieveRoute {
     const val RECEIVE = "receive"
@@ -68,7 +66,16 @@ object RecieveRoute {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReceiveScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClick: () -> Unit) {
+fun ReceiveScreen(
+    viewModel: appViewModel,
+    onCreateClick: () -> Unit,
+    onBackClick: () -> Unit
+){
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.refreshWallets(context){}
+        viewModel.filterWallets()
+    }
     val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
     val navController = rememberNavController()
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
@@ -95,7 +102,7 @@ fun ReceiveScreen(viewModel: appViewModel, onCreateClick: () -> Unit, onBackClic
             composable(RecieveRoute.RECEIVE) {
                 Column(modifier = Modifier
                     .fillMaxSize()
-                    .background(color = colorScheme.inverseSurface)
+                    .background(color = colorScheme.background)
                     .padding(paddingValues),
                 ) {
                     SearchBar(searchText, onTextChange = { newValue ->
@@ -165,12 +172,12 @@ fun ShareAddressScreen(walletAddr: String, onBackClick: () -> Unit) {
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         },
-        containerColor = colorScheme.surface
+        containerColor = colorScheme.background
     ) { padding ->
 
         Column(
@@ -179,7 +186,7 @@ fun ShareAddressScreen(walletAddr: String, onBackClick: () -> Unit) {
                 .padding(padding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.weight(0.3f))
 
@@ -190,10 +197,9 @@ fun ShareAddressScreen(walletAddr: String, onBackClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .fillMaxWidth()
-                    .clip(roundedShape)
-                    .background(Color.White)
-                    .border(1.dp, colorScheme.onSurface, roundedShape)
+                    .fillMaxWidth(0.8f)
+                    .clip(newRoundedShape)
+                    .border(1.dp, colorScheme.onSurface, newRoundedShape)
             ) {
                 Image(
                     bitmap = qrImage,
@@ -205,50 +211,45 @@ fun ShareAddressScreen(walletAddr: String, onBackClick: () -> Unit) {
 
             Spacer(modifier = Modifier.weight(0.1f))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = walletAddr,
-                    onValueChange = {},
-                    textStyle = TextStyle(color = colorScheme.onSurface),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = roundedShape,
-                    readOnly = true,
-                    singleLine = true,
-                    maxLines = 1,
-                    leadingIcon = {
-                        IconButton(onClick = {
-                            val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            val clip = ClipData.newPlainText("address", walletAddr)
-                            clipboardManager.setPrimaryClip(clip)
-                            Toast.makeText(context, "Address copied to clipboard", Toast.LENGTH_SHORT).show()
-                        }) {
-                            Icon(painter = painterResource(id = R.drawable.copy), contentDescription = "Copy", tint = colorScheme.primary)
+            OutlinedTextField(
+                value = walletAddr,
+                onValueChange = {},
+                textStyle = TextStyle(color = colorScheme.onSurface),
+                modifier = Modifier.fillMaxWidth(0.8f),
+                shape = newRoundedShape,
+                readOnly = true,
+                singleLine = true,
+                maxLines = 1,
+                leadingIcon = {
+                    IconButton(onClick = {
+                        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clip = ClipData.newPlainText("address", walletAddr)
+                        clipboardManager.setPrimaryClip(clip)
+                        Toast.makeText(context, "Address copied to clipboard", Toast.LENGTH_SHORT).show()
+                    }) {
+                        Icon(painter = painterResource(id = R.drawable.copy), contentDescription = "Copy", tint = colorScheme.primary)
+                    }
+                },
+                trailingIcon = {
+                    IconButton(onClick = {
+                        val sendIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, walletAddr)
+                            type = "text/plain"
                         }
-                    },
-                    trailingIcon = {
-                        IconButton(onClick = {
-                            val sendIntent: Intent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_TEXT, walletAddr)
-                                type = "text/plain"
-                            }
-                            val shareIntent = Intent.createChooser(sendIntent, null)
-                            context.startActivity(shareIntent)
-                        }) {
-                            Icon(painter = painterResource(id = R.drawable.share), contentDescription = "Share", tint = colorScheme.primary)
-                        }
-                    },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = colorScheme.surface,
-                        unfocusedContainerColor = colorScheme.surface,
-                        focusedLeadingIconColor = colorScheme.onSurface,
-                        focusedTrailingIconColor = colorScheme.onSurface
-                    )
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
+                    }) {
+                        Icon(painter = painterResource(id = R.drawable.share), contentDescription = "Share", tint = colorScheme.primary)
+                    }
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = colorScheme.surface,
+                    unfocusedContainerColor = colorScheme.surface,
+                    focusedLeadingIconColor = colorScheme.onSurface,
+                    focusedTrailingIconColor = colorScheme.onSurface
                 )
-            }
+            )
 
             Spacer(modifier = Modifier.weight(0.4f))
         }

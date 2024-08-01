@@ -10,7 +10,7 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
-<!--Изменил значение allowBackup на false-->
+
     <application
 
         android:name=".MainApplication"
@@ -18,9 +18,9 @@
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/safina_rgb_sign"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/safina_rgb_circle"
         android:supportsRtl="true"
         android:theme="@style/Theme.WalletApp"
         tools:targetApi="31">

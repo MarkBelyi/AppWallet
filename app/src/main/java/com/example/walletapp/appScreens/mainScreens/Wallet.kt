@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +27,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,13 +44,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,6 +74,7 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.refreshWallets(context){}
         viewModel.filterWallets()
     }
 
@@ -88,9 +92,9 @@ fun Wallet(viewModel: appViewModel, onCreateClick: () -> Unit) {
                     viewModel.chooseWallet(wallet)
                 }, onCreateClick = onCreateClick, viewModel = viewModel)
             } else {
-                WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel) {
+                WalletDetailScreen(wallet = selectedWallet!!, viewModel = viewModel, onBack =  {
                     viewModel.chooseWallet(null)
-                }
+                }, onTransactionsClick = {})
             }
         }
     )
@@ -291,7 +295,6 @@ fun SearchBar(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
     val context = LocalContext.current
@@ -318,17 +321,47 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
     }
 
     Card(
-        border = BorderStroke(width = 0.5.dp, color =  if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.primary),
+        border = BorderStroke(width = 0.5.dp, color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.primary),
         onClick = {
             if (!isAddressEmpty){
                 onWalletClick(wallet)
             }
         },
+        shape = newRoundedShape,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         modifier = Modifier.fillMaxWidth()
     ) {
 
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.padding(start = 0.dp, top = 8.dp, bottom = 8.dp, end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(28.dp)
+                    .background(
+                        color = when {
+                            isHidden -> colorScheme.onSurface.copy(alpha = 0.5f)
+                            network in listOf(5010, 1010, 3040) -> colorScheme.primary
+                            else -> Color.Transparent
+                        }, shape = RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (network in listOf(5010, 1010, 3040)) {
+                    Text(
+                        text = "TEST",
+                        maxLines = 1,
+                        color = colorScheme.onPrimary,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Light,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .align(Alignment.Center)
+                            .rotate(90f)
+                    )
+                }
+            }
+
+            Spacer(Modifier.width(8.dp))
 
             Box(
                 modifier = Modifier
@@ -354,7 +387,9 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                     text = wallet.info.uppercase(),
                     color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 if (isAddressEmpty) {

@@ -20,12 +20,12 @@
     <string name="hello">Здравствуйте!</string>
 
     //action itmems
-    <string name="action_transfer">Перевести</string>
+    <string name="action_transfer">Отправить</string>
     <string name="action_receive">Получить</string>
-    <string name="action_history">История</string>
+    <string name="action_sign_history">История запросов</string>
     <string name="action_create_wallet">Создать кошелек</string>
     <string name="action_buy_crypto">Купить</string>
-    <string name="action_exchange_crypto">Обменять</string>
+    <string name="action_tx_history">Транзакции</string>
     <string name="action_share_my_address">Поделиться</string>
     <string name="action_signers">Подписанты</string>
     <string name="action_co_signer">Соподписант</string>
@@ -70,7 +70,7 @@
     <string name="button_see_seed">Показать мнемоническую фразу</string>
     <string name="tap_seed_phrase">Соберите мнемоническую фразу</string>
     <string name="write_seed_phrase">Напишите мнемоническую фразу"</string>
-    <string name="seed_phrase_paste">Вам необходимо написать мнемоническую фразу вручную, либо при долгом нажатии вставить ее в любую ячейку</string>
+    <string name="seed_phrase_paste">Вам необходимо написать мнемоническую фразу вручную, либо при долгом нажатии вставить ее в первую ячейку</string>
 
     <string name="toast_write_seed_phrase">Введенная фраза не совпадает</string>
 
@@ -97,7 +97,6 @@
     <string name="cybersecurity_title">Предупреждение о безопасности</string>
     <string name="cybersecurity_body">Не делайте скриншоты и не используйте приложения для записи экрана, пока отображается ваша мнемоническая фраза. Это может поставить под угрозу безопасность вашего кошелька.</string>
     <string name="Understand">Понятно</string>
-
 
 
     //resources OLD
@@ -184,7 +183,7 @@
     <string name="agree">Согласен</string>
     <string name="agree_autoexchange">Согласен на автообмен</string>
     <string name="notAgree">Не согласен</string>
-    <string name="createWallet">Создать кошелёк</string>
+    <string name="createWallet">Создать</string>
     <string name="createTransaction">Создать транзакцию</string>
     <string name="myClaims">Мои заявки</string>
     <string name="chooseChainType">Выберите тип блокчейна</string>

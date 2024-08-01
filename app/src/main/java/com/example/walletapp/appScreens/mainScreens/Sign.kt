@@ -1,7 +1,7 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,52 +10,76 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.TX
+import com.example.walletapp.PullToRefreshLazyColumn.PullToRefreshWithCustomIndicator
 import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
 
 @Composable
 fun Sign(viewModel: appViewModel) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = colorScheme.background)
-    ) {
-        TXScreens(viewModel = viewModel)
+
+    var isRefreshing by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.needSignTX(context){}
     }
+
+    PullToRefreshWithCustomIndicator(
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            viewModel.needSignTX(context){
+                isRefreshing = false
+            }
+        },
+        content = {
+            TXScreens(viewModel = viewModel)
+        }
+    )
 }
 
 @Composable
-fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
+fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
     val context = LocalContext.current
     val userAddress = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        userAddress.value = GetMyAddr(context) // Get the user's address
+        userAddress.value = GetMyAddr(context)
     }
 
-    val signingState = remember { mutableStateOf(SigningState.values().find { it.ordinal == tx.status } ?: SigningState.IDLE) }
     val showDialog = remember { mutableStateOf(false) }
     val rejectReason = remember { mutableStateOf("") }
 
@@ -64,21 +88,30 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
             onDismissRequest = { showDialog.value = false },
             title = { Text("Причина отказа") },
             text = {
-                Column {
-                    OutlinedTextField(
-                        value = rejectReason.value,
-                        onValueChange = { rejectReason.value = it },
-                        label = { Text("Причина") }
+                OutlinedTextField(
+                    value = rejectReason.value,
+                    onValueChange = { rejectReason.value = it },
+                    singleLine = true,
+                    maxLines = 1,
+                    shape = newRoundedShape,
+                    placeholder = {
+                        Text(text = "Напишите причину отказа", fontWeight = FontWeight.Light)
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = colorScheme.surface,
+                        focusedLabelColor = colorScheme.primary,
+                        unfocusedContainerColor = colorScheme.surface,
+                        unfocusedLabelColor = colorScheme.onBackground,
+                        cursorColor = colorScheme.primary
                     )
-                }
+                )
             },
             confirmButton = {
                 Button(onClick = {
                     showDialog.value = false
-                    signingState.value = SigningState.REJECTED
                     onReject(rejectReason.value)
                 }) {
-                    Text("Ок")
+                    Text(text = "Ок")
                 }
             },
             dismissButton = {
@@ -92,9 +125,9 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
     Card(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .border(width = 0.5.dp, color = colorScheme.primary, shape = roundedShape)
             .fillMaxWidth(),
-        shape = roundedShape,
+        shape = newRoundedShape,
+        border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface
         )
@@ -103,72 +136,105 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
             modifier = Modifier
                 .padding(all = 16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(
+                modifier = Modifier.weight(0.9f)
+            ) {
                 Text(
-                    text = "Info: ${tx.info}",
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = tx.info,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Normal,
                     overflow = TextOverflow.Ellipsis,
-                    color = colorScheme.onSurface
+                    color = colorScheme.onSurface,
+                    maxLines = 1
                 )
                 Text(
-                    text = "To: ${tx.to_addr}",
-                    style = MaterialTheme.typography.bodySmall,
+                    text = "To address: ${tx.to_addr}",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
-                    color = colorScheme.onSurface
+                    color = colorScheme.onSurface,
+                    maxLines = 1
                 )
                 Text(
-                    text = "Amount: ${tx.network}: ${tx.tx_value}",
-                    style = MaterialTheme.typography.bodySmall,
+                    text = "Amount: ${tx.tx_value} ${tx.token}",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
-                    color = colorScheme.onSurface
+                    color = colorScheme.onSurface,
+                    maxLines = 1
                 )
-                when (signingState.value) {
-                    SigningState.IDLE -> {
+
+                when (tx.status) {
+                    0 -> { // IDLE
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            Button(onClick = {
-                                signingState.value = SigningState.SIGNING
-                                onSign()
-                            }) {
+                            OutlinedButton(
+                                onClick = { onSign() },
+                                shape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp, topEnd = 0.dp, bottomEnd = 0.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = colorScheme.onSurface,
+                                    containerColor = colorScheme.surface
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 Text("Sign")
                             }
-                            Button(onClick = {
-                                showDialog.value = true
-                            }) {
+                            OutlinedButton(onClick = { showDialog.value = true },
+                                shape = RoundedCornerShape(topStart = 0.dp, bottomStart = 0.dp, topEnd = 24.dp, bottomEnd = 24.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = colorScheme.onSurface,
+                                    containerColor = colorScheme.surface
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 Text("Reject")
                             }
                         }
                     }
-                    SigningState.SIGNING -> {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            Text(text = "Ожидайте", color = colorScheme.onSurface)
-                            CircularProgressIndicator()
-                        }
-                    }
-                    SigningState.REJECTED -> {
+                    2 -> { // SIGNED
                         Text(
-                            text = "Отказано вами по причине: ${rejectReason.value}",
-                            style = MaterialTheme.typography.bodySmall,
+                            text = "Транзакция подписана вами",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Light,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2,
+                            color = colorScheme.primary
+                        )
+                    }
+                    3 -> { // REJECTED
+                        Text(
+                            text = "Отказано вами по причине: ${tx.deny}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Light,
+                            maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             color = colorScheme.error
                         )
                     }
-                    SigningState.SIGNED -> {
-                        Text(
-                            text = "Transaction signed",
-                            style = MaterialTheme.typography.bodySmall,
-                            overflow = TextOverflow.Ellipsis,
-                            color = colorScheme.primary
+                }
+            }
+
+            Column(
+                modifier = if(tx.status == 0) {Modifier} else {Modifier.weight(0.1f)},
+                verticalArrangement = Arrangement.Center
+            ){
+                when (tx.status) {
+                    2 -> {
+                        Icon(
+                            Icons.Rounded.Check,
+                            contentDescription = null,
+                            tint = colorScheme.error,
+                            modifier = Modifier.scale(1.4f)
                         )
                     }
-                    SigningState.WAITING -> {
-                        Text(
-                            text = "Ожидайте подписей",
-                            style = MaterialTheme.typography.bodySmall,
-                            overflow = TextOverflow.Ellipsis,
-                            color = colorScheme.onSurface
+                    3 -> {
+                        Icon(
+                            Icons.Rounded.Close,
+                            contentDescription = null,
+                            tint = colorScheme.error,
+                            modifier = Modifier.scale(1.4f)
                         )
                     }
                 }
@@ -177,30 +243,43 @@ fun SignItem(viewModel: appViewModel, tx: TX, onSign: () -> Unit, onReject: (Str
     }
 }
 
-enum class SigningState {
-    IDLE,
-    SIGNING,
-    REJECTED,
-    SIGNED,
-    WAITING
-}
+
 @Composable
 fun TXScreens(viewModel: appViewModel) {
     val txs by viewModel.allTX.observeAsState(initial = emptyList())
-    val context = LocalContext.current
+    val filteredTxs = txs.filter { it.status == 0 }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorScheme.background)
+    ) {
+        if(filteredTxs.isNotEmpty()){
+            items(filteredTxs) { tx ->
+                SignItem(
+                    tx = tx,
+                    onSign = { viewModel.signTransaction(tx.unid) },
+                    onReject = { reason ->
+                        viewModel.rejectTransaction(tx.unid, reason = reason)
 
-    LaunchedEffect(Unit) {
-        viewModel.needSignTX(context)
-    }
-
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(txs) { tx ->
-            SignItem(
-                viewModel = viewModel,
-                tx = tx,
-                onSign = { viewModel.signTransaction(tx.unid) },
-                onReject = { reason -> viewModel.rejectTransaction(tx.unid, reason = reason) }
-            )
+                    }
+                )
+            }
+        }else{
+            item {
+                Text(
+                    text = "You don't have any transactions that you need to sign!",
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.Light,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    fontSize = 14.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                ) 
+            }
         }
+        
     }
 }

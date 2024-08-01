@@ -19,6 +19,12 @@
         "description": "BitcoinTest, TronTest, EthereumTest...",
         "type": "CHECKBOX",
         "prefsKey": "show_test_networks"
+      },
+      {
+        "name": "Продвинутый пользователь",
+        "description": "Возможность в создании кошелька",
+        "type": "SWITCH",
+        "prefsKey": "advanced_user"
       }
     ]
   },
@@ -48,6 +54,28 @@
         "type": "ARROW",
         "prefsKey": "change_password"
       }
+    ]
+  },
+  {
+    "header": "Системные настройки",
+    "items": [
+      {
+        "name": "Сменить тему",
+        "description": "",
+        "type": "SWITCH",
+        "prefsKey": "change_theme"
+      },{
+        "name": "Сменить язык",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "change_language"
+      },{
+        "name": "Удалить аккаунт",
+        "description": "Удалить мой аккаунт и все мои данные с сервера",
+        "type": "ARROW",
+        "prefsKey": "delete_account"
+      }
+
     ]
   }
 ]

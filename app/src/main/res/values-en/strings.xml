@@ -26,10 +26,10 @@
     //action items
     <string name="action_transfer">Transfer</string>
     <string name="action_receive">Receive</string>
-    <string name="action_history">History</string>
+    <string name="action_sign_history">Sign history</string>
     <string name="action_create_wallet">Create Wallet</string>
     <string name="action_buy_crypto">Buy</string>
-    <string name="action_exchange_crypto">Exchange</string>
+    <string name="action_tx_history">Transactions</string>
     <string name="action_share_my_address">Share</string>
     <string name="action_signers">Signers</string>
     <string name="action_co_signer">Co-Signer</string>
@@ -75,7 +75,7 @@
     <string name="button_see_seed">Show Mnemonic Phrase</string>
     <string name="tap_seed_phrase">Collect the Mnemonic Phrase</string>
     <string name="write_seed_phrase">Write the Mnemonic Phrase</string>
-    <string name="seed_phrase_paste">You need to write the mnemonic phrase by hand, or press and hold to paste it into any cell</string>
+    <string name="seed_phrase_paste">You need to write the mnemonic phrase by hand, or press and hold to paste it into first cell</string>
 
     <string name="toast_write_seed_phrase">The entered phrase does not match</string>
 
@@ -101,8 +101,6 @@
     <string name="cybersecurity_title">Security Warning</string>
     <string name="cybersecurity_body">Do not take screenshots or use screen recording apps while your mnemonic phrase is displayed. This could compromise the security of your wallet.</string>
     <string name="Understand">Understand</string>
-
-
 
     //Resources OLD
     <string name="app_package_name">com.app.wallet2</string>
@@ -188,7 +186,7 @@
     <string name="agree">Agree</string>
     <string name="agree_autoexchange">Agree to auto-exchange</string>
     <string name="notAgree">Disagree</string>
-    <string name="createWallet">Create wallet</string>
+    <string name="createWallet">Create</string>
     <string name="createTransaction">Create transaction</string>
     <string name="myClaims">My requests</string>
     <string name="chooseChainType">Choose blockchain type</string>

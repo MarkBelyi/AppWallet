@@ -68,15 +68,15 @@ import androidx.navigation.NavHostController
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
-import com.example.walletapp.ui.theme.roundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.WalletUtils
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun Home(
     viewModel: appViewModel,
@@ -87,19 +87,46 @@ fun Home(
     onMatrixClick: () -> Unit,
     onSend: () -> Unit,
     onReceive: () -> Unit,
-    onHistory: () -> Unit,
+    onSignHistory: () -> Unit,
+    onPurchase: () -> Unit,
+    onTxHistory: () -> Unit,
     navController: NavHostController,
+    onCreateSimpleWalletClick: () -> Unit,
 ) {
+
     val context = LocalContext.current
+    val networks by viewModel.networks.observeAsState(initial = emptyList())
+    val sharedPreferences =
+        context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+
+
+    val advancedUser = sharedPreferences.getBoolean("advanced_user", false)
+
+    val coroutineScope = rememberCoroutineScope()
+
 
     var qrScanResult by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+
 
     val preventSecondBottomSheetReopening by remember { mutableStateOf(false) }
     var openQRBottomSheet by remember { mutableStateOf(false) }
     var openSecondBottomSheet by remember { mutableStateOf(false) }
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val secondBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    LaunchedEffect(networks) {
+        if (networks.isEmpty()) {
+            coroutineScope.launch {
+                viewModel.addNetworks(context = context)
+                viewModel.refreshNetworks()
+            }
+        }else{
+            coroutineScope.launch {
+                viewModel.refreshNetworks()
+            }
+        }
+    }
 
     LaunchedEffect(openSecondBottomSheet && !preventSecondBottomSheetReopening) {
         if (openSecondBottomSheet) {
@@ -113,6 +140,7 @@ fun Home(
             containerColor = colorScheme.surface,
             sheetState = qrBottomSheetState,
             onDismissRequest = { openQRBottomSheet = false },
+            tonalElevation = 0.dp,
             dragHandle = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -153,13 +181,13 @@ fun Home(
                         openSecondBottomSheet = false
                     }
                 },
-                navController = navController
+                onSend = {
+                    onSend()
+                }
             )
 
         }
     }
-
-    //var showKeyDialog by remember { mutableStateOf(false) }
 
     ConstraintLayout(
         modifier = Modifier
@@ -167,14 +195,14 @@ fun Home(
             .background(color = colorScheme.background)
             .padding(paddingColumn)
     ) {
-        val (gridRef, button, assetsWidget) = createRefs()
+        val (gridRef, assetsWidget) = createRefs()
 
         Column(
             modifier = Modifier
-                .background(color = colorScheme.surface, shape = roundedShape)
+                .background(color = colorScheme.surface, shape = newRoundedShape)
                 .fillMaxWidth()
                 .constrainAs(assetsWidget) {
-                    top.linkTo(parent.top, margin = 8.dp)
+                    top.linkTo(parent.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(gridRef.top)
@@ -182,21 +210,22 @@ fun Home(
         ) {
             val pageCount = 4
             val pagerState = rememberPagerState(pageCount = { pageCount })
-            val pages = listOf(Page.Assets, Page.Future0, Page.Future1, Page.Future2)
+            val pages = listOf(Page.Assets/*, Page.Future0, Page.Future1, Page.Future2*/)
 
             HorizontalPager(state = pagerState,
                 modifier = Modifier
                     .height(150.dp)
                     .fillMaxWidth()
+                    .background(color = colorScheme.surface, shape = newRoundedShape)
                     .align(alignment = Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
                 key = { it }
             ) { pageIndex ->
                 when (pages[pageIndex]) {
                     Page.Assets -> AssetsWidget(viewModel = viewModel)
-                    Page.Future0 -> Future(pageNum = pagerState.currentPage)
+                    /*Page.Future0 -> Future(pageNum = pagerState.currentPage)
                     Page.Future1 -> Future(pageNum = pagerState.currentPage)
-                    Page.Future2 -> Future(pageNum = pagerState.currentPage)
+                    Page.Future2 -> Future(pageNum = pagerState.currentPage)*/
                 }
             }
 
@@ -207,7 +236,8 @@ fun Home(
                 horizontalArrangement = Arrangement.Center
             ) {
                 items(pageCount) { iteration ->
-                    val color = if (pagerState.currentPage == iteration) Color.LightGray else Color.DarkGray
+                    val color =
+                        if (pagerState.currentPage == iteration) Color.LightGray else Color.DarkGray
                     Box(
                         modifier = Modifier
                             .padding(2.dp, bottom = 8.dp)
@@ -222,65 +252,38 @@ fun Home(
         ActionGrid(actionItems = actionItems, onItemClick = { itemName ->
             when (itemName) {
                 Actions.settings -> onSettingsClick()
-                Actions.QR -> {
-                    openQRBottomSheet = true
-                }
-
+                Actions.QR -> { openQRBottomSheet = true }
                 Actions.shareMyAddr -> onShareClick()
                 Actions.signers -> onSignersClick()
-                Actions.createWallet -> onCreateWalletClick()
+                Actions.createWallet -> if(advancedUser) onCreateWalletClick() else onCreateSimpleWalletClick()
                 Actions.send -> onSend()
                 Actions.recieve -> onReceive()
-                Actions.history -> onHistory()
+                Actions.signHistory -> onSignHistory()
+                Actions.buyCrypto -> onPurchase()
+                Actions.txHistory -> onTxHistory()
                 else -> onMatrixClick()
             }
         }, modifier = Modifier
             .constrainAs(gridRef) {
-                top.linkTo(assetsWidget.bottom, margin = 16.dp)
+                top.linkTo(assetsWidget.bottom, margin = 8.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-                bottom.linkTo(button.top)
+                bottom.linkTo(parent.bottom, margin = 8.dp)
                 width = Dimension.fillToConstraints
             }
         )
-
-        /*if (showKeyDialog) {
-            ShowKeyDialog(onDismiss = { showKeyDialog = false })
-        }
-
-        ElevatedButton(
-            onClick = {
-                showKeyDialog = true
-            },
-            shape = roundedShape,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp, max = 64.dp)
-                .constrainAs(button)
-                {
-                    top.linkTo(gridRef.bottom, margin = 16.dp)
-                    bottom.linkTo(parent.bottom)
-                },
-            colors = ButtonDefaults.elevatedButtonColors(
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary,
-            )
-        ) {
-            Text("Показать ключи")
-        }*/
-
     }
 }
 
 sealed class Page {
-    object Assets : Page()
-    object Future0 : Page()
-    object Future1 : Page()
-    object Future2 : Page()
+    data object Assets : Page()
+    /*data object Future0 : Page()
+    data object Future1 : Page()
+    data object Future2 : Page()*/
 }
 
 @Composable
-fun Future(pageNum: Int){
+fun Future(pageNum: Int) {
     Text(
         text = "Page: $pageNum",
         modifier = Modifier.fillMaxWidth()
@@ -290,9 +293,10 @@ fun Future(pageNum: Int){
 @Composable
 fun AssetsWidget(viewModel: appViewModel) {
 
-    Column (modifier = Modifier
-        .fillMaxWidth()
-    ){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         Text(
             text = "Мои Активы:",
             maxLines = 1,
@@ -315,7 +319,9 @@ fun BalancesView(viewModel: appViewModel) {
     val combinedBalances by viewModel.getCombinedBalances().observeAsState(initial = emptyMap())
 
     Column(modifier = Modifier.padding(4.dp)) {
-        if (combinedBalances.isEmpty()) {
+        val nonZeroBalances = combinedBalances.entries.filter { it.value != 0.0 }
+
+        if (nonZeroBalances.isEmpty()) {
             Text(
                 text = "У вас нет доступных активов!",
                 maxLines = 1,
@@ -327,16 +333,16 @@ fun BalancesView(viewModel: appViewModel) {
                     .padding(top = 8.dp)
                     .fillMaxWidth()
             )
-        }else{
+        } else {
             TableHeader()
-            if (combinedBalances.size > 3) {
+            if (nonZeroBalances.size > 3) {
                 LazyColumn {
-                    items(combinedBalances.entries.filter { it.value != 0.0 }) { entry ->
+                    items(nonZeroBalances) { entry ->
                         BalanceRow(entry.key, entry.value)
                     }
                 }
             } else {
-                combinedBalances.entries.filter { it.value != 0.0 }.forEach { entry ->
+                nonZeroBalances.forEach { entry ->
                     BalanceRow(entry.key, entry.value)
                 }
             }
@@ -403,46 +409,45 @@ fun ActionGrid(
     modifier: Modifier = Modifier
 ) {
     val columns = 3
-
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = modifier
-            .background(color = colorScheme.surface, shape = roundedShape),
+            .background(color = colorScheme.surface, shape = newRoundedShape),
     ) {
         items(actionItems) { actionItem ->
             ActionCell(
                 text = stringResource(actionItem.first),
                 imageVector = actionItem.second,
                 onClick = { onItemClick(actionItem.third) },
+                modifier = Modifier
             )
         }
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionCell(
     text: String,
     imageVector: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Card(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .aspectRatio(1.4f),
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface
         ),
-        shape = roundedShape,
+        shape = newRoundedShape,
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         interactionSource = interactionSource
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
         ) {
@@ -452,12 +457,12 @@ fun ActionCell(
                 Icon(
                     painter = painterResource(id = imageVector),
                     contentDescription = text,
-                    modifier = Modifier
+                    modifier = modifier
                         .scale(1.4f),
                     tint = colorScheme.primary
                 )
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(modifier.height(8.dp))
             Box(
                 contentAlignment = Alignment.Center
             ) {
@@ -490,25 +495,25 @@ fun SecondBottomSheetContent(
     qrResult: String?,
     context: Context,
     onHideButtonClick: () -> Unit,
-    navController: NavHostController
+    onSend: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .height(IntrinsicSize.Min)
-    )
-    {
+    ) {
         ElevatedButton(
             onClick = {
                 if (qrResult != null) {
                     onHideButtonClick()
-                    navController.navigate("${SendingRoutes.WALLETS}?address=$qrResult")
+                    viewModel.setQrResult(qrResult)
+                    onSend()
                 } else {
                     Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
                 }
             },
-            shape = roundedShape,
+            shape = newRoundedShape,
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp, max = 64.dp),
@@ -532,7 +537,7 @@ fun SecondBottomSheetContent(
                     Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
                 }
             },
-            shape = roundedShape,
+            shape = newRoundedShape,
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp, max = 64.dp),
@@ -547,6 +552,7 @@ fun SecondBottomSheetContent(
         Spacer(modifier = Modifier.height(48.dp))
     }
 }
+
 
 @Composable
 fun ShowKeyDialog(onDismiss: () -> Unit) {

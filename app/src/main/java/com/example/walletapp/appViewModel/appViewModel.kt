@@ -3,9 +3,8 @@ package com.example.walletapp.appViewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.net.Uri
+import android.content.res.Configuration
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,16 +21,15 @@ import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
-import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.Server.Getsign
 import com.example.walletapp.appScreens.mainScreens.Blockchain
-import com.example.walletapp.helper.DESCrypt
-import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
 import com.example.walletapp.parse.parseWallets
 import com.example.walletapp.registrationScreens.AuthMethod
 import com.example.walletapp.repository.AppRepository
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -46,9 +44,7 @@ import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.web3j.crypto.ECKeyPair
 import java.io.IOException
-import java.math.BigInteger
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -57,21 +53,117 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     @SuppressLint("StaticFieldLeak")
     private val context: Context = application.applicationContext
     private val sharedPreferences = application.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+    private val gson = Gson()
+    private val application = application
 
-    //SharedPreferences
+    //QR
+    private val _qrResult = MutableLiveData<String?>()
+    val qrResult: LiveData<String?> get() = _qrResult
+
+    fun setQrResult(result: String?) {
+        _qrResult.value = result
+    }
+
+    fun clearQrResult() {
+        _qrResult.value = null
+    }
+
+    //SharedPreferences - Theme
+    private val _isDarkTheme = MutableLiveData(getInitialThemePreference())
+    val isDarkTheme: LiveData<Boolean> get() = _isDarkTheme
+
+    private fun getInitialThemePreference(): Boolean {
+        val savedPreference = sharedPreferences.getBoolean("is_dark_theme", false)
+        return if (sharedPreferences.contains("is_dark_theme")) {
+            savedPreference
+        } else {
+            val currentNightMode = application.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+            when (currentNightMode) {
+                Configuration.UI_MODE_NIGHT_YES -> true
+                Configuration.UI_MODE_NIGHT_NO -> false
+                else -> false
+            }
+        }
+    }
+
+    private fun saveThemePreference(isDarkTheme: Boolean) {
+        sharedPreferences.edit().putBoolean("is_dark_theme", isDarkTheme).apply()
+    }
+
+    fun toggleTheme() {
+        val newTheme = _isDarkTheme.value?.not() ?: false
+        _isDarkTheme.value = newTheme
+        saveThemePreference(newTheme)
+    }
+
+    // SharedPreferences - Language
+    private val _isEnglishLanguage = MutableLiveData(getSavedLanguagePreference())
+    val isEnglishLanguage: LiveData<Boolean> get() = _isEnglishLanguage
+
+    private fun getSavedLanguagePreference(): Boolean {
+        return sharedPreferences.getBoolean("is_english_language", isSystemLanguageEnglish())
+    }
+
+    private fun saveLanguagePreference(isEnglishLanguage: Boolean) {
+        sharedPreferences.edit().putBoolean("is_english_language", isEnglishLanguage).apply()
+    }
+
+    internal fun isSystemLanguageEnglish(): Boolean {
+        val currentLocale = Locale.getDefault().language
+        return currentLocale == "en"
+    }
+
+    fun toggleLanguage() {
+        val newLanguage = _isEnglishLanguage.value?.not() ?: true
+        _isEnglishLanguage.value = newLanguage
+        saveLanguagePreference(newLanguage)
+        updateLocale(newLanguage)
+    }
+
+    private fun updateLocale(isEnglishLanguage: Boolean) {
+        val locale = if (isEnglishLanguage) {
+            Locale("en")
+        } else {
+            Locale("ru")
+        }
+        Locale.setDefault(locale)
+        val config = context.resources.configuration
+        config.setLocale(locale)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+    }
+
+    //AuthMethod
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
-    private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
+    val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
+
+    init {
+        _selectedAuthMethod.value = getAuthMethodFromPrefs()
+    }
 
     fun getAuthMethod(): LiveData<AuthMethod> = selectedAuthMethod
 
-    fun updateAuthMethod(authMethod: AuthMethod, context: Context) {
-        val prefs = context.getSharedPreferences("AuthPreferences", Context.MODE_PRIVATE)
-        prefs.edit().putString("AuthMethod", authMethod.name).apply()
+    fun setAuthMethod(authMethod: AuthMethod) {
         _selectedAuthMethod.value = authMethod
+        saveAuthMethodToPrefs(authMethod)
+    }
+
+    private fun saveAuthMethodToPrefs(authMethod: AuthMethod) {
+        val editor = sharedPreferences.edit()
+        val json = gson.toJson(authMethod)
+        editor.putString("auth_method", json)
+        editor.apply()
+    }
+
+    private fun getAuthMethodFromPrefs(): AuthMethod {
+        val json = sharedPreferences.getString("auth_method", null)
+        return if (json != null) {
+            gson.fromJson(json, object : TypeToken<AuthMethod>() {}.type)
+        } else {
+            AuthMethod.PASSWORD
+        }
     }
 
     private val _showTestNetworks = MutableLiveData<Boolean>()
-    val showTestNetworks: LiveData<Boolean> get() = _showTestNetworks
 
     init {
         _showTestNetworks.value = sharedPreferences.getBoolean("show_test_networks", false)
@@ -107,7 +199,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     val showWalletWithTestNetwork: LiveData<Boolean> get() = _showWalletWithTestNetwork
 
     // Wallets and Tx
-    val allWallets: LiveData<List<Wallets>> = repository.allWallets.asLiveData()
     private val _filteredWallets = MutableLiveData<List<Wallets>>()
     val filteredWallets: LiveData<List<Wallets>> get() = _filteredWallets
     private val _selectedBlockchain = MutableLiveData<Blockchain?>()
@@ -153,108 +244,9 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    fun storePrivateKey(context: Context, privateKey: ByteArray) {
-        val hexString = privateKey.joinToString("") { "%02x".format(it) }
-        val ps = PasswordStorageHelper(context)
-        ps.setData("MyPrivateKey", hexString.toByteArray(Charsets.UTF_8))
-        Log.e("storeKey", "Storing Private Key (Hex): $hexString")
-    }
-
-    fun retrievePrivateKey(context: Context): ByteArray? {
-        val ps = PasswordStorageHelper(context)
-        val hexString = ps.getData("MyPrivateKey") ?: return null
-        val hexStringStr = String(hexString, Charsets.UTF_8).replace(Regex("[^0-9a-fA-F]"), "")
-        Log.e("retrieveKey", "Retrieved Private Key (Hex, sanitized): $hexStringStr")
-        return hexStringStr.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
-    }
-
-    fun exportKey(context: Context, uri: Uri) {
-        try {
-            Log.d("exportKey", "Entered exportKey function")
-            val outputStream = context.contentResolver.openOutputStream(uri)!!
-            val privKey = retrievePrivateKey(context)
-
-            if (privKey == null) {
-                Log.e("exportKey", "Private key is null")
-                return
-            }
-
-            val realPriv = BigInteger(1, privKey).toString(16)
-            Log.d("exportKey", "Real Private Key (Hex): $realPriv")
-
-            val encrypt = DESCrypt.encrypt(realPriv)
-            Log.d("exportKey", "Encrypted Key: ${encrypt.joinToString()}")
-
-            outputStream.write(encrypt)
-            outputStream.flush()
-            outputStream.close()
-        } catch (e: Exception) {
-            Log.e("exportKey", "Exception in exportKey: ${e.message}")
-        }
-    }
-
-    fun importKey(context: Context, uri: Uri) {
-        try {
-            Log.e("importKey", "Entered importKey function")
-            val inputStream = context.contentResolver.openInputStream(uri)!!
-            val bytes = inputStream.readBytes()
-            inputStream.close()
-
-            Log.e("import", "Read Encrypted Key: ${bytes.joinToString()}")
-            Toast.makeText(context, "Read Encrypted Key: ${bytes.joinToString()}", Toast.LENGTH_LONG).show()
-
-            val decrypt = DESCrypt.decrypt(bytes)
-            val text = String(decrypt, Charsets.UTF_8).trim()
-            Log.e("import", "Decrypted text: $text")
-            Toast.makeText(context, "Decrypted text: $text", Toast.LENGTH_LONG).show()
-
-            if (!isBigInteger(text)) {
-                Log.e("import", "Invalid key format: $text")
-                Toast.makeText(context, "Invalid key format: $text", Toast.LENGTH_LONG).show()
-                Toast.makeText(context, "Invalid key format", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            val k: ECKeyPair = ECKeyPair.create(BigInteger(text, 16))
-
-            val ps = PasswordStorageHelper(context)
-            val hexPrivateKey = k.privateKey.toString(16)
-            ps.setData("MyPrivateKey", hexPrivateKey.toByteArray(Charsets.UTF_8))
-            ps.setData("MyPublicKey", k.publicKey.toString(16).toByteArray(Charsets.UTF_8))
-            Log.e("importKey", "Storing Private Key (Hex): $hexPrivateKey")
-
-            Toast.makeText(context, "Import completed", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Log.e("importKey", "Exception in importKey: ${e.message}")
-            Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun isBigInteger(str: String): Boolean {
-        return try {
-            BigInteger(str)
-            true
-        } catch (e: NumberFormatException) {
-            Log.e("isBigInteger", "Invalid BigInteger format: $str")
-            false
-        }
-    }
-
-    fun filterWalletsByNetwork(network: Int, testNetwork: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _filteredWallets.postValue(repository.getWalletsByNetwork(network, testNetwork))
-        }
-    }
-
     fun filterWalletsByName(name: String) {
         viewModelScope.launch(Dispatchers.IO) {
             _filteredWallets.postValue(repository.getWalletsByName(name))
-        }
-    }
-
-    fun getAllWallets() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _filteredWallets.postValue(repository.fetchAllWallets())
         }
     }
 
@@ -268,6 +260,12 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
+    fun updateTransactionRejectReason(unid: String, reason: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateTransactionRejectReason(unid, reason)
+        }
+    }
+
     fun createNewWallet(
         context: Context,
         signerKeys: List<String>,
@@ -278,7 +276,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val EC = signerKeys
-                .filter { !it.isNullOrEmpty() }
+                .filter { /*!it.isNullOrEmpty()*/ it.isNotEmpty() }
                 .toList()
 
             var ss = ""
@@ -302,13 +300,17 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
 
-    // Method to fetch transactions and update their status based on server response
-    fun needSignTX(context: Context) = viewModelScope.launch(Dispatchers.IO) {
+    fun needSignTX(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         val apiResponse = GetAPIString(context, "tx_by_ec")
+        withContext(Dispatchers.Main) {
+            onComplete()
+        }
         if (apiResponse.isNotEmpty()) {
             try {
                 val transactions = JSONArray(apiResponse)
                 val txList = mutableListOf<TX>()
+                //val myAddress = GetMyAddr(context) // Получение адреса пользователя
+
                 for (i in 0 until transactions.length()) {
                     val txJson = transactions.getJSONObject(i)
                     val tokenParts = txJson.optString("token", "").split(":::")
@@ -326,7 +328,19 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         waitList.joinToString(",")
                     } ?: ""
 
-                    val status = if (waitEC.contains(GetMyAddr(context))) 1 else 5
+                    val signedEC = txJson.optJSONArray("signed")?.let { signedArray ->
+                        val signedList = mutableListOf<String>()
+                        for (j in 0 until signedArray.length()) {
+                            val signedObject = signedArray.optJSONObject(j)
+                            if (signedObject != null) {
+                                signedList.add(signedObject.optString("ecaddress", ""))
+                            }
+                        }
+                        signedList.joinToString(",")
+                    } ?: ""
+
+                    // Проверка, является ли пользователь подписантом
+                    //if (!waitEC.contains(myAddress)) continue
 
                     val tx = TX(
                         unid = txJson.optString("unid", ""),
@@ -334,16 +348,15 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         tx = txJson.optString("tx", ""),
                         minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1,
                         waitEC = waitEC,
-                        signedEC = "",
+                        signedEC = signedEC,
                         network = networkToken.toIntOrNull() ?: 0,
                         token = tokenId,
                         to_addr = txJson.optString("to_addr", ""),
                         info = txJson.optString("info", ""),
-                        tx_value = txJson.optString("value", "0").replace(",", "").toDouble(),
-                        value_hex = txJson.optString("value_hex", "0"),
+                        tx_value = txJson.optString("tx_value", "0").replace(",", "").toDouble(),
                         init_ts = txJson.optLong("init_ts", 0L).toInt(),
                         eMSG = "",
-                        status = status
+                        status = 0
                     )
                     txList.add(tx)
                 }
@@ -378,6 +391,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
             Log.d("TransactionRequest", "Response for rejecting transaction $txUnid: $response")
             withContext(Dispatchers.Main) {
                 updateTransactionStatus(txUnid, 3)
+                updateTransactionRejectReason(txUnid, reason)
             }
         } catch (e: Exception) {
             Log.e("TransactionError", "Error rejecting transaction $txUnid with reason $reason", e)
@@ -407,6 +421,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         waitList.joinToString(",")
                     } ?: ""
 
+                    val currentStatus = repository.getTransactionStatus(txJson.optString("unid", "")) ?: 0
+
                     val tx = TX(
                         unid = txJson.optString("unid", ""),
                         id = txJson.optInt("id", 0), // Парсинг ID
@@ -421,6 +437,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
                         value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
                         init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
+                        status = currentStatus,
                         eMSG = "",
                     )
                     txList.add(tx)
@@ -515,11 +532,11 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                             network = token.network_id,
                             token = token.name,
                             to_addr = address,
-                            info = wallet.info,
+                            info = info,
                             tx_value = formattedAmount.toDouble(),
                             from = wallet.name
                         )
-                        repository.insertTransaction(tx)
+                        //repository.insertTransaction(tx)
                         println("Transaction ID saved to database successfully.")
                     }
                 }
@@ -730,7 +747,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     fun addNewSignerFromQR(result: String) {
-        val newSigner = Signer(name = "Новый Подписант", address = result, email = "", type = 0, telephone = "")
+        val newSigner = Signer(name = "Новый Подписант", address = result, email = "", type = 0, telephone = "", isFavorite = false)
         insertSigner(newSigner)
     }
 
@@ -753,6 +770,14 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         val jsonString = GetAPIString(context, "netlist/1")
         val loadedNetworks = parseNetworks(jsonString)
         repository.addNetworks(loadedNetworks)
+    }
+
+
+    //DataBase
+    fun clearDataBase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.clearDataBase()
+        }
     }
 }
 

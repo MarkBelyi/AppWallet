@@ -38,14 +38,14 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
 import com.example.walletapp.DataBase.Entities.Signer
+import com.example.walletapp.Element.CheckboxWithText
+import com.example.walletapp.Element.MnemonicPhraseGrid
+import com.example.walletapp.Element.MnemonicTitleWithIcon
+import com.example.walletapp.Element.ShareMnemonicPhrase
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.elements.checkbox.CheckboxWithText
-import com.example.walletapp.elements.checkbox.MnemonicPhraseGrid
-import com.example.walletapp.elements.checkbox.MnemonicTitleWithIcon
-import com.example.walletapp.elements.checkbox.ShareMnemonicPhrase
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
@@ -55,14 +55,14 @@ import org.web3j.crypto.WalletUtils
 import java.security.SecureRandom
 
 @Composable
-/**Экран СОЗДАНИЯ ключевой пары*/
+        /**Экран СОЗДАНИЯ ключевой пары*/
 fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: appViewModel, navHostController: NavHostController, onNextClick: (Boolean) -> Unit){
     val context = LocalContext.current
     val ps = PasswordStorageHelper(context)
-    val initialEntropy = SecureRandom.getSeed(16)
-    //Потом из них генерим мнемоническую фразу
-    val mnemonic = MnemonicUtils.generateMnemonic(initialEntropy)
-    // Преобразуем строку мнемонической фразы в список слов:
+
+    // Используем remember для хранения начальной энтропии и мнемонической фразы
+    val initialEntropy = remember { SecureRandom.getSeed(16) }
+    val mnemonic = remember { MnemonicUtils.generateMnemonic(initialEntropy) }
     val mnemonicList: List<String> = mnemonic.split(" ")
 
     viewModelReg.setMnemonicList(mnemonicList)
@@ -116,7 +116,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
         }
 
 
-       // Заголовок
+        // Заголовок
         MnemonicTitleWithIcon(
             modifier = Modifier.constrainAs(titleRef) { // Применяем ограничения
                 top.linkTo(parent.top, margin = 32.dp)
@@ -167,7 +167,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
                 showWords = true
             }
         )
-        
+
         if (isPhraseSent) {
             CheckboxWithText(
                 text = stringResource(id = R.string.i_save_seed),
@@ -189,7 +189,7 @@ fun CreateSeedPhraseScreen(viewModelReg: RegistrationViewModel, viewModelApp: ap
                     val restoreCredentials : Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on", mnemonic)
                     ps.setData("MyPrivateKey", restoreCredentials.ecKeyPair.privateKey.toByteArray())
                     ps.setData("MyPublicKey", restoreCredentials.ecKeyPair.publicKey.toByteArray())
-                    viewModelApp.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context)))
+                    viewModelApp.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
                     navHostController.navigate("App")
                 } else if (showWords) {
                     onNextClick(true)
@@ -242,14 +242,15 @@ fun DividerWithText(text: String, modifier: Modifier) {
 fun ShowWarningDialog(showDialog: Boolean, onDismiss: () -> Unit, onAgree: () -> Unit) {
     var agreementText by remember { mutableStateOf("") }
     val isAgreementCorrect = remember(agreementText) {
-                agreementText.equals("Согласен", ignoreCase = true) ||
+        agreementText.equals("Согласен", ignoreCase = true) ||
                 agreementText.equals("Согласна", ignoreCase = true) ||
                 agreementText.equals("Yes", ignoreCase = true) ||
-                agreementText.equals("Agree", ignoreCase = true)
+                agreementText.equals("Agree", ignoreCase = true) ||
+                agreementText.equals("Да", ignoreCase = true)
     }
 
     if (showDialog) {
-       AlertDialog(
+        AlertDialog(
             onDismissRequest = { onDismiss() },
             title = {
                 Text(
@@ -263,7 +264,7 @@ fun ShowWarningDialog(showDialog: Boolean, onDismiss: () -> Unit, onAgree: () ->
                         text = stringResource(id = R.string.seed_phrase_alert_text),
                         fontWeight = FontWeight.Light,
                         color = colorScheme.onSurface
-                        )
+                    )
                     TextField(
                         value = agreementText,
                         onValueChange = { agreementText = it },

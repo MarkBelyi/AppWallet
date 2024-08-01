@@ -21,11 +21,13 @@ interface SignerDao{
     suspend fun deleteSigner(signer: Signer)
 
     @Query("SELECT COUNT(*) FROM signers")
-    //Добавил suspend
     suspend fun getCount(): Int
 
     @Query("SELECT * FROM signers WHERE address = :address LIMIT 1")
     suspend fun getSignerAddress(address: String): Signer?
+
+    @Query("SELECT * FROM signers ORDER BY isFavorite DESC, name ASC")
+    fun getSigners(): Flow<List<Signer>>
 
     @Query("SELECT * FROM signers ORDER BY address ASC")
     fun getSignersByAddress(): Flow<List<Signer>>
@@ -35,4 +37,7 @@ interface SignerDao{
 
     @Query("SELECT * FROM signers ORDER BY telephone ASC")
     fun getSignersByTelephone(): Flow<List<Signer>>
+
+    @Query("DELETE FROM signers")
+    fun clearSigners()
 }

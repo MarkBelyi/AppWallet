@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
@@ -55,7 +55,6 @@ fun AddSignerScreen(
 ) {
     val focusManager = LocalFocusManager.current
 
-    //val scope = rememberCoroutineScope()
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openQRBottomSheet by remember { mutableStateOf(false) }
 
@@ -63,6 +62,9 @@ fun AddSignerScreen(
     var address by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var telephone by remember { mutableStateOf("") }
+
+    //AlertDialog для подтверждения сохранения изменений
+    //TODO(сделать AlertDialog для подтверждения сохранения изменений создания нового подписанта)
 
     fun updateState(updateFunc: (String) -> Unit): (String) -> Unit = { newValue ->
         updateFunc(newValue)
@@ -99,7 +101,6 @@ fun AddSignerScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Add Signer", color = colorScheme.onSurface) },
-                //modifier = Modifier.shadow(elevation = 10.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface,
@@ -107,7 +108,7 @@ fun AddSignerScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
-                        Icon(Icons.Rounded.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                     }
                 }
             )
@@ -158,7 +159,7 @@ fun AddSignerScreen(
                 keyboardActions = KeyboardActions(onDone = {
                     // Действие для кнопки "Done"
                     focusManager.clearFocus() // Скрывает клавиатуру
-                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address))
+                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address, isFavorite = false))
                     onBackClick()
                 })
             )
@@ -167,7 +168,7 @@ fun AddSignerScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 48.dp, max = 64.dp),
-                shape = roundedShape,
+                shape = newRoundedShape,
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = colorScheme.primary,
                     contentColor = colorScheme.onPrimary,
@@ -175,7 +176,7 @@ fun AddSignerScreen(
                     disabledContentColor = colorScheme.onPrimaryContainer
                 ),
                 onClick = {
-                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address))
+                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address, isFavorite = false))
                     onBackClick()
                 }
             ) {
@@ -205,12 +206,14 @@ fun CustomOutlinedTextField(
                 color = Color.Gray
             ) },
         singleLine = true,
-        shape = roundedShape,
+        shape = newRoundedShape,
         colors = TextFieldDefaults.colors(
             focusedTextColor = colorScheme.onSurface,
             unfocusedTextColor = colorScheme.onSurface,
             focusedContainerColor = colorScheme.surface,
-            unfocusedContainerColor = colorScheme.surface
+            unfocusedContainerColor = colorScheme.surface,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
         ),
         maxLines = 1,
         keyboardOptions = keyboardOptions,

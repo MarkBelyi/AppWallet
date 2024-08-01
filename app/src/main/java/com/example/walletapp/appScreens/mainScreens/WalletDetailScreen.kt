@@ -5,18 +5,25 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,30 +49,86 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
 import org.json.JSONObject
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit) {
+fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit, onTransactionsClick: () -> Unit) {
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
     val context = LocalContext.current
-    val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.first() == '1') }
+    val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.isNotEmpty() && wallet.myFlags.first() == '1') }
     var isLoading by remember { mutableStateOf(false) }
+    var showHiddenDialog by remember { mutableStateOf(false) }
+
+    // Показ диалогового окна для подтверждения скрытия кошелька
+    if (showHiddenDialog) {
+        HiddenItemAlertDialog(isHidden = isHidden, onDismiss = { confirm ->
+            showHiddenDialog = false
+            if (confirm) {
+                isLoading = true
+                val newFlags = if (isHidden) {
+                    '0' + wallet.myFlags.substring(1)
+                } else {
+                    '1' + wallet.myFlags.substring(1)
+                }
+                viewModel.updateWalletFlags(wallet.myUNID, newFlags) {
+                    isLoading = false
+                    setIsHidden(!isHidden)
+                }
+            }
+        })
+    }
 
     BackHandler(onBack = onBack)
     
     Scaffold(
-        containerColor = colorScheme.inverseSurface,
+        containerColor = colorScheme.background,
+        modifier = Modifier
+            .fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = wallet.info, color = colorScheme.onSurface, fontWeight = FontWeight.Light) },
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier.fillMaxSize()
+                    ){
+                        if(wallet.network in listOf(5010, 1010, 3040)){
+                            Card(
+                                shape = newRoundedShape,
+                                border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = colorScheme.surface,
+                                    contentColor = colorScheme.onSurface
+                                )
+                            ) {
+                                Text(
+                                    text = "TEST",
+                                    maxLines = 1,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    modifier = Modifier.padding(horizontal = 12.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = wallet.info,
+                            color = colorScheme.onSurface,
+                            fontWeight = FontWeight.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface
                 ),
@@ -82,7 +145,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     }
                 },
                 actions = {
-                    IconButton(
+                    /*IconButton(
                         onClick = {
                             isLoading = true
                             val newFlags = if (isHidden) {
@@ -94,6 +157,21 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                                 isLoading = false
                                 setIsHidden(!isHidden)
                             }
+                        }
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = colorScheme.onSurface)
+                        } else {
+                            Icon(
+                                painter = if (isHidden) painterResource(id = R.drawable.ic_baseline_visibility_off_24) else painterResource(id = R.drawable.ic_baseline_visibility_24),
+                                contentDescription = "Toggle Visibility",
+                                tint = colorScheme.onSurface
+                            )
+                        }
+                    }*/
+                    IconButton(
+                        onClick = {
+                            showHiddenDialog = true
                         }
                     ) {
                         if (isLoading) {
@@ -117,8 +195,10 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                 .padding(padding)
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
         ) {
+
             items(1) {
-                Text(text = "Адрес кошелька:", fontSize = 16.sp, color = colorScheme.onSurface)
+
+                Text(text = "Адрес кошелька:", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -127,7 +207,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     onValueChange = {},
                     textStyle = TextStyle(color = colorScheme.onSurface),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = roundedShape,
+                    shape = newRoundedShape,
                     readOnly = true,
                     singleLine = true,
                     maxLines = 1,
@@ -153,7 +233,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = "Подписанты:", fontSize = 16.sp, color = colorScheme.onSurface)
+                Text(text = "Подписанты:", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -161,21 +241,62 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = "Баланс:", fontSize = 16.sp, color = colorScheme.onSurface)
+                Text(text = "Баланс:", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = wallet.tokenShortNames.split(';').joinToString("\n"),
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorScheme.surface, shape = newRoundedShape)
+                        .padding(8.dp),
+                ){
+                    Text(
+                        text = wallet.tokenShortNames.split(';').joinToString("\n"),
+                        modifier = Modifier
+                            .padding(8.dp),
+                        fontSize = 14.sp,
+                        color = colorScheme.onSurface
+                    )
+
+                }
+
+
+
+                /*Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = colorScheme.surface, shape = roundedShape)
-                        .padding(8.dp),
-                    fontSize = 14.sp,
-                    color = colorScheme.onSurface
-                )
+                ) {
+                    Text(
+                        text = wallet.tokenShortNames.split(';').joinToString("\n"),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        fontSize = 14.sp,
+                        color = colorScheme.onSurface
+                    )
 
+                    Spacer(modifier = Modifier.weight(1f))
 
+                    IconButton(
+                        onClick = { *//*onTransactionScreen()*//* },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        enabled = true,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.send_light),
+                            contentDescription = "send_transaction",
+                            modifier = Modifier.scale(1.5f),
+                            tint = colorScheme.primary
+                        )
+                    }
+                }*/
 
             }
         }
@@ -184,6 +305,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
 @Composable
 fun AddressList(slist: String, signers: List<Signer>) {
+
     val slistJson = JSONObject(slist)
     val addresses = mutableListOf<String>()
 
@@ -205,46 +327,66 @@ fun AddressList(slist: String, signers: List<Signer>) {
         horizontalAlignment = Alignment.Start,
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = colorScheme.surface, shape = roundedShape)
-            .padding(8.dp),
+            .background(color = colorScheme.surface, shape = newRoundedShape)
+            .padding(12.dp),
     ) {
         addresses.forEachIndexed { index, address ->
             Text(
                 text = "${index + 1}. $address",
                 fontSize = 14.sp,
-                color = colorScheme.onSurface
+                color = colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
     }
+
 }
 
-/*
 @Composable
-fun HiddenItemAlertDialog(isHidden: Boolean, flags: String, onDismiss: () -> Unit, ){
+fun HiddenItemAlertDialog(isHidden: Boolean, onDismiss: (Boolean) -> Unit) {
     AlertDialog(
-        onDismissRequest = {
-            onDismiss() },
+        onDismissRequest = { onDismiss(false) },
         confirmButton = {
-            Text(text = "Yes", fontSize = 12.sp, fontWeight = FontWeight.Light, color = colorScheme.onSurface)
+            Text(
+                text = "Yes",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface,
+                modifier = Modifier.clickable { onDismiss(true) }.padding(16.dp)
+            )
         },
         dismissButton = {
-            Text(text = "No", fontSize = 12.sp, fontWeight = FontWeight.Light, color = colorScheme.onSurface)
+            Text(
+                text = "No",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface,
+                modifier = Modifier.clickable { onDismiss(false) }.padding(16.dp)
+            )
         },
         title = {
-            Text(text = "Скрытый кошелек", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
+            Text(
+                text = if (isHidden) "Показать кошелек" else "Скрытый кошелек",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onSurface
+            )
         },
         text = {
-            Text(text = "Вы действительно хотите скрыть этот кошелек?", fontSize = 14.sp, fontWeight = FontWeight.Light, color = colorScheme.onSurface)
+            Text(
+                text = if (isHidden) "Вы действительно больше не хотите скрывать этот кошелек?" else "Вы действительно хотите скрыть этот кошелек?",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
+            )
         },
         containerColor = colorScheme.surface,
         textContentColor = colorScheme.onSurface,
         titleContentColor = colorScheme.onSurface,
         shape = newRoundedShape,
         tonalElevation = 0.dp,
-        modifier = Modifier.border(width = 0.5.dp, color = colorScheme.primary, shape = newRoundedShape)
-
     )
 }
-*/
 

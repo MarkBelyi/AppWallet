@@ -7,6 +7,8 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,6 +17,7 @@ import com.example.walletapp.DataBase.DataBase
 import com.example.walletapp.Settings.AuthModalBottomSheet
 import com.example.walletapp.activity.AppActivity
 import com.example.walletapp.activity.RegistrationActivity
+import com.example.walletapp.activity.SignerModeActivity
 import com.example.walletapp.appViewModel.AppViewModelFactory
 import com.example.walletapp.appViewModel.RegistrationViewModel
 import com.example.walletapp.appViewModel.appViewModel
@@ -48,10 +51,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            WalletAppTheme {
+            val isDarkTheme by appViewModel.isDarkTheme.observeAsState(false)
+
+            WalletAppTheme(isDarkTheme) {
                 val registrationViewModel: RegistrationViewModel by viewModels()
                 val navController = rememberNavController()
-                val startDestination = if (hasVisitedApp()) "App" else "Registration"
+                val startDestination = if (hasVisitedApp()){
+                    if(getElectronicApprovalEnabled()){
+                        "SignerMode"
+                    }
+                    else "App"
+                }  else {
+                    "Registration"
+                }
 
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("Registration") {
@@ -65,9 +77,14 @@ class MainActivity : AppCompatActivity() {
                     composable("App") {
                         AppActivity(
                             activity = this@MainActivity,
-                            viewModel = appViewModel
+                            viewModel = appViewModel,
+                            navHostController = navController,
                         )
                     }
+                    composable("SignerMode"){
+                        SignerModeActivity(activity = this@MainActivity, navHostController = navController, viewModel = appViewModel)
+                    }
+                    
                 }
 
                 // Включаем AuthModalBottomSheet в основной тематический контент
@@ -103,6 +120,11 @@ class MainActivity : AppCompatActivity() {
             putBoolean("continuous_authorization", enabled)
             apply()
         }
+    }
+
+    private fun getElectronicApprovalEnabled():Boolean{
+        val sharedPrefs = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+        return sharedPrefs.getBoolean("electronic_approval", false)
     }
 
     private fun requestAuth() {

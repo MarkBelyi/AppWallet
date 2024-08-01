@@ -69,6 +69,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
     implementation("androidx.wear.compose:compose-material:1.3.1")
     implementation("androidx.compose.material3:material3-android:1.2.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose-android:2.8.3")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

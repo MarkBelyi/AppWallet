@@ -11,12 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,12 +38,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.ui.theme.roundedShape
+import com.example.walletapp.ui.theme.newRoundedShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +53,7 @@ fun SignersScreen(
     onBackClick: () -> Unit
 ) {
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
+    val sortedSigners = signers.sortedWith(compareByDescending<Signer> { it.isFavorite }.thenBy { it.name })
 
     Scaffold(
         containerColor = colorScheme.background,
@@ -66,7 +67,7 @@ fun SignersScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
-                        Icon(Icons.Rounded.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                     }
                 }
             )
@@ -77,10 +78,15 @@ fun SignersScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(8.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            items(signers) { signer ->
+            item {
+                AddSignerCard(
+                    onClick = { onAddSignerClick() }
+                )
+            }
+            items(sortedSigners) { signer ->
                 SignerItem(
                     signer = signer,
                     viewModel = viewModel,
@@ -89,23 +95,16 @@ fun SignersScreen(
                     }
                 )
             }
-            item {
-                AddSignerCard(
-                    onClick = { onAddSignerClick() }
-                )
-            }
-
         }
 
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Unit) {
     Card(
         onClick = {onClick(signer.address)},
-        shape = roundedShape,
+        shape = newRoundedShape,
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface,
             contentColor = colorScheme.onSurface
@@ -117,6 +116,27 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                IconButton(
+                    onClick = {
+                        val updatedSigner = signer.copy(isFavorite = !signer.isFavorite)
+                        viewModel.updateSigner(updatedSigner)
+                    },
+                    modifier = Modifier
+                        .scale(1.2f)
+                        .alpha(0.9f),
+                ) {
+                    Icon(
+                        imageVector = if (signer.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = if (signer.isFavorite) "Remove from favorites" else "Add to favorites",
+                        tint = colorScheme.primary
+                    )
+                }
+            }
+
 
             Column(
                 modifier = Modifier
@@ -183,7 +203,6 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSignerCard(onClick: () -> Unit) {
 
@@ -193,12 +212,12 @@ fun AddSignerCard(onClick: () -> Unit) {
     ){
         Card(
             modifier = Modifier
-                .width(48.dp)
                 .height(48.dp), // Высота карточки
-            shape = roundedShape,
+            shape = newRoundedShape,
             colors = CardDefaults.cardColors(
                 containerColor = colorScheme.surface
             ),
+            border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
             onClick = onClick
         ) {
             Box(

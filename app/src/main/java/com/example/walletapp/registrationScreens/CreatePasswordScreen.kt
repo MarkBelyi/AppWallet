@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import com.example.walletapp.Element.ClickableText
 import com.example.walletapp.Element.CustomButton
 import com.example.walletapp.Element.PasswordAlertDialog
+import com.example.walletapp.Element.PasswordFieldWithLabel
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.elements.checkbox.PasswordFieldWithLabel
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.ui.theme.paddingColumn
 
@@ -101,7 +101,7 @@ fun CreatePasswordScreen(
             text = stringResource(id = R.string.using_pin_code),
             onClick = {
                 onPinCodeClick()
-                viewModel.updateAuthMethod(AuthMethod.PINCODE, context = context)
+                viewModel.setAuthMethod(authMethod = AuthMethod.PINCODE)
             }
         )
 
@@ -109,10 +109,10 @@ fun CreatePasswordScreen(
 
         CustomButton(
             text = stringResource(id = R.string.button_continue),
-            enabled = isPasswordValid,
+            enabled = true,
             onClick = {
                 if (isPasswordValid) {
-                    viewModel.updateAuthMethod(AuthMethod.PASSWORD, context = context)
+                    viewModel.setAuthMethod(authMethod = AuthMethod.PASSWORD)
                     Toast.makeText(context, R.string.password_saved, Toast.LENGTH_SHORT).show()
                     passwordStorageHelper.setData("MyPassword", passwordValue.toByteArray())
                     onNextAction()

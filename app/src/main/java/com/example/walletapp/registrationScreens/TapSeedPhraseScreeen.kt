@@ -144,7 +144,8 @@ fun TapSeedPhraseScreen(navHostController: NavHostController, viewModelReg: Regi
                         email = "",
                         telephone = "",
                         type = 1,
-                        address = GetMyAddr(context)
+                        address = GetMyAddr(context),
+                        isFavorite = false
                     )
                 )
             },
@@ -230,7 +231,7 @@ fun Tap(wordsList: List<String>, isContinueEnabled: MutableState<Boolean>, viewM
 
     @Composable
     fun SmallWordBox(word: String?, onClick: () -> Unit) {
-        val textColor = if (word in initiallyBottomWords) colorScheme.secondary else colorScheme.onSurface
+        val textColor = if (word in initiallyBottomWords) colorScheme.primary else colorScheme.onSurface
         Box(
             modifier = Modifier
                 .border(

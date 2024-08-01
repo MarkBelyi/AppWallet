@@ -12,7 +12,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.ui.unit.IntOffset
 
 class MyAnimations {
-    @OptIn(ExperimentalAnimationApi::class)
     fun slideTransitionSpec(): ContentTransform {
         val animationSpec = tween<IntOffset>(durationMillis = 500, easing = FastOutSlowInEasing)
         return (slideInHorizontally(animationSpec = animationSpec) { fullWidth -> fullWidth } + fadeIn(animationSpec = tween(500))).togetherWith(

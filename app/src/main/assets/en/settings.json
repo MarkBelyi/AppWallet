@@ -19,6 +19,12 @@
         "description": "BitcoinTest, TronTest, EthereumTest...",
         "type": "CHECKBOX",
         "prefsKey": "show_test_networks"
+      },
+      {
+        "name": "Advanced User",
+        "description": "Opportunity for creating wallet",
+        "type": "SWITCH",
+        "prefsKey": "advanced_user"
       }
     ]
   },
@@ -47,6 +53,27 @@
         "description": "",
         "type": "ARROW",
         "prefsKey": "change_password"
+      }
+    ]
+  },
+  {
+    "header": "System settings",
+    "items": [
+      {
+        "name": "Change Theme",
+        "description": "",
+        "type": "SWITCH",
+        "prefsKey": "change_theme"
+      },{
+        "name": "Change Language",
+        "description": "",
+        "type": "ARROW",
+        "prefsKey": "change_language"
+      }, {
+        "name": "Delete Account",
+        "description": "Delete my account and all my data from the server",
+        "type": "ARROW",
+        "prefsKey": "delete_account"
       }
     ]
   }
