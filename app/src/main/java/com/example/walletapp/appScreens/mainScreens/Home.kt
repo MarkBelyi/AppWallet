@@ -64,7 +64,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.navigation.NavHostController
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
@@ -90,17 +89,15 @@ fun Home(
     onSignHistory: () -> Unit,
     onPurchase: () -> Unit,
     onTxHistory: () -> Unit,
-    navController: NavHostController,
+    onCreateSimpleWalletClick: () -> Unit,
 ) {
-
     val networks by viewModel.networks.observeAsState(initial = emptyList())
-
     val coroutineScope = rememberCoroutineScope()
-
     val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+    val advancedUser = sharedPreferences.getBoolean("advanced_user", false)
 
     var qrScanResult by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
 
     val preventSecondBottomSheetReopening by remember { mutableStateOf(false) }
     var openQRBottomSheet by remember { mutableStateOf(false) }
@@ -165,7 +162,7 @@ fun Home(
                 qrResult = qrScanResult,
                 context = context,
                 onHideButtonClick = {
-                    scope.launch {
+                    coroutineScope.launch {
                         qrBottomSheetState.hide()
                         delay(300)
                         openQRBottomSheet = false
@@ -201,7 +198,7 @@ fun Home(
                     bottom.linkTo(gridRef.top)
                 }
         ) {
-            val pageCount = 4
+            val pageCount = 1//4
             val pagerState = rememberPagerState(pageCount = { pageCount })
             val pages = listOf(Page.Assets/*, Page.Future0, Page.Future1, Page.Future2*/)
 
@@ -248,12 +245,14 @@ fun Home(
                 Actions.QR -> { openQRBottomSheet = true }
                 Actions.shareMyAddr -> onShareClick()
                 Actions.signers -> onSignersClick()
-                Actions.createWallet -> onCreateWalletClick()
+                Actions.createWallet -> if(advancedUser) onCreateWalletClick() else onCreateSimpleWalletClick()
                 Actions.send -> onSend()
                 Actions.recieve -> onReceive()
                 Actions.signHistory -> onSignHistory()
                 Actions.buyCrypto -> onPurchase()
                 Actions.txHistory -> onTxHistory()
+                Actions.coSigner -> {}
+                Actions.support -> {}
                 else -> onMatrixClick()
             }
         }, modifier = Modifier
@@ -270,17 +269,6 @@ fun Home(
 
 sealed class Page {
     data object Assets : Page()
-    /*data object Future0 : Page()
-    data object Future1 : Page()
-    data object Future2 : Page()*/
-}
-
-@Composable
-fun Future(pageNum: Int) {
-    Text(
-        text = "Page: $pageNum",
-        modifier = Modifier.fillMaxWidth()
-    )
 }
 
 @Composable

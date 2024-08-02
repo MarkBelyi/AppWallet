@@ -101,11 +101,64 @@ fun SettingsScreen(
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
 
+    /*fun deleteAccount(){
+        val builder = AlertDialog.Builder(context)
+        builder.setMessage(context.getString(R.string.delete_me_warning))
+            .setCancelable(true)
+            .setPositiveButton(context.getString(R.string.yes)) {_, _ ->
+
+            }
+    }
+    fun deleteMyAccountClick(reason: String) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle(context.getString(R.string.delete_me_reason))
+        val input = EditText(context)
+
+        builder.setView(input)
+        builder.setPositiveButton(context.getString(R.string.delete)) { dialog, which ->
+            val reason = input.text.toString()
+            var s: String = viewModel.deleteMyAccount()
+            val json = JSONObject(s)
+            if (json.has("uuid")) s = json["uuid"].toString()
+            val body = "\"uuid\":\"$s\",\"reason\":\"$reason\"" //  val z:String=NW().GetNetString(this@Settings,"erase_account\\$s",body,true)
+            val z = "{\"STATUS\":\"DONE\"}"
+            if (z.equals("{\"STATUS\":\"DONE\"}")) { // Всё, сервер нас успешно замочил. Удалим наши ключи
+                // Начинаем локальную зачистку:
+                val ps = PasswordStorageHelper(context)
+                ps.remove("MyPublicKey");
+                ps.remove("MyPrivateKey");
+                context.getSharedPreferences(context.getString(R.string.preferens_file_name), 0).edit().clear().apply();
+
+                //Теперь оповестим юзера о том что всё удалено и закроем приложение
+                builder.setMessage(context.getString(R.string.user_deleted))
+                    .setPositiveButton("OK") { _, _ -> (context as Activity).finishAffinity() }
+                    .setOnDismissListener { (context as Activity).finishAffinity() }
+                builder.create().show()
+            }
+        }
+        builder.setNegativeButton(context.getString(R.string.cancel)) { dialog, which -> dialog.cancel() }
+        builder.show()
+    }
+
+    fun requestDeletionReason(){
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle(context.getString(R.string.delete_me_reason))
+        val input = EditText(context)
+        builder.setView(input)
+        builder.setPositiveButton(context.getString(R.string.delete)){dialog, _ ->
+            val reason = input.text.toString()
+            deleteMyAccountClick(reason)
+        }
+        builder.setNegativeButton(context.getString(R.string.cancel)){dialog, _ ->
+            dialog.cancel()
+        }
+        builder.show()
+    }*/
+
     //export and import
     val bookmarkExportFilePicker =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
-                //val ddff: String? = result.data?.data?.path
                 result.data?.data?.let { uri ->
                     val outputStream = context.contentResolver.openOutputStream(uri)!!
                     val ps = PasswordStorageHelper(context)
@@ -162,6 +215,7 @@ fun SettingsScreen(
                 val pk_new = ps.getData("MyPublicKey")
                 println("Public Key: {$pk_new}")
                 println(GetMyAddr(context))
+                viewModel.deleteSigner(Signer(name = "", email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
                 viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
 
                 val builder: AlertDialog.Builder = AlertDialog.Builder(context)
@@ -250,6 +304,9 @@ fun SettingsScreen(
                             if (item.prefsKey == "electronic_approval" && !electronicApprovalEnabled) {
                                 navHostController.navigate("App")
                             }
+                            if(item.prefsKey == "advanced_user"){
+                                sharedPreferences.edit().putBoolean("advanced_user", newValue).apply()
+                            }
                         },
                         onClick = {
                             when (item.prefsKey) {
@@ -257,7 +314,6 @@ fun SettingsScreen(
                                 "change_language" -> onChangeLanguageClick()
                                 "import_secret_key" -> showImportBookmarksDialog()
                                 "export_secret_key" -> showExportBookmarksDialog()
-                                "advanced_user" -> {}
                             }
                         }
                     )

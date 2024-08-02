@@ -200,14 +200,14 @@ fun CustomIconButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun History(viewModel: appViewModel) {
     val context = LocalContext.current
     val allTX by viewModel.allTX.observeAsState(initial = emptyList())
 
     LaunchedEffect(key1 = allTX) {
-        viewModel.fetchAndStoreTransactions(context = context)
+        //viewModel.fetchAndStoreTransactions(context = context)
+        viewModel.needSignTX(context){}
     }
 
     Scaffold(

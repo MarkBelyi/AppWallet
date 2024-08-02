@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.walletapp.DataBase.DAO.AllTxDAO
 import com.example.walletapp.DataBase.DAO.BalansDAO
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
 import com.example.walletapp.DataBase.DAO.TokensDAO
 import com.example.walletapp.DataBase.DAO.TxDAO
 import com.example.walletapp.DataBase.DAO.WalletsDAO
+import com.example.walletapp.DataBase.Entities.AllTX
 import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
@@ -24,9 +26,10 @@ import com.example.walletapp.DataBase.Entities.Wallets
         Wallets::class,
         TX::class,
         Tokens::class,
-        Balans::class
+        Balans::class,
+        AllTX::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class DataBase: RoomDatabase(){
@@ -36,6 +39,7 @@ abstract class DataBase: RoomDatabase(){
     abstract fun tokensDao(): TokensDAO
     abstract fun TxDAO(): TxDAO
     abstract fun balansDAO(): BalansDAO
+    abstract fun allTXDAO(): AllTxDAO
 
     companion object{
         @Volatile

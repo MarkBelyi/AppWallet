@@ -34,7 +34,8 @@ class MainApplication : Application(){
             database.walletsDao(),
             database.tokensDao(),
             database.balansDAO(),
-            database.TxDAO()
+            database.TxDAO(),
+            database.allTXDAO()
         )
     }
 }

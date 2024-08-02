@@ -57,7 +57,8 @@ fun MainPagesActivity(
     onReceive: () -> Unit,
     onSignHistory: () -> Unit,
     onPurchase: () -> Unit,
-    onTxHistory: () -> Unit
+    onTxHistory: () -> Unit,
+    onCreateSimpleWalletClick: () -> Unit,
 ){
     val navController = rememberNavController()
     val bottomBarTabs = mutableListOf(BottomBarTab.Wallet, BottomBarTab.Home, BottomBarTab.Subscriptions)
@@ -92,7 +93,7 @@ fun MainPagesActivity(
                     onSignHistory = onSignHistory,
                     onPurchase = onPurchase,
                     onTxHistory = onTxHistory,
-                    navController = navController,
+                    onCreateSimpleWalletClick = onCreateSimpleWalletClick
                 )
             }
             composable(BottomBarTab.Subscriptions.route) {

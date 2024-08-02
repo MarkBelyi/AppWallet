@@ -3,6 +3,8 @@ package com.example.walletapp.appScreens.mainScreens
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -62,6 +64,7 @@ import org.json.JSONObject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit, onTransactionsClick: () -> Unit) {
+    //val wallet by viewModel.getWalletById(walletId).observeAsState()
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
     val context = LocalContext.current
     val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.isNotEmpty() && wallet.myFlags.first() == '1') }
@@ -119,7 +122,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = wallet.info,
                             color = colorScheme.onSurface,
@@ -145,30 +148,6 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     }
                 },
                 actions = {
-                    /*IconButton(
-                        onClick = {
-                            isLoading = true
-                            val newFlags = if (isHidden) {
-                                '0' + wallet.myFlags.substring(1)
-                            } else {
-                                '1' + wallet.myFlags.substring(1)
-                            }
-                            viewModel.updateWalletFlags(wallet.myUNID, newFlags) {
-                                isLoading = false
-                                setIsHidden(!isHidden)
-                            }
-                        }
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = colorScheme.onSurface)
-                        } else {
-                            Icon(
-                                painter = if (isHidden) painterResource(id = R.drawable.ic_baseline_visibility_off_24) else painterResource(id = R.drawable.ic_baseline_visibility_24),
-                                contentDescription = "Toggle Visibility",
-                                tint = colorScheme.onSurface
-                            )
-                        }
-                    }*/
                     IconButton(
                         onClick = {
                             showHiddenDialog = true
@@ -211,6 +190,21 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     readOnly = true,
                     singleLine = true,
                     maxLines = 1,
+                    leadingIcon = {
+                        IconButton(onClick = {
+                            if(wallet.network in listOf(5010, 1010, 3040)){
+                                val url_test = "https://nile.tronscan.org/#/address/${wallet.addr}"
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url_test))
+                                context.startActivity(intent)
+                            }else{
+                                val url = "https://tronscan.org/#/address/${wallet.addr}"
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                context.startActivity(intent)
+                            }
+                        }) {
+                            Icon(painter = painterResource(id = R.drawable.travel), contentDescription = "Travel", tint = colorScheme.onSurface)
+                        }
+                    },
                     trailingIcon = {
                         IconButton(onClick = {
                             val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

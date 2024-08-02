@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.example.walletapp.DataBase.Entities.AllTX
 import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
@@ -260,7 +261,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    fun updateTransactionRejectReason(unid: String, reason: String){
+    private fun updateTransactionRejectReason(unid: String, reason: String){
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateTransactionRejectReason(unid, reason)
         }
@@ -397,57 +398,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    fun fetchAndStoreTransactions(context: Context) = viewModelScope.launch(Dispatchers.IO) {
-        val apiResponse = GetAPIString(context, "tx")
-        if (apiResponse.isNotEmpty()) {
-            try {
-                val transactions = JSONArray(apiResponse)
-                val txList = mutableListOf<TX>()
-                for (i in 0 until transactions.length()) {
-                    val txJson = transactions.getJSONObject(i)
-                    val tokenParts = txJson.optString("token", "").split(":::")
-                    val networkToken = tokenParts[0]
-                    val tokenId = tokenParts.getOrElse(1) { "" }.split("###")[0]
-
-                    val waitEC = txJson.optJSONArray("wait")?.let { waitArray ->
-                        val waitList = mutableListOf<String>()
-                        for (j in 0 until waitArray.length()) {
-                            val waitObject = waitArray.optJSONObject(j)
-                            if (waitObject != null) {
-                                waitList.add(waitObject.optString("ecaddress", ""))
-                            }
-                        }
-                        waitList.joinToString(",")
-                    } ?: ""
-
-                    val currentStatus = repository.getTransactionStatus(txJson.optString("unid", "")) ?: 0
-
-                    val tx = TX(
-                        unid = txJson.optString("unid", ""),
-                        id = txJson.optInt("id", 0), // Парсинг ID
-                        tx = txJson.optString("tx", ""), // Обработка null для tx
-                        minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1, // Парсинг min_sign
-                        waitEC = waitEC, // EC Адреса подписантов, подписи которых ждёт транзакция
-                        signedEC = "", // Подписи подписантов пока не обрабатываются, можно добавить аналогично waitEC при необходимости
-                        network = networkToken.toIntOrNull() ?: 0, // Обработка network ID
-                        token = tokenId,
-                        to_addr = txJson.optString("to_addr", ""),
-                        info = txJson.optString("info", ""), // Парсинг info
-                        tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
-                        value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
-                        init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
-                        status = currentStatus,
-                        eMSG = "",
-                    )
-                    txList.add(tx)
-                }
-                repository.insertAllTransactions(txList)
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     var selectedWallet: MutableLiveData<Wallets> = MutableLiveData()
     var selectedToken: MutableLiveData<Balans> = MutableLiveData()
 
@@ -543,27 +493,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         })
     }
 
-    fun addWallets(context: Context) = viewModelScope.launch(Dispatchers.IO) {
-        val jsonString = GetAPIString(context, "wallets_2")
-        val loadedWallets = parseWallets(jsonString)
-        repository.addWallets(loadedWallets)
-        withContext(Dispatchers.Main) {
-            _filteredWallets.value = repository.fetchAllWallets()
-        }
-        loadedWallets.forEach { wallet ->
-            if (wallet.tokenShortNames.isNotBlank()) {
-                wallet.tokenShortNames.split(";").filter { it.isNotBlank() }.forEach { token ->
-                    val parts = token.split(" ")
-                    val amount = parts[0].toDoubleOrNull() ?: 0.0
-                    val name = parts.getOrNull(1) ?: ""
-
-                    repository.insertToken(Tokens(wallet.network, name, wallet.addr))
-                    repository.insertBalans(Balans(name, "", wallet.addr, wallet.network, amount, 0.0))
-                }
-            }
-        }
-    }
-
     fun refreshWallets(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         try {
             val jsonString = GetAPIString(context, "wallets_2")
@@ -638,36 +567,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     private val _visibilityUpdateStatus = MutableLiveData<Boolean>()
     val visibilityUpdateStatus: LiveData<Boolean> get() = _visibilityUpdateStatus
 
-    fun updateWalletFlags(unid: String, newFlags: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _visibilityUpdateStatus.postValue(true)
-            try {
-                val response = visibilityWallet(getApplication(), unid, newFlags)
-                repository.updateWalletFlags(unid, newFlags)
-                if (response.isEmpty()) {
-                    Log.d("UpdateWalletFlags", "Wallet flags updated locally: $newFlags")
-                } else {
-                    val jsonResponse = JSONObject(response)
-                    if (jsonResponse.has("ERROR")) {
-                        val error = jsonResponse.getString("ERROR")
-                        Log.e("UpdateWalletFlags", "Failed to update wallet flags: $error")
-                    } else {
-                        Log.d("UpdateWalletFlags", "Wallet flags updated successfully: $response")
-                    }
-                }
-                refreshFilteredWallets()
-            } catch (e: IOException) {
-                Log.e("UpdateWalletFlags", "Network error while updating wallet flags", e)
-            } catch (e: JSONException) {
-                Log.e("UpdateWalletFlags", "JSON error while updating wallet flags", e)
-            } catch (e: Exception) {
-                Log.e("UpdateWalletFlags", "Error updating wallet flags", e)
-            }finally {
-                _visibilityUpdateStatus.postValue(false)
-            }
-        }
-    }
-
     //Overloading function
     fun updateWalletFlags(unid: String, newFlags: String, onComplete: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -702,36 +601,14 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-
-
     private suspend fun visibilityWallet(context: Context, unid: String, newFlags: String): String {
         val apiEndpoint = "set_wallet_flag/$unid"
         val requestBody = "\"wallet_flags\":\"" + newFlags + "\""
         return GetAPIString(context, apiEndpoint, requestBody, POST = true)
     }
 
-    fun getVisibleWallets() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _filteredWallets.postValue(repository.getVisibleWallets())
-        }
-    }
-
-    fun getOnlyHiddenWallets() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _filteredWallets.postValue(repository.getOnlyHiddenWallets())
-        }
-    }
-
     // Signer
     val allSigners: LiveData<List<Signer>> = repository.allSigners.asLiveData()
-
-    fun addSigner(signersKeys: MutableList<String>) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                signersKeys.add("")
-            }
-        }
-    }
 
     fun removeSigner(index: Int, signersKeys: MutableList<String>) {
         viewModelScope.launch {
@@ -763,20 +640,89 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     // Network
-    val allNetworks: LiveData<List<Networks>> = repository.allNetworks.asLiveData()
-
     fun addNetworks(context: Context) = viewModelScope.launch(Dispatchers.IO) {
         val jsonString = GetAPIString(context, "netlist/1")
         val loadedNetworks = parseNetworks(jsonString)
         repository.addNetworks(loadedNetworks)
     }
 
+    //AllTX
+    val allUserTX: LiveData<List<AllTX>> = repository.allUserTX.asLiveData()
+
+    fun fetchAndStoreTransactions(context: Context) = viewModelScope.launch(Dispatchers.IO) {
+        val apiResponse = GetAPIString(context, "tx")
+        if (apiResponse.isNotEmpty()) {
+            try {
+                val transactions = JSONArray(apiResponse)
+                val txList = mutableListOf<AllTX>()
+                for (i in 0 until transactions.length()) {
+                    val txJson = transactions.getJSONObject(i)
+                    val tokenParts = txJson.optString("token", "").split(":::")
+                    val networkToken = tokenParts[0]
+                    val tokenId = tokenParts.getOrElse(1) { "" }.split("###")[0]
+
+                    val waitEC = txJson.optJSONArray("wait")?.let { waitArray ->
+                        val waitList = mutableListOf<String>()
+                        for (j in 0 until waitArray.length()) {
+                            val waitObject = waitArray.optJSONObject(j)
+                            if (waitObject != null) {
+                                waitList.add(waitObject.optString("ecaddress", ""))
+                            }
+                        }
+                        waitList.joinToString(",")
+                    } ?: ""
+
+                    // Обработка параметра "signed"
+                    val signedEC = txJson.optJSONArray("signed")?.let { signedArray ->
+                        val signedList = mutableListOf<String>()
+                        for (j in 0 until signedArray.length()) {
+                            val signedObject = signedArray.optJSONObject(j)
+                            if (signedObject != null) {
+                                val ecAddress = signedObject.optString("ecaddress", "")
+                                val ecSign = signedObject.optString("ecsign", "")
+                                signedList.add("$ecAddress:$ecSign")
+                            }
+                        }
+                        signedList.joinToString(",")
+                    } ?: ""
+
+
+
+                    val tx = AllTX(
+                        unid = txJson.optString("unid", ""),
+                        id = txJson.optInt("id", 0), // Парсинг ID
+                        tx = txJson.optString("tx", ""), // Обработка null для tx
+                        minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1, // Парсинг min_sign
+                        init_ts = txJson.optLong("init_ts", 0L).toInt(), // Преобразование init_ts в Int
+                        tx_value = txJson.optString("value", "0").replace(",", "").toDouble(), // Преобразование value в Double
+                        value_hex = txJson.optString("value_hex", "0"), // Парсинг value_hex
+                        to_addr = txJson.optString("to_addr", ""),
+                        token = tokenId,
+                        network = networkToken.toIntOrNull() ?: 0, // Обработка network ID
+                        info = txJson.optString("info", ""), // Парсинг info
+
+                        waitEC = waitEC, // EC Адреса подписантов, подписи которых ждёт транзакция
+                        signedEC = signedEC, // Подписи подписантов пока не обрабатываются, можно добавить аналогично waitEC при необходимости
+                        eMSG = "",
+                    )
+                    txList.add(tx)
+                }
+                repository.insertAllUserTransactions(txList)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     //DataBase
     fun clearDataBase() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.clearDataBase()
         }
+    }
+
+    suspend fun deleteMyAccount(): String{
+        return GetAPIString(context, "uuid")
     }
 }
 
