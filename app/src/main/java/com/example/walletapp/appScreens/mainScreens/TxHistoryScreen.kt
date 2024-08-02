@@ -37,6 +37,9 @@ import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.AllTX
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,31 +130,49 @@ fun TXItem(tx: AllTX) {
                 Text(
                     text = tx.info,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = FontWeight.SemiBold,
                     overflow = TextOverflow.Ellipsis,
                     color = colorScheme.onSurface,
                     maxLines = 1
                 )
-                if(tx.tx.isNotEmpty()){
+                val hexPattern = Regex("^[0-9a-fA-F]{64}$")
+
+                if (tx.tx.isEmpty() || tx.tx == "null") {
                     Text(
-                        text = tx.tx,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Light,
+                        text = "Транзакция еще не в блокчейне!",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
                         overflow = TextOverflow.Ellipsis,
                         color = colorScheme.onSurface,
                         maxLines = 1
                     )
-                }else{
+                } else if (!hexPattern.matches(tx.tx)) {
                     Text(
-                        text = "Траназкция еще не в блокчейне",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Light,
+                        text = "Ошибка: ${tx.tx}",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        overflow = TextOverflow.Ellipsis,
+                        color = colorScheme.primary,
+                        maxLines = 1
+                    )
+                } else {
+                    Text(
+                        text = "Транзакция прошла успешно!",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        overflow = TextOverflow.Ellipsis,
+                        color = colorScheme.onSurface,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = tx.tx,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Normal,
                         overflow = TextOverflow.Ellipsis,
                         color = colorScheme.onSurface,
                         maxLines = 1
                     )
                 }
-
                 Text(
                     text = "To address: ${tx.to_addr}",
                     fontSize = 12.sp,
@@ -168,23 +189,21 @@ fun TXItem(tx: AllTX) {
                     color = colorScheme.onSurface,
                     maxLines = 1
                 )
-                /*Text(
-                    text = "Waited: ${tx.waitEC}",
-                    fontSize = 8.sp,
+                Text(
+                    text = "Time: ${formatTimestamp(tx.init_ts)}",
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
                     color = colorScheme.onSurface,
                     maxLines = 1
                 )
-                Text(
-                    text = "Signed: ${tx.signedEC}",
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Light,
-                    overflow = TextOverflow.Ellipsis,
-                    color = colorScheme.onSurface,
-                    maxLines = 1
-                )*/
             }
         }
     }
+}
+
+fun formatTimestamp(initTs: Int): String {
+    val date = Date(initTs * 1000L)
+    val formatter = SimpleDateFormat("dd/MMM/yyyy HH:mm", Locale.getDefault())
+    return formatter.format(date)
 }

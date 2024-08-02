@@ -21,6 +21,7 @@ import com.example.walletapp.Settings.ChangeLanguageScreen
 import com.example.walletapp.Settings.ChangePasswordScreen
 import com.example.walletapp.appScreens.MainPagesActivity
 import com.example.walletapp.appScreens.mainScreens.AddSignerScreen
+import com.example.walletapp.appScreens.mainScreens.CreateSimpleWalletScreen
 import com.example.walletapp.appScreens.mainScreens.CreateWalletScreen_v2
 import com.example.walletapp.appScreens.mainScreens.EditSigner
 import com.example.walletapp.appScreens.mainScreens.MatrixRain
@@ -89,7 +90,8 @@ fun AppActivity(
                     onReceive = {switchToPage(9)},
                     onSignHistory = {switchToPage(10)},
                     onPurchase = {switchToPage(11)},
-                    onTxHistory = {switchToPage(14)}
+                    onTxHistory = {switchToPage(14)},
+                    onCreateSimpleWalletClick = {switchToPage(15)}
                 )
 
                 1 -> SendingScreen_V2(
@@ -167,6 +169,11 @@ fun AppActivity(
 
                 14 -> TxHistoryScreen(
                     viewModel = viewModel,
+                    onBackClick = {switchToPage(0)}
+                )
+
+                15 -> CreateSimpleWalletScreen( viewModel = viewModel,
+                    onCreateClick = {switchToPage(0)},
                     onBackClick = {switchToPage(0)}
                 )
             }

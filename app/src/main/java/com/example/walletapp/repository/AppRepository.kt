@@ -158,7 +158,7 @@ class AppRepository(
 
     //DataBase
     suspend fun clearDataBase() {
-        signersDao.clearSigners()
+        //signersDao.clearSigners()
         networksDAO.clearNetworks()
         walletsDAO.clearWallets()
         tokensDAO.clearTokens()

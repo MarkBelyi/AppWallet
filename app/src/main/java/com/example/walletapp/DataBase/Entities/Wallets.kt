@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity //Кошельки
 data class Wallets(
-    @PrimaryKey val wallet_id: Int,  // id кошелька на сервере
+    @PrimaryKey val wallet_id: Int,  //+ id кошелька на сервере
     val network: Int, // Код сети блокчейна
     var myFlags: String="", // свойства кошелька отвечающие за видимость и другие
     val wallet_type: Int=1, // Тип кошелька. В норме 1 Если 3, то это кэшбэк
