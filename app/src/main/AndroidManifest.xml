@@ -31,4 +31,11 @@
         </activity>
     </application>
 
+    <meta-data
+        android:name="android:versionCode"
+        android:value="0.89" /> <!-- Увеличивайте для каждого обновления -->
+    <meta-data
+        android:name="android:versionName"
+        android:value="0.8.75" />
+
 </manifest>

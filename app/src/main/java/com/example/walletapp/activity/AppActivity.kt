@@ -61,7 +61,7 @@ fun AppActivity(
             when (selectedTabIndex) {
                 0 -> { activity.finish() }
                 4, 8 -> { switchToPage(3) }
-                13 -> { switchToPage(7) }
+                12, 13 -> { switchToPage(7) }
                 else -> { switchToPage(0) }
             }
         }

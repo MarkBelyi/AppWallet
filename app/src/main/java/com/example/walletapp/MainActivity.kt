@@ -35,7 +35,8 @@ class MainApplication : Application(){
             database.tokensDao(),
             database.balansDAO(),
             database.TxDAO(),
-            database.allTXDAO()
+            database.allTXDAO(),
+            database.walletAddressDao()
         )
     }
 }
@@ -88,7 +89,6 @@ class MainActivity : AppCompatActivity() {
                     
                 }
 
-                // Включаем AuthModalBottomSheet в основной тематический контент
                 if (showAuthSheet.value) {
                     AuthModalBottomSheet(showAuthSheet, onAuthenticated = { showAuthSheet.value = false }, viewModel = appViewModel)
                 }
@@ -99,27 +99,25 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    override fun onResume() {
+    /*override fun onResume() {
         super.onResume()
         if((application as MainApplication).isInBackground) {
             requestAuth()
             (application as MainApplication).isInBackground=false}
+    }*/
+
+    override fun onStop() {
+        super.onStop()
+        val app = application as MainApplication
+        if (!app.isInBackground) {
+            app.isInBackground = true
+        }
     }
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
             (application as MainApplication).isInBackground = true
-        }
-    }
-
-
-    //Пример использования настройки
-    fun Context.setContinuousAuthorizationEnabled(enabled: Boolean) {
-        val sharedPrefs = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
-        with(sharedPrefs.edit()) {
-            putBoolean("continuous_authorization", enabled)
-            apply()
         }
     }
 
@@ -135,16 +133,6 @@ class MainActivity : AppCompatActivity() {
             showAuthSheet.value = true
         }
     }
-
-
-
-    // Функция для определения, требуется ли повторная аутентификация
-    private fun someConditionForReAuthentication(): Boolean {
-        // Пример условия, вы можете определить свои собственные правила
-        return true
-    }
-
-
 }
 
 

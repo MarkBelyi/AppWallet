@@ -32,9 +32,6 @@ interface WalletsDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWallet(wallet: Wallets)
 
-
-
-    //NEW
     @Query("SELECT * FROM Wallets WHERE network = :network OR network = :testNetwork ORDER BY info")
     suspend fun getWalletsByNetwork(network: Int, testNetwork: Int): List<Wallets>
 

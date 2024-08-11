@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -88,7 +89,7 @@ fun PullToRefreshWithCustomIndicator(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(animatedOffset.dp)
-                .background(color = Color.Transparent)
+                .background(color = colorScheme.surface)
                 .padding(10.dp),
             contentAlignment = Alignment.Center
         ) {

@@ -1,0 +1,46 @@
+@startuml
+entity Networks {
+    +Int network_id
+    +String network_name
+    +String link
+    +String address_explorer
+    +String tx_explorer
+    +String block_explorer
+    +String info
+    +Int status
+}
+
+' Annotations and additional metadata
+note right of Networks::network_id
+  PrimaryKey
+  Description: id блокчейна (например для биткоина это 1000)
+end note
+
+note right of Networks::network_name
+  Description: полное имя сети, например ETH Ropsten Test
+end note
+
+note right of Networks::link
+  Description: сайт сети (https://ethereum.org)
+end note
+
+note right of Networks::address_explorer
+  Description: сайт где посмотреть инфу по адресам этой сети
+end note
+
+note right of Networks::tx_explorer
+  Description: сайт где посмотреть инфу по транзакциям этой сети
+end note
+
+note right of Networks::block_explorer
+  Description: сайт где посмотреть инфу по блокам этой сети
+end note
+
+note right of Networks::info
+  Description: Мош какая инфа будет в будущем, пока нуль
+end note
+
+note right of Networks::status
+  Description: статус этой сети у нас в системе (тоже пока всегда 1)
+end note
+@enduml

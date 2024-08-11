@@ -13,20 +13,15 @@ import kotlinx.coroutines.flow.Flow
 interface TxDAO {
     @Query("SELECT * FROM TX")
     fun getAll(): Flow<List<TX>>
+
     @Query("SELECT COUNT(*) FROM TX")
     suspend fun getCount(): Int
-
-    @Query("SELECT * FROM TX WHERE tx != '' ")
-    suspend fun getWhoHasTX(): List<TX>
 
     @Query("UPDATE TX SET status = :status WHERE unid = :unid")
     suspend fun updateTransactionStatus(unid: String, status: Int)
 
     @Query("UPDATE TX SET deny = :reason WHERE unid = :unid")
     suspend fun updateTransactionRejectReason(unid: String, reason: String)
-
-    @Query("SELECT * FROM TX WHERE tx = '' ")
-    suspend fun getWhoHasNotTX(): List<TX>
 
     @Delete
     suspend fun deleteItem(item: TX)

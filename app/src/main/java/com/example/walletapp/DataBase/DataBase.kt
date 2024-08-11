@@ -10,6 +10,7 @@ import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
 import com.example.walletapp.DataBase.DAO.TokensDAO
 import com.example.walletapp.DataBase.DAO.TxDAO
+import com.example.walletapp.DataBase.DAO.WalletAddressDao
 import com.example.walletapp.DataBase.DAO.WalletsDAO
 import com.example.walletapp.DataBase.Entities.AllTX
 import com.example.walletapp.DataBase.Entities.Balans
@@ -17,6 +18,7 @@ import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.TX
 import com.example.walletapp.DataBase.Entities.Tokens
+import com.example.walletapp.DataBase.Entities.WalletAddress
 import com.example.walletapp.DataBase.Entities.Wallets
 
 @Database(
@@ -27,9 +29,10 @@ import com.example.walletapp.DataBase.Entities.Wallets
         TX::class,
         Tokens::class,
         Balans::class,
-        AllTX::class
+        AllTX::class,
+        WalletAddress::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class DataBase: RoomDatabase(){
@@ -40,6 +43,8 @@ abstract class DataBase: RoomDatabase(){
     abstract fun TxDAO(): TxDAO
     abstract fun balansDAO(): BalansDAO
     abstract fun allTXDAO(): AllTxDAO
+    abstract fun walletAddressDao(): WalletAddressDao
+
 
     companion object{
         @Volatile

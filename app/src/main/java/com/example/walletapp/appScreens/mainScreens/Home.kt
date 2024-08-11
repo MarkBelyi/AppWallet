@@ -40,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -69,6 +70,7 @@ import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
+import com.example.walletapp.ui.theme.roundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -98,6 +100,7 @@ fun Home(
     val advancedUser = sharedPreferences.getBoolean("advanced_user", false)
 
     var qrScanResult by remember { mutableStateOf<String?>(null) }
+    var showUnavailableFeatureDialog by remember { mutableStateOf(false) }
 
     val preventSecondBottomSheetReopening by remember { mutableStateOf(false) }
     var openQRBottomSheet by remember { mutableStateOf(false) }
@@ -179,6 +182,23 @@ fun Home(
         }
     }
 
+    if (showUnavailableFeatureDialog) {
+        AlertDialog(
+            onDismissRequest = { showUnavailableFeatureDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showUnavailableFeatureDialog = false }) {
+                    Text("OK")
+                }
+            },
+            shape = roundedShape,
+            containerColor = colorScheme.surface,
+            textContentColor = colorScheme.onSurface,
+            titleContentColor = colorScheme.primary,
+            title = { Text("Недоступная функция") },
+            text = { Text("К сожалению, данная функция пока недоступна.") }
+        )
+    }
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -251,8 +271,12 @@ fun Home(
                 Actions.signHistory -> onSignHistory()
                 Actions.buyCrypto -> onPurchase()
                 Actions.txHistory -> onTxHistory()
-                Actions.coSigner -> {}
-                Actions.support -> {}
+                Actions.coSigner -> {
+                    showUnavailableFeatureDialog = true
+                }
+                Actions.support -> {
+                    showUnavailableFeatureDialog = true
+                }
                 else -> onMatrixClick()
             }
         }, modifier = Modifier
@@ -528,6 +552,30 @@ fun SecondBottomSheetContent(
             )
         ) {
             Text("Новый подписант")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ElevatedButton(
+            onClick = {
+                if (qrResult != null) {
+                    onHideButtonClick()
+                    viewModel.addNewAddressFromQR(qrResult)
+                    Toast.makeText(context, "Адрес кошелька добавлен", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
+                }
+            },
+            shape = newRoundedShape,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp, max = 64.dp),
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary,
+            )
+        ) {
+            Text("Новый адрес кошелька")
         }
 
         Spacer(modifier = Modifier.height(48.dp))

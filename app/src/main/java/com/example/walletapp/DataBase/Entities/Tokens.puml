@@ -1,0 +1,63 @@
+@startuml
+entity Tokens {
+    +Int network_id
+    +String name
+    +String addr
+    +String myFlags
+    +Int decimals
+    +String info
+    +Float c
+    +Float cMin
+    +Float cMax
+    +Float cBase
+}
+
+' Annotations and additional metadata
+note right of Tokens::network_id
+  PrimaryKey
+  Description: id блокчейна (например для биткоина это 1000)
+end note
+
+note right of Tokens::name
+  PrimaryKey
+  Description: имя токена, например TRX, Matic, BTC
+end note
+
+note right of Tokens::addr
+  PrimaryKey
+  ColumnInfo(NOCASE)
+  Description: адрес контракта, породившего этот токен (или ноль)
+end note
+
+note right of Tokens
+  Index: ["network_id", "name", "addr"] (unique = true)
+end note
+
+note right of Tokens::myFlags
+  Description: какие-нить флаги, на будущее
+end note
+
+note right of Tokens::decimals
+  Description: на сколько сдвинуть влево запятую, чтобы привести количество токенов в божеский вид
+end note
+
+note right of Tokens::info
+  Description: Мош какая инфа по токену будет в будущем
+end note
+
+note right of Tokens::c
+  Description: скока брать комиссию при переводе юзером этих токенов
+end note
+
+note right of Tokens::cMin
+  Description: Нижний порог комиссии
+end note
+
+note right of Tokens::cMax
+  Description: Верхний порог комиссии
+end note
+
+note right of Tokens::cBase
+  Description: примерная комиссия СЕТИ в базовых токенах сети
+end note
+@enduml

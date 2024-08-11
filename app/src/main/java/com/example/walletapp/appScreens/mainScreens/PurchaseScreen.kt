@@ -2,7 +2,6 @@ package com.example.walletapp.appScreens.mainScreens
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -181,7 +180,7 @@ fun AnnotatedButton(annotatedText: AnnotatedString, imagePainter: Painter) {
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 ClickableText(
-                    style = TextStyle(color = colorScheme.onPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                    style = TextStyle(color = colorScheme.onSurface, fontSize = 16.sp, fontWeight = FontWeight.Bold),
                     text = annotatedText,
                     modifier = Modifier.align(Alignment.Center),
                     onClick = { offset ->
@@ -193,9 +192,10 @@ fun AnnotatedButton(annotatedText: AnnotatedString, imagePainter: Painter) {
                     }
                 )
             }
-            Image(
+            Icon(
                 painter = imagePainter,
                 contentDescription = null,
+                tint = colorScheme.onSurface,
                 modifier = Modifier
                     .size(15.dp)
                     .align(Alignment.CenterVertically)

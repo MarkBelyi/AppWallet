@@ -38,7 +38,7 @@ private val DarkColorScheme = darkColorScheme(
     onSurfaceVariant = DarkSelectedText,
 
     //используется если текст в поле нужно ввести
-    scrim = DarkInputText
+    scrim = inputText//DarkInputText
 
 )
 

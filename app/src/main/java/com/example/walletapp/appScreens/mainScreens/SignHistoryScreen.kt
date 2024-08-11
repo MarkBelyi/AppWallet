@@ -37,11 +37,6 @@ fun SignHistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBac
     val allTX by viewModel.allTX.observeAsState(initial = emptyList())
     val context = LocalContext.current
 
-    /*LaunchedEffect(key1 = allTX) {
-        //Нужно переделать внутри чтобы статусы не обновлялись
-        //viewModel.fetchAndStoreTransactions(context = context)
-    }*/
-
     LaunchedEffect(Unit) {
         viewModel.needSignTX(context = context){}
     }
@@ -105,7 +100,8 @@ fun TXScreensHistory(viewModel: appViewModel) {
                 onSign = { viewModel.signTransaction(tx.unid) },
                 onReject = { reason ->
                     viewModel.rejectTransaction(tx.unid, reason = reason)
-                }
+                },
+                viewModel = viewModel
             )
         }
     }
