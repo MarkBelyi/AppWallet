@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface AllTxDAO {
     @Query("SELECT * FROM AllTX")
     fun getAll(): Flow<List<AllTX>>
+
     @Query("SELECT COUNT(*) FROM AllTX")
     suspend fun getCount(): Int
 
@@ -27,11 +28,11 @@ interface AllTxDAO {
     @Query("SELECT * FROM AllTX WHERE tx = '' ")
     suspend fun getWhoHasNotTX(): List<AllTX>
 
+    @Query("SELECT * FROM AllTX WHERE info LIKE '%' || :name || '%' ORDER BY info")
+    suspend fun getTransactionsByName(name: String): List<AllTX>
+
     @Delete
     suspend fun deleteItem(item: AllTX)
-
-    @Query("DELETE FROM AllTX")
-    suspend fun deleteAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun add(items: List<AllTX>)

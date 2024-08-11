@@ -19,6 +19,7 @@ import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.TX
 import com.example.walletapp.DataBase.Entities.Tokens
+import com.example.walletapp.DataBase.Entities.WalletAddress
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
@@ -33,6 +34,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Call
@@ -196,7 +198,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     }
 
     //Показывать Кошельки с тестовыми сетями
-    private val _showWalletWithTestNetwork = MutableLiveData<Boolean>(false)
+    private val _showWalletWithTestNetwork = MutableLiveData(false)
     val showWalletWithTestNetwork: LiveData<Boolean> get() = _showWalletWithTestNetwork
 
     // Wallets and Tx
@@ -309,7 +311,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
             try {
                 val transactions = JSONArray(apiResponse)
                 val txList = mutableListOf<TX>()
-                //val myAddress = GetMyAddr(context) // Получение адреса пользователя
 
                 for (i in 0 until transactions.length()) {
                     val txJson = transactions.getJSONObject(i)
@@ -339,8 +340,68 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                         signedList.joinToString(",")
                     } ?: ""
 
-                    // Проверка, является ли пользователь подписантом
-                    //if (!waitEC.contains(myAddress)) continue
+                    val tx = TX(
+                        unid = txJson.optString("unid", ""),
+                        id = txJson.optInt("id", 0),
+                        tx = txJson.optString("tx", ""),
+                        minsign = txJson.optString("min_sign", "1").toIntOrNull() ?: 1,
+                        waitEC = waitEC,
+                        signedEC = signedEC,
+                        network = networkToken.toIntOrNull() ?: 0,
+                        token = tokenId,
+                        to_addr = txJson.optString("to_addr", ""),
+                        info = txJson.optString("info", ""),
+                        tx_value = txJson.optString("tx_value", "0").replace(",", "").toDouble(),
+                        init_ts = txJson.optLong("init_ts", 0L).toInt(),
+                        eMSG = "",
+                        status = 0
+                    )
+                    txList.add(tx)
+                }
+                repository.insertAllTransactions(txList)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun SignedTX(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+        val apiResponse = GetAPIString(context, "tx_sign_signed")
+        withContext(Dispatchers.Main) {
+            onComplete()
+        }
+        if (apiResponse.isNotEmpty()) {
+            try {
+                val transactions = JSONArray(apiResponse)
+                val txList = mutableListOf<TX>()
+
+                for (i in 0 until transactions.length()) {
+                    val txJson = transactions.getJSONObject(i)
+                    val tokenParts = txJson.optString("token", "").split(":::")
+                    val networkToken = tokenParts[0]
+                    val tokenId = tokenParts.getOrElse(1) { "" }.split("###")[0]
+
+                    val waitEC = txJson.optJSONArray("wait")?.let { waitArray ->
+                        val waitList = mutableListOf<String>()
+                        for (j in 0 until waitArray.length()) {
+                            val waitObject = waitArray.optJSONObject(j)
+                            if (waitObject != null) {
+                                waitList.add(waitObject.optString("ecaddress", ""))
+                            }
+                        }
+                        waitList.joinToString(",")
+                    } ?: ""
+
+                    val signedEC = txJson.optJSONArray("signed")?.let { signedArray ->
+                        val signedList = mutableListOf<String>()
+                        for (j in 0 until signedArray.length()) {
+                            val signedObject = signedArray.optJSONObject(j)
+                            if (signedObject != null) {
+                                signedList.add(signedObject.optString("ecaddress", ""))
+                            }
+                        }
+                        signedList.joinToString(",")
+                    } ?: ""
 
                     val tx = TX(
                         unid = txJson.optString("unid", ""),
@@ -648,8 +709,49 @@ class appViewModel(private val repository: AppRepository, application: Applicati
 
     //AllTX
     val allUserTX: LiveData<List<AllTX>> = repository.allUserTX.asLiveData()
+    private val _filteredTransactions = MutableLiveData<List<AllTX>>()
+    val filteredTransactions: LiveData<List<AllTX>> get() = _filteredTransactions
 
-    fun fetchAndStoreTransactions(context: Context) = viewModelScope.launch(Dispatchers.IO) {
+    fun filterTxByName(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _filteredTransactions.postValue(repository.getTransactionsByName(name))
+        }
+    }
+
+    fun filterTX(name: String, token: String, completedOnly: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Получаем все транзакции из репозитория
+            val allTransactions = repository.getAllTransactions().firstOrNull() ?: emptyList()
+
+            // Применяем фильтр по имени, если строка поиска не пуста
+            val filteredByName = if (name.isNotEmpty()) {
+                allTransactions.filter { tx -> tx.info.contains(name, ignoreCase = true) }
+            } else {
+                allTransactions
+            }
+
+            // Применяем фильтр по токену, если выбран конкретный токен
+            val filteredByToken = if (token != "Все токены") {
+                filteredByName.filter { tx -> tx.token == token }
+            } else {
+                filteredByName
+            }
+
+            // Применяем фильтр по завершенности, если он включен
+            val finalFiltered = if (completedOnly) {
+                filteredByToken.filter { tx -> tx.tx.isNotEmpty() && tx.tx != "null" }
+            } else {
+                filteredByToken
+            }
+
+            // Обновляем данные для отображения
+            _filteredTransactions.postValue(finalFiltered)
+        }
+    }
+
+
+
+    fun fetchAndStoreTransactions(context: Context,  onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         val apiResponse = GetAPIString(context, "tx")
         if (apiResponse.isNotEmpty()) {
             try {
@@ -708,10 +810,30 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                     txList.add(tx)
                 }
                 repository.insertAllUserTransactions(txList)
+                withContext(Dispatchers.Main) {
+                    onComplete()
+                }
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
         }
+    }
+
+    //WalletAddress
+
+    val allWalletAddresses: LiveData<List<WalletAddress>> = repository.allWalletAddresses.asLiveData()
+
+    fun deleteWalletAddress(item: WalletAddress) = viewModelScope.launch(Dispatchers.IO) {
+        repository.deleteWalletAddress(item)
+    }
+
+    fun insertWalletAddress(item: WalletAddress) = viewModelScope.launch(Dispatchers.IO) {
+        repository.insertWalletAddress(item)
+    }
+
+    fun addNewAddressFromQR(result: String) {
+        val newAddress = WalletAddress(ownerName = "Новый Адрес Кошелька", address = result, blockchain = "", token = "")
+        insertWalletAddress(newAddress)
     }
 
     //DataBase
@@ -721,8 +843,8 @@ class appViewModel(private val repository: AppRepository, application: Applicati
         }
     }
 
-    suspend fun deleteMyAccount(): String{
-        return GetAPIString(context, "uuid")
+    suspend fun deleteMyAccount(reason: String): String{
+        return GetAPIString(con = context, api = "uuid", mes = reason, POST = true)
     }
 }
 

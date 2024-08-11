@@ -206,7 +206,7 @@ fun QuestionDialog(onDismiss: () -> Unit){
                 color = colorScheme.onSurface
             )},
         text = { Text(text = stringResource(R.string.this_is_ypkey),
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = FontWeight.Light,
             color = colorScheme.onSurface)},
         shape = newRoundedShape,
         confirmButton = {

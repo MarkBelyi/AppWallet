@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
@@ -45,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -90,7 +93,9 @@ fun SettingsScreen(
     onBackClick: () -> Unit,
     navHostController: NavHostController
 ) {
+
     val context = LocalContext.current
+    val versionName = getAppVersionName(context)
     val sharedPreferences =
         context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
     val locale = Locale.getDefault().language
@@ -215,7 +220,7 @@ fun SettingsScreen(
                 val pk_new = ps.getData("MyPublicKey")
                 println("Public Key: {$pk_new}")
                 println(GetMyAddr(context))
-                viewModel.deleteSigner(Signer(name = "", email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
+                //viewModel.deleteSigner(Signer(name = "", email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
                 viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
 
                 val builder: AlertDialog.Builder = AlertDialog.Builder(context)
@@ -319,9 +324,33 @@ fun SettingsScreen(
                     )
                 }
             }
+            
+            item(1){
+                Text(
+                    text = "Safina Wallet: $versionName",
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    color = colorScheme.scrim,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
+
+fun getAppVersionName(context: Context): String {
+    return try {
+        val packageInfo: PackageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        packageInfo.versionName ?: "Unknown"
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace()
+        "Unknown"
+    }
+}
+
 
 
 @Composable

@@ -1,8 +1,10 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,18 +21,24 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +52,15 @@ import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.TX
 import com.example.walletapp.PullToRefreshLazyColumn.PullToRefreshWithCustomIndicator
 import com.example.walletapp.Server.GetMyAddr
+import com.example.walletapp.Settings.PasswordInputField
+import com.example.walletapp.Settings.verifyPin
 import com.example.walletapp.appViewModel.appViewModel
+import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.registrationScreens.AuthMethod
+import com.example.walletapp.registrationScreens.PinLockScreenApp
 import com.example.walletapp.ui.theme.newRoundedShape
+import com.example.walletapp.ui.theme.topRoundedShape
+import kotlinx.coroutines.launch
 
 @Composable
 fun Sign(viewModel: appViewModel) {
@@ -72,9 +87,11 @@ fun Sign(viewModel: appViewModel) {
 }
 
 @Composable
-fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
+fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: appViewModel) {
     val context = LocalContext.current
     val userAddress = remember { mutableStateOf("") }
+    val showAuthSheet = remember { mutableStateOf(false) }
+    val authAction = remember { mutableStateOf<(() -> Unit)?>(null) }
 
     LaunchedEffect(Unit) {
         userAddress.value = GetMyAddr(context)
@@ -121,6 +138,17 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
             }
         )
     }
+
+    if (showAuthSheet.value) {
+        AuthModalBottomSheet(
+            showAuthSheet = showAuthSheet,
+            onAuthenticated = {
+                authAction.value?.invoke()
+            },
+            viewModel = viewModel
+        )
+    }
+
 
     Card(
         modifier = Modifier
@@ -171,7 +199,10 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
                     0 -> { // IDLE
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                             OutlinedButton(
-                                onClick = { onSign() },
+                                onClick = {
+                                    showAuthSheet.value = true
+                                    authAction.value = onSign
+                                },
                                 shape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp, topEnd = 0.dp, bottomEnd = 0.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(
                                     contentColor = colorScheme.onSurface,
@@ -181,7 +212,12 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit) {
                             ) {
                                 Text("Sign")
                             }
-                            OutlinedButton(onClick = { showDialog.value = true },
+                            OutlinedButton( onClick = {
+                                showAuthSheet.value = true
+                                authAction.value = {
+                                    showDialog.value = true
+                                }
+                            },
                                 shape = RoundedCornerShape(topStart = 0.dp, bottomStart = 0.dp, topEnd = 24.dp, bottomEnd = 24.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(
                                     contentColor = colorScheme.onSurface,
@@ -260,8 +296,8 @@ fun TXScreens(viewModel: appViewModel) {
                     onSign = { viewModel.signTransaction(tx.unid) },
                     onReject = { reason ->
                         viewModel.rejectTransaction(tx.unid, reason = reason)
-
-                    }
+                    },
+                    viewModel = viewModel
                 )
             }
         }else{
@@ -283,3 +319,80 @@ fun TXScreens(viewModel: appViewModel) {
         
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AuthModalBottomSheet(
+    showAuthSheet: MutableState<Boolean>,
+    onAuthenticated: () -> Unit,
+    viewModel: appViewModel
+) {
+    val context = LocalContext.current
+    val passwordStorage = PasswordStorageHelper(context)
+    val coroutineScope = rememberCoroutineScope()
+    val authMethod by viewModel.getAuthMethod().observeAsState(initial = AuthMethod.PINCODE)
+    val isAuthenticated = remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { newState ->
+            newState == SheetValue.Hidden && isAuthenticated.value
+        }
+    )
+
+    ModalBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = {
+            if (isAuthenticated.value) onAuthenticated()
+        },
+        dragHandle = null,
+        shape = topRoundedShape,
+        content = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                when (authMethod) {
+                    AuthMethod.PINCODE -> {
+                        PinLockScreenApp(
+                            onAction = {
+                                if (verifyPin(context)) {
+                                    coroutineScope.launch {
+                                        sheetState.hide()
+                                        onAuthenticated()
+                                    }
+                                } else {
+                                    Toast.makeText(context, "Incorrect PIN", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            onBiometricAuthenticated = onAuthenticated
+                        )
+                    }
+                    AuthMethod.PASSWORD -> {
+                        PasswordInputField(onPasswordSubmitted = { password ->
+                            if (password == passwordStorage.getPassword("MyPassword")) {
+                                coroutineScope.launch {
+                                    sheetState.hide()
+                                    onAuthenticated()
+                                }
+                            } else {
+                                Toast.makeText(context, "Incorrect password", Toast.LENGTH_SHORT).show()
+                            }
+                        })
+                    }
+                }
+            }
+        }
+    )
+
+    LaunchedEffect(showAuthSheet.value) {
+        coroutineScope.launch {
+            if (showAuthSheet.value) {
+                sheetState.show()
+            } else {
+                sheetState.hide()
+            }
+        }
+    }
+}
+

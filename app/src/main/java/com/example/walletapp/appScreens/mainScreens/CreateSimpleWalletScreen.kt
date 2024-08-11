@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
@@ -33,7 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.walletapp.R
 import com.example.walletapp.Server.GetMyAddr
@@ -84,8 +87,7 @@ fun CreateSimpleWalletScreen(
                 .padding(padding)
                 .fillMaxHeight()
         ) {
-
-            val (content, actions) = createRefs()
+            val (warning, content, actions) = createRefs()
 
             Column(
                 modifier = Modifier
@@ -98,6 +100,30 @@ fun CreateSimpleWalletScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 NameStep(walletNameText) { walletNameText = it }
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .padding(horizontal = 28.dp)
+                    .constrainAs(warning){
+                        top.linkTo(content.bottom, margin = 16.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            ){
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = "Warning",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(
+                    text = "Вы создаете кошелек на сети TRON, в котором функции подписанта выполняются исключительно вами. Для более детальной настройки кошелька, пожалуйста, активируйте опцию \"Продвинутый пользователь\" в настройках приложения.",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Light,
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
 
             Row(

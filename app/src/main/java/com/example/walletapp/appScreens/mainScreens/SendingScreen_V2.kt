@@ -1,28 +1,41 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -36,13 +49,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Balans
+import com.example.walletapp.DataBase.Entities.WalletAddress
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.Element.CustomButton
+import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
+import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -178,11 +204,16 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
     var paymentPurpose by remember { mutableStateOf("") }
     val context = LocalContext.current
 
+    // Состояние для управления открытием/закрытием WalletAddresses Bottom Sheet
+    val walletAddressesBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var openWalletAddressesBottomSheet by remember { mutableStateOf(false) }
+
     if (openQRBottomSheet) {
         ModalBottomSheet(
-            shape = newRoundedShape,
-            containerColor = colorScheme.surface,
+            shape = topRoundedShape,
+            containerColor = colorScheme.background,
             sheetState = qrBottomSheetState,
+            tonalElevation = 0.dp,
             onDismissRequest = { openQRBottomSheet = false },
             dragHandle = {
                 Column(
@@ -202,31 +233,77 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
         }
     }
 
+    if (openWalletAddressesBottomSheet) {
+        ModalBottomSheet(
+            shape = topRoundedShape,
+            containerColor = colorScheme.background,
+            sheetState = walletAddressesBottomSheetState,
+            tonalElevation = 0.dp,
+            onDismissRequest = { openWalletAddressesBottomSheet = false },
+            dragHandle = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            }
+        ) {
+            var showAddWalletScreen by remember { mutableStateOf(false) }
+
+            if (showAddWalletScreen) {
+                AddWalletAddressScreen(
+                    viewModel = viewModel,
+                    onBackClick = { showAddWalletScreen = false }  // Вернуться к списку адресов
+                )
+            } else {
+                WalletAddressesContent(
+                    viewModel = viewModel,
+                    onWalletAddressClick = { selectedAddress ->
+                        address = selectedAddress
+                        openWalletAddressesBottomSheet = false
+                    },
+                    onAddWalletAddressClick = { showAddWalletScreen = true }  // Показать экран добавления
+                )
+            }
+        }
+    }
+
+
     val selectedWallet by viewModel.selectedWallet.observeAsState()
 
     selectedWallet?.let { wallet ->
         selectedToken?.let { token ->
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                    .fillMaxSize().padding(horizontal = 16.dp)
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Text("Кошелек: ${wallet.addr}", color = colorScheme.onSurface)
                     Text("Баланс: ${token.amount} ${token.name}", color = colorScheme.onSurface)
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    CustomOutlinedTextFieldWithIcon(
-                        value = address,
-                        onValueChange = { address = it },
-                        placeholder = "Адрес",
-                        onClick = { openQRBottomSheet = true },
-                    )
+                    Row (
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        CustomOutlinedTextFieldWithTwoIcon(
+                            value = address,
+                            onValueChange = { address = it },
+                            placeholder = "Адрес",
+                            onClick = { openQRBottomSheet = true },
+                            onOpenWalletAddressesBottomSheet = {openWalletAddressesBottomSheet = true}
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+
+
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     CustomOutlinedTextField(
                         value = amount,
@@ -234,7 +311,7 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                         placeholder = "Сумма",
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Text("Комиссия составит: ???", color = colorScheme.onSurface)
                     Text("Минимальная комиссия: ???", color = colorScheme.onSurface)
@@ -277,4 +354,264 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
             }
         }
     } ?: Text("No wallet or token selected", color = colorScheme.onSurface)
+}
+
+@Composable
+fun WalletAddressesContent(
+    viewModel: appViewModel,
+    onWalletAddressClick: (String) -> Unit,
+    onAddWalletAddressClick: () -> Unit
+) {
+    val walletAddresses by viewModel.allWalletAddresses.observeAsState(initial = emptyList())
+    LazyColumn(
+        contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        item {
+            AddSignerCard(
+                onClick = { onAddWalletAddressClick() }
+            )
+        }
+        items(walletAddresses) { address ->
+            WalletAddressItem(
+                walletAddress = address,
+                viewModel = viewModel,
+                onClick = {
+                    onWalletAddressClick(address.address)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun AddWalletAddressScreen(
+    viewModel: appViewModel,
+    onBackClick: () -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+    var name by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var blockchain by remember { mutableStateOf("") }
+    var token by remember { mutableStateOf("") }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            CustomOutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                placeholder = "Name",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                })
+            )
+            CustomOutlinedTextField(
+                value = address,
+                onValueChange = { address = it },
+                placeholder = "Address",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                })
+            )
+            CustomOutlinedTextField(
+                value = blockchain,
+                onValueChange = { blockchain = it },
+                placeholder = "Blockchain",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                })
+            )
+            CustomOutlinedTextField(
+                value = token,
+                onValueChange = { token = it },
+                placeholder = "Token",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                })
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            ElevatedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp, max = 64.dp),
+                shape = newRoundedShape,
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary,
+                    disabledContainerColor = colorScheme.primaryContainer,
+                    disabledContentColor = colorScheme.onPrimaryContainer
+                ),
+                onClick = {
+                    viewModel.insertWalletAddress(
+                        WalletAddress(
+                            ownerName = name,
+                            address = address,
+                            blockchain = blockchain,
+                            token = token
+                        )
+                    )
+                    onBackClick()
+                }
+            ) {
+                Text(text = "Save")
+            }
+        }
+}
+
+@Composable
+fun CustomOutlinedTextFieldWithTwoIcon(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    onClick: () -> Unit,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    onOpenWalletAddressesBottomSheet: () -> Unit
+) {
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(),
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = {
+            Text(
+                text = placeholder,
+                fontWeight = FontWeight.Normal,
+                color = Color.Gray
+            ) },
+        singleLine = true,
+        shape = newRoundedShape,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = colorScheme.onSurface,
+            unfocusedTextColor = colorScheme.onSurface,
+            focusedContainerColor = colorScheme.surface,
+            unfocusedContainerColor = colorScheme.surface,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+        ),
+        maxLines = 1,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        trailingIcon = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                IconButton(onClick = {
+                    onClick()
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.qr_code_scanner),
+                        contentDescription = "QR",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+                }
+
+                IconButton(onClick = {
+                    onOpenWalletAddressesBottomSheet()
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.wallet_address),
+                        contentDescription = "Wallet Addresses",
+                        tint = colorScheme.primary,
+                        modifier = Modifier.scale(1.2f)
+                    )
+                }
+            }
+
+        }
+    )
+}
+
+
+@Composable
+fun WalletAddressItem(walletAddress: WalletAddress, viewModel: appViewModel, onClick: (String) -> Unit) {
+    Card(
+        onClick = {onClick(walletAddress.address)},
+        shape = newRoundedShape,
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surface,
+            contentColor = colorScheme.onSurface
+        ),
+        border = BorderStroke(width = 0.75.dp, color = colorScheme.primary),
+
+        ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = walletAddress.ownerName,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colorScheme.onSurface,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    minLines = 1,
+                )
+                Text(
+                    text = walletAddress.address,
+                    fontSize = 14.sp,
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.Light,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    minLines = 1,
+
+                    )
+                Text(
+                    text = walletAddress.blockchain,
+                    fontSize = 14.sp,
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.Light,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    minLines = 1,
+
+                    )
+                Text(
+                    text = walletAddress.token,
+                    fontSize = 14.sp,
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.Light,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    minLines = 1,
+                )
+            }
+
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ){
+                IconButton(
+                    onClick = { viewModel.deleteWalletAddress(walletAddress) },
+                    modifier = Modifier
+                        .scale(1.2f)
+                        .alpha(0.9f),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Delete,
+                        contentDescription = "Delete signer",
+                        tint = colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
 }

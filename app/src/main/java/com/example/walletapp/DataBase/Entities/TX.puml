@@ -1,0 +1,77 @@
+@startuml
+entity TX {
+    +String unid
+    +Int id
+    +String tx
+    +Int minsign
+    +String waitEC
+    +String signedEC
+    +Int network
+    +String token
+    +String to_addr
+    +String info
+    +Double tx_value
+    +Int init_ts
+    +String eMSG
+    +String deny
+}
+
+' Annotations and additional metadata
+note right of TX::unid
+  PrimaryKey
+  ColumnInfo(NOCASE)
+  Description: unid транзакции на сервере
+end note
+
+note right of TX::tx
+  ColumnInfo(NOCASE)
+  Description: реальный хэш транзакции в сети блокчейна
+end note
+
+note right of TX::minsign
+  Description: Минимально необходимое колво подписантов для запуска этой транзакции в сеть
+end note
+
+note right of TX::waitEC
+  ColumnInfo(NOCASE)
+  Description: EC Адреса подписантов, подписи которых ждёт транзакция
+end note
+
+note right of TX::signedEC
+  ColumnInfo(NOCASE)
+  Description: EC Адреса подписантов, которые уже подписали
+end note
+
+note right of TX::network
+  Description: Код сети блокчейна (например 1000 для битка)
+end note
+
+note right of TX::token
+  Description: имя токена (например TRX для трона)
+end note
+
+note right of TX::to_addr
+  ColumnInfo(NOCASE)
+  Description: куда
+end note
+
+note right of TX::info
+  Description: инфа
+end note
+
+note right of TX::tx_value
+  Description: сумма транзакции
+end note
+
+note right of TX::init_ts
+  Description: Время создания транзакции
+end note
+
+note right of TX::eMSG
+  Description: Cообщение например об ошибке (например нехватило газа для осуществления транзакции)
+end note
+
+note right of TX::deny
+  Description: транзакция запрещена. Используется для хранения причины отказа
+end note
+@enduml

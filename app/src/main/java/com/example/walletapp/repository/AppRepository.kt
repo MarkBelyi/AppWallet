@@ -9,6 +9,7 @@ import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
 import com.example.walletapp.DataBase.DAO.TokensDAO
 import com.example.walletapp.DataBase.DAO.TxDAO
+import com.example.walletapp.DataBase.DAO.WalletAddressDao
 import com.example.walletapp.DataBase.DAO.WalletsDAO
 import com.example.walletapp.DataBase.Entities.AllTX
 import com.example.walletapp.DataBase.Entities.Balans
@@ -16,6 +17,7 @@ import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.TX
 import com.example.walletapp.DataBase.Entities.Tokens
+import com.example.walletapp.DataBase.Entities.WalletAddress
 import com.example.walletapp.DataBase.Entities.Wallets
 import kotlinx.coroutines.flow.Flow
 
@@ -28,7 +30,8 @@ class AppRepository(
     private val tokensDAO: TokensDAO,
     private val balansDAO: BalansDAO,
     private val txDAO: TxDAO,
-    private val allTxDAO: AllTxDAO
+    private val allTxDAO: AllTxDAO,
+    private val walletAddressDAO: WalletAddressDao
 ){
     //balans
     suspend fun getAllBalansByAddr(adr: String): List<Balans> = balansDAO.getAllByAddr(adr)
@@ -143,6 +146,14 @@ class AppRepository(
         allTxDAO.add(txList)
     }
 
+    suspend fun getTransactionsByName(name: String): List<AllTX> {
+        return allTxDAO.getTransactionsByName(name)
+    }
+
+    suspend fun getAllTransactions(): Flow<List<AllTX>> {
+        return allTxDAO.getAll()
+    }
+
     suspend fun updateUserTransactionStatus(unid: String, status: Int) {
         allTxDAO.updateTransactionStatus(unid, status)
     }
@@ -155,10 +166,21 @@ class AppRepository(
         return allTxDAO.getStatus(unid)
     }
 
+    //WalletAddresses
+    val allWalletAddresses: Flow<List<WalletAddress>> = walletAddressDAO.getAllAddresses()
+
+    suspend fun insertWalletAddress(item: WalletAddress){
+        walletAddressDAO.insertWalletAddress(item)
+    }
+
+    suspend fun deleteWalletAddress(item: WalletAddress){
+        walletAddressDAO.deleteWalletAddresses(item)
+    }
+
 
     //DataBase
     suspend fun clearDataBase() {
-        //signersDao.clearSigners()
+        signersDao.clearSigners()
         networksDAO.clearNetworks()
         walletsDAO.clearWallets()
         tokensDAO.clearTokens()

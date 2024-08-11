@@ -35,7 +35,8 @@ class MainApplication : Application(){
             database.tokensDao(),
             database.balansDAO(),
             database.TxDAO(),
-            database.allTXDAO()
+            database.allTXDAO(),
+            database.walletAddressDao()
         )
     }
 }
@@ -99,11 +100,19 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    override fun onResume() {
+    /*override fun onResume() {
         super.onResume()
         if((application as MainApplication).isInBackground) {
             requestAuth()
             (application as MainApplication).isInBackground=false}
+    }*/
+
+    override fun onStop() {
+        super.onStop()
+        val app = application as MainApplication
+        if (!app.isInBackground) {
+            app.isInBackground = true
+        }
     }
 
     override fun onTrimMemory(level: Int) {

@@ -107,7 +107,8 @@ fun WalletsList(wallets: List<Wallets>, onWalletClick: (Wallets) -> Unit, onCrea
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(color = colorScheme.background)) {
+        .background(color = colorScheme.background)
+    ) {
         SearchBar(searchText, onTextChange = { newValue ->
             searchText = newValue
             viewModel.filterWalletsByName(newValue.text)
@@ -405,7 +406,7 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                     Spacer(Modifier.height(4.dp))
 
                     Row (modifier = Modifier.padding(4.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        val displayTokens = if (tokensList.size > 3) tokensList.take(3) else tokensList
+                        val displayTokens = if (tokensList.size > 2) tokensList.take(2) else tokensList
                         displayTokens.forEach { token ->
                             Box(
                                 modifier = Modifier
@@ -425,9 +426,9 @@ fun WalletItem(wallet: Wallets, onWalletClick: (Wallets) -> Unit) {
                                 )
                             }
                         }
-                        if (tokensList.size > 3) {
+                        if (tokensList.size > 2) {
                             Text(
-                                text = "+${tokensList.size - 3}",
+                                text = "+${tokensList.size - 2}",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 12.sp,
                                 color = if (isHidden) colorScheme.onSurface.copy(alpha = 0.5f) else colorScheme.onSurface,

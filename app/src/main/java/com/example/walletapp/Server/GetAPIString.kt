@@ -25,7 +25,7 @@ suspend fun GetAPIString(con: Context, api:String, mes:String="", POST:Boolean=f
         if (POST) {
             val requestBody =  "{$mes}".toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
             Request.Builder()
-                .url(con.getString(R.string.base_url) + "ece/" + api) // запрос к серверу
+                .url(con.getString(R.string.base_url) + "ece/" + api) // запрос к серверу //https:/my.h2k.me/ece/uuid
                 .addHeader("x-app-ec-from", rsva[3])
                 .addHeader("x-app-ec-sign-r", rsva[0])
                 .addHeader("x-app-ec-sign-s", rsva[1])
