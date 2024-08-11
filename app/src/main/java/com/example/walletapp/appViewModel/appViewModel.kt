@@ -463,7 +463,11 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     var selectedToken: MutableLiveData<Balans> = MutableLiveData()
 
     fun getCombinedBalances(): LiveData<Map<String, Double>> = liveData {
-        val combinedBalances = repository.getCombinedBalances()
+        val balance = sharedPreferences.getBoolean("show_test_networks", false)
+        val combinedBalances = if(balance){
+            repository.getCombinedBalancesWithTest()
+        } else repository.getCombinedBalances()
+
         val balancesMap = mutableMapOf<String, Double>()
 
         combinedBalances.forEach { networkBalance ->

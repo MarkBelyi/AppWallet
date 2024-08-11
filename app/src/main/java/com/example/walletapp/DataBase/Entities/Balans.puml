@@ -1,0 +1,43 @@
+@startuml
+entity Balans {
+    +String name
+    +String contract
+    +String addr
+    +Int network_id
+    +Double amount
+    +Double price
+}
+
+' Annotations and additional metadata
+note right of Balans::name
+  PrimaryKey
+  Index(unique=true)
+  Description: имя токена, например TRX, Matic, BTC, USDT
+end note
+
+note right of Balans::addr
+  PrimaryKey
+  Index(unique=true)
+  ColumnInfo(NOCASE)
+  Description: адрес кошелька имеющего этот токен
+end note
+
+note right of Balans::network_id
+  PrimaryKey
+  Index(unique=true)
+  Description: id блокчейна (например для биткоина это 1000)
+end note
+
+note right of Balans::contract
+  ColumnInfo(NOCASE)
+  Description: адрес контракта, породившего этот токен (или ноль)
+end note
+
+note right of Balans::amount
+  Description: Количество токенов в нормальном дробном виде
+end note
+
+note right of Balans::price
+  Description: Скока стоит 1 такой токен в долларах
+end note
+@enduml

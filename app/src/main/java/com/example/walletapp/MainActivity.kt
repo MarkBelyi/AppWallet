@@ -89,7 +89,6 @@ class MainActivity : AppCompatActivity() {
                     
                 }
 
-                // Включаем AuthModalBottomSheet в основной тематический контент
                 if (showAuthSheet.value) {
                     AuthModalBottomSheet(showAuthSheet, onAuthenticated = { showAuthSheet.value = false }, viewModel = appViewModel)
                 }
@@ -122,16 +121,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    //Пример использования настройки
-    fun Context.setContinuousAuthorizationEnabled(enabled: Boolean) {
-        val sharedPrefs = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
-        with(sharedPrefs.edit()) {
-            putBoolean("continuous_authorization", enabled)
-            apply()
-        }
-    }
-
     private fun getElectronicApprovalEnabled():Boolean{
         val sharedPrefs = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
         return sharedPrefs.getBoolean("electronic_approval", false)
@@ -144,16 +133,6 @@ class MainActivity : AppCompatActivity() {
             showAuthSheet.value = true
         }
     }
-
-
-
-    // Функция для определения, требуется ли повторная аутентификация
-    private fun someConditionForReAuthentication(): Boolean {
-        // Пример условия, вы можете определить свои собственные правила
-        return true
-    }
-
-
 }
 
 

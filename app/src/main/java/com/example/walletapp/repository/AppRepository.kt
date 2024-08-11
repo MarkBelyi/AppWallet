@@ -38,12 +38,17 @@ class AppRepository(
 
     suspend fun insertBalans(item: Balans) = balansDAO.insert(item)
 
-    //tokens
-    suspend fun insertToken(item: Tokens) = tokensDAO.insert(item)
-
     suspend fun getCombinedBalances(): List<NetworkBalance> {
         return balansDAO.getCombinedBalances()
     }
+
+    suspend fun getCombinedBalancesWithTest(): List<NetworkBalance> {
+        return balansDAO.getCombinedBalancesWithTest()
+    }
+
+    //tokens
+    suspend fun insertToken(item: Tokens) = tokensDAO.insert(item)
+
 
     // Wallets
     val allWallets: Flow<List<Wallets>> = walletsDAO.getLiveWallets().asFlow() // Получаем кошельки

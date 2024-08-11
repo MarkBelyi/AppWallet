@@ -18,9 +18,6 @@ interface WalletAddressDao {
     @Delete
     fun deleteWalletAddresses(item: WalletAddress)
 
-
-
-
     @Upsert
     fun insertAllWalletAddress(items: List<WalletAddress>)
 
