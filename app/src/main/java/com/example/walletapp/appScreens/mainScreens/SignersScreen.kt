@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -93,7 +94,7 @@ fun SignersScreen(
                 outputStream.close()
                 Toast.makeText(
                     context,
-                    "Адресная книга экспортирована",
+                    R.string.address_book_exported,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -103,7 +104,7 @@ fun SignersScreen(
     fun showExportSignersDialog() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            putExtra(Intent.EXTRA_TITLE, "signers_backup.json")
+            putExtra(Intent.EXTRA_TITLE, "signers_backup.asfn")
             setType("*/*") // Необходимый тип, чтобы избежать сбоев
             putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json"))
         }
@@ -129,7 +130,7 @@ fun SignersScreen(
 
                 Toast.makeText(
                     context,
-                    "Адресная книга импортирована",
+                    R.string.address_book_imported,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -139,7 +140,7 @@ fun SignersScreen(
     fun showImportSignersDialog() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            setType("*/*")
+            type = "*/*"
         }
         signersImportFilePicker.launch(intent)
     }
@@ -175,7 +176,7 @@ fun SignersScreen(
                                 expanded = false
                                 showExportSignersDialog()
                             },
-                            text = { Text("Экспорт адресной книги", fontWeight = FontWeight.Light) },
+                            text = { Text(stringResource(id = R.string.export_address_book), fontWeight = FontWeight.Light) },
                             leadingIcon = {
                                 Icon(Icons.Rounded.Share, contentDescription = "Export")
                             },
@@ -189,7 +190,7 @@ fun SignersScreen(
                                 expanded = false
                                 showImportSignersDialog()
                             },
-                            text = { Text("Импорт адресной книги", fontWeight = FontWeight.Light) },
+                            text = { Text(stringResource(id = R.string.import_address_book), fontWeight = FontWeight.Light) },
                             leadingIcon = {
                                 Icon(painterResource(id = R.drawable.receive), contentDescription = "Import")
                             },

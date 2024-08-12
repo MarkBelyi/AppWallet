@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -55,24 +56,24 @@ fun PurchaseScreen(
 
     val linkItems = listOf(
         LinkItem(
-            "Cервис Wallet",
+            stringResource(id = R.string.service),
             "https://wallet.tg/",
-            "Посетите сервис Wallet для безопасного управления и хранения вашей криптовалюты. Убедитесь, что ваши учетные данные готовы для входа."
+            stringResource(id = R.string.explain_service)
         ),
         LinkItem(
-            "Перейти на телеграм-бот",
+            stringResource(id = R.string.bot),
             "https://t.me/wallet",
-            "Откройте Telegram-бота, чтобы начать управлять своим кошельком напрямую через Telegram. Следуйте инструкциям бота по настройке и доступу к своей учетной записи."
+            stringResource(id = R.string.explain_bot)
         ),
         LinkItem(
-            "Видео инструкция",
+            stringResource(id = R.string.video_instruction),
             "https://youtu.be/dQw4w9WgXcQ?si=o5l2SJkfWk76o6f3",
-            "Посмотрите это видеоруководство для пошагового руководства по использованию сервиса Wallet. Обязательно внимательно следуйте каждому шагу для гладкого опыта."
+            stringResource(id = R.string.explain_video_instruction)
         ),
         LinkItem(
-            "Текстовая инструкция",
+            stringResource(id = R.string.text_instruction),
             "https://wiki.h2k.me/doku.php?id=ru:lite:instr:4",
-            "Прочитайте текстовые инструкции для получения подробного руководства по настройке и использованию сервиса Wallet. Обратитесь к этому документу, если вам нужны разъяснения по каким-либо шагам."
+            stringResource(id = R.string.explain_text_instruction)
         )
     )
 
@@ -82,7 +83,7 @@ fun PurchaseScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Купить",
+                        text = stringResource(id = R.string.buy_crypto),
                         color = colorScheme.onSurface
                     )
                 },
@@ -144,7 +145,7 @@ fun ClickableLinkText(text: String, url: String, instruction: String) {
 
         if (instruction.length > 40) {
             Text(
-                text = if (expanded) "Show less" else "Read more",
+                text = if (expanded) stringResource(id = R.string.show_less) else stringResource(id = R.string.read_more),
                 fontWeight = FontWeight.Light,
                 color = Color.LightGray,
                 modifier = Modifier

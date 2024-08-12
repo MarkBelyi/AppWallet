@@ -83,7 +83,11 @@ fun ReceiveScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Receive") },
+                title = { 
+                    Text(
+                        text = stringResource(id = R.string.action_receive)
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
@@ -164,7 +168,7 @@ fun ShareAddressScreen(walletAddr: String, onBackClick: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Share address", color = colorScheme.onSurface) },
+                title = { Text(text = stringResource(id = R.string.action_share_my_address), color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface,
@@ -225,7 +229,7 @@ fun ShareAddressScreen(walletAddr: String, onBackClick: () -> Unit) {
                         val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("address", walletAddr)
                         clipboardManager.setPrimaryClip(clip)
-                        Toast.makeText(context, "Address copied to clipboard", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.copy_address, Toast.LENGTH_SHORT).show()
                     }) {
                         Icon(painter = painterResource(id = R.drawable.copy), contentDescription = "Copy", tint = colorScheme.primary)
                     }

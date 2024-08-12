@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -67,10 +68,11 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TxHistoryScreen(viewModel: appViewModel, onBackClick: () -> Unit) {
+    val allTokensString = stringResource(id = R.string.all_tokens)
     val context = LocalContext.current
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
     var isFilterOn by remember { mutableStateOf(false) }
-    var selectedToken by remember { mutableStateOf("Все токены") }
+    var selectedToken by remember { mutableStateOf(allTokensString) }
     var completedOnly by remember { mutableStateOf(false) }
 
     // Наблюдаем за всеми транзакциями и отфильтрованными
@@ -78,7 +80,7 @@ fun TxHistoryScreen(viewModel: appViewModel, onBackClick: () -> Unit) {
     val filteredTransactions by viewModel.filteredTransactions.observeAsState(initial = emptyList())
 
     // Используем транзакции для отображения: все или отфильтрованные
-    val transactions = if (searchText.text.isNotEmpty() || selectedToken != "Все токены" || completedOnly) {
+    val transactions = if (searchText.text.isNotEmpty() || selectedToken != allTokensString || completedOnly) {
         filteredTransactions
     } else {
         allTransactions
@@ -94,7 +96,7 @@ fun TxHistoryScreen(viewModel: appViewModel, onBackClick: () -> Unit) {
             TopAppBar(
                 title = {
                     Text(
-                        text = "История транзакций",
+                        text = stringResource(id = R.string.action_tx_history),
                         color = colorScheme.onSurface
                     )
                 },
@@ -148,7 +150,7 @@ fun TxHistoryScreen(viewModel: appViewModel, onBackClick: () -> Unit) {
                 if (transactions.isEmpty()) {
                     item {
                         Text(
-                            text = "Здесь пока ничего нет!",
+                            text = stringResource(id = R.string.nothing_here),
                             fontSize = 16.sp,
                             modifier = Modifier.padding(padding),
                             color = colorScheme.onSurface,
@@ -201,7 +203,7 @@ fun TXItem(tx: AllTX) {
 
                 if (tx.tx.isEmpty() || tx.tx == "null") {
                     Text(
-                        text = "Транзакция еще не в блокчейне!",
+                        text = stringResource(id = R.string.tx_not_in_block),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                         overflow = TextOverflow.Ellipsis,
@@ -210,7 +212,7 @@ fun TXItem(tx: AllTX) {
                     )
                 } else if (!hexPattern.matches(tx.tx)) {
                     Text(
-                        text = "Ошибка: ${tx.tx}",
+                        text = stringResource(id = R.string.tx_error) + tx.tx,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                         overflow = TextOverflow.Ellipsis,
@@ -219,7 +221,7 @@ fun TXItem(tx: AllTX) {
                     )
                 } else {
                     Text(
-                        text = "Транзакция прошла успешно!",
+                        text = stringResource(id = R.string.tx_success),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                         overflow = TextOverflow.Ellipsis,
@@ -236,7 +238,7 @@ fun TXItem(tx: AllTX) {
                     )
                 }
                 Text(
-                    text = "To address: ${tx.to_addr}",
+                    text = stringResource(id = R.string.to_address) + tx.to_addr,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
@@ -244,7 +246,7 @@ fun TXItem(tx: AllTX) {
                     maxLines = 1
                 )
                 Text(
-                    text = "Amount: ${tx.tx_value} ${tx.token}",
+                    text = stringResource(id = R.string.amount_of_money) + tx.tx_value + " " + tx.token,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
@@ -252,7 +254,7 @@ fun TXItem(tx: AllTX) {
                     maxLines = 1
                 )
                 Text(
-                    text = "Time: ${formatTimestamp(tx.init_ts)}",
+                    text = stringResource(id = R.string.tx_time) + formatTimestamp(tx.init_ts),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
@@ -278,14 +280,15 @@ fun SearchBarTX(
     onTokenSelected: (String) -> Unit,
     onCompletedOnlyChanged: (Boolean) -> Unit,
 ) {
-    var selectedToken by remember { mutableStateOf("Все токены") }
+    val allTokensString = stringResource(id = R.string.all_tokens)
+    var selectedToken by remember { mutableStateOf(allTokensString) }
     var completedOnly by remember { mutableStateOf(false) }
     var openTokenBottomSheet by remember { mutableStateOf(false) }
     val tokenBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
     val tokens = listOf(
-        "Все токены", "BTC", "ETH", "TRX"
+        allTokensString, "BTC", "ETH", "TRX"
     )
 
     if (openTokenBottomSheet) {
@@ -303,7 +306,7 @@ fun SearchBarTX(
             ) {
                 item {
                     Text(
-                        text = "Выберите токен",
+                        text = stringResource(id = R.string.choose_token),
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.SemiBold,
@@ -429,7 +432,7 @@ fun SearchBarTX(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Завершенные",
+                            text = stringResource(id = R.string.completed),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Light,
                             maxLines = 1,

@@ -25,9 +25,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.walletapp.Element.ClickableText
+import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 
 
@@ -45,7 +47,7 @@ fun SignHistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBac
         containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("History", color = colorScheme.onSurface) },
+                title = { Text(stringResource(id = R.string.action_sign_history), color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface
@@ -71,13 +73,13 @@ fun SignHistoryScreen(viewModel: appViewModel, onSendingClick: () -> Unit, onBac
             else{
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "You don't have any transactions!",
+                    text = stringResource(id = R.string.no_transactions),
                     color = colorScheme.onSurface,
                     fontWeight = FontWeight.Light
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 ClickableText(
-                    text = "Create transaction",
+                    text = stringResource(id = R.string.create_transaction),
                     onClick = onSendingClick
                 )
             }

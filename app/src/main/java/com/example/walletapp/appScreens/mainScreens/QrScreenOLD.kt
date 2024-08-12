@@ -31,12 +31,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.example.walletapp.R
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 
@@ -104,12 +106,12 @@ fun QrScreen(onScanResult: (String) -> Unit) {
             // Оверлей со сканированием QR
             QrScannerOverlay(
                 modifier = Modifier
-                    .fillMaxWidth(0.75f) // Используйте 75% от ширины экрана
-                    .aspectRatio(1f) // Сохраняет соотношение сторон квадрата 1:1
+                    .fillMaxWidth(0.75f)
+                    .aspectRatio(1f)
             )
         } else {
             Text(
-                text = "Требуется разрешение на использование камеры",
+                text = stringResource(id = R.string.camera_permission),
                 textAlign = TextAlign.Center, color = colorScheme.onSurface,
                 fontWeight = FontWeight.Light, fontSize = 12.sp
             )

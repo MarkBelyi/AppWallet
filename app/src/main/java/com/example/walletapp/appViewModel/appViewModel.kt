@@ -52,12 +52,11 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 
-class appViewModel(private val repository: AppRepository, application: Application) : AndroidViewModel(application) {
+class appViewModel(private val repository: AppRepository, private val application: Application) : AndroidViewModel(application) {
     @SuppressLint("StaticFieldLeak")
     private val context: Context = application.applicationContext
     private val sharedPreferences = application.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
     private val gson = Gson()
-    private val application = application
 
     //QR
     private val _qrResult = MutableLiveData<String?>()
@@ -137,7 +136,7 @@ class appViewModel(private val repository: AppRepository, application: Applicati
 
     //AuthMethod
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
-    val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
+    private val selectedAuthMethod: LiveData<AuthMethod> = _selectedAuthMethod
 
     init {
         _selectedAuthMethod.value = getAuthMethodFromPrefs()
@@ -550,7 +549,6 @@ class appViewModel(private val repository: AppRepository, application: Applicati
                             tx_value = formattedAmount.toDouble(),
                             from = wallet.name
                         )
-                        //repository.insertTransaction(tx)
                         println("Transaction ID saved to database successfully.")
                     }
                 }

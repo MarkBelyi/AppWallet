@@ -91,7 +91,7 @@ fun WriteSeedPhraseScreen(navHostController: NavHostController, viewModel: appVi
         }
 
         Text(
-            text = stringResource(id = R.string.tap_seed_phrase),
+            text = stringResource(id = R.string.enter_mnem),
             style = TextStyle(
                 fontSize = typography.titleLarge.fontSize,
                 fontWeight = FontWeight.SemiBold,

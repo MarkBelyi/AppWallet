@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -93,7 +94,7 @@ fun SendingScreen_V2(
         containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Choose", color = colorScheme.onSurface) },
+                title = { Text( text = stringResource(id = R.string.choosewallet), color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface
@@ -203,8 +204,6 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
     var amount by remember { mutableStateOf("") }
     var paymentPurpose by remember { mutableStateOf("") }
     val context = LocalContext.current
-
-    // Состояние для управления открытием/закрытием WalletAddresses Bottom Sheet
     val walletAddressesBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openWalletAddressesBottomSheet by remember { mutableStateOf(false) }
 
@@ -276,13 +275,14 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
         selectedToken?.let { token ->
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize().padding(horizontal = 16.dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
             ) {
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text("Кошелек: ${wallet.addr}", color = colorScheme.onSurface)
-                    Text("Баланс: ${token.amount} ${token.name}", color = colorScheme.onSurface)
+                    Text(stringResource(id = R.string.wallet_name) + " : " + wallet.addr, color = colorScheme.onSurface)
+                    Text(stringResource(id = R.string.balance) + " : " + token.amount + " " + token.name, color = colorScheme.onSurface)
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -294,7 +294,7 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                         CustomOutlinedTextFieldWithTwoIcon(
                             value = address,
                             onValueChange = { address = it },
-                            placeholder = "Адрес",
+                            placeholder = stringResource(id = R.string.address),
                             onClick = { openQRBottomSheet = true },
                             onOpenWalletAddressesBottomSheet = {openWalletAddressesBottomSheet = true}
                         )
@@ -308,24 +308,23 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                     CustomOutlinedTextField(
                         value = amount,
                         onValueChange = { amount = it },
-                        placeholder = "Сумма",
+                        placeholder = stringResource(id = R.string.amount),
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text("Комиссия составит: ???", color = colorScheme.onSurface)
-                    Text("Минимальная комиссия: ???", color = colorScheme.onSurface)
-                    Text("Максимальная комиссия: ???", color = colorScheme.onSurface)
-                    Text("Комиссия: ???", color = colorScheme.onSurface)
+                    Text(stringResource(id = R.string.comission), color = colorScheme.onSurface)
+                    Text(stringResource(id = R.string.min_comission), color = colorScheme.onSurface)
+                    Text(stringResource(id = R.string.max_comission), color = colorScheme.onSurface)
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("Укажите назначение платежа", color = colorScheme.onSurface)
+                    Text(stringResource(id = R.string.input_purpose), color = colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(8.dp))
                     CustomOutlinedTextField(
                         value = paymentPurpose,
                         onValueChange = { paymentPurpose = it },
-                        placeholder = "Назначение платежа"
+                        placeholder = stringResource(id = R.string.purpose)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -333,7 +332,7 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                     val isButtonEnabled = address.isNotBlank() && amount.isNotBlank() && paymentPurpose.isNotBlank()
 
                     CustomButton(
-                        text = "Отправить",
+                        text = stringResource(id = R.string.send),
                         onClick = {
                             amount.toDoubleOrNull()?.let { amt ->
                                 viewModel.sendTransaction(
@@ -353,7 +352,7 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                 }
             }
         }
-    } ?: Text("No wallet or token selected", color = colorScheme.onSurface)
+    } ?: Text(stringResource(id = R.string.no_wallet_or_token), color = colorScheme.onSurface)
 }
 
 @Composable
@@ -408,7 +407,7 @@ fun AddWalletAddressScreen(
             CustomOutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                placeholder = "Name",
+                placeholder = stringResource(id = R.string.owner_name),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
                     focusManager.moveFocus(FocusDirection.Down)
@@ -417,7 +416,7 @@ fun AddWalletAddressScreen(
             CustomOutlinedTextField(
                 value = address,
                 onValueChange = { address = it },
-                placeholder = "Address",
+                placeholder = stringResource(id = R.string.owner_address),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
                     focusManager.moveFocus(FocusDirection.Down)
@@ -426,7 +425,7 @@ fun AddWalletAddressScreen(
             CustomOutlinedTextField(
                 value = blockchain,
                 onValueChange = { blockchain = it },
-                placeholder = "Blockchain",
+                placeholder = stringResource(id = R.string.block),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
                     focusManager.moveFocus(FocusDirection.Down)
@@ -435,7 +434,7 @@ fun AddWalletAddressScreen(
             CustomOutlinedTextField(
                 value = token,
                 onValueChange = { token = it },
-                placeholder = "Token",
+                placeholder = stringResource(id = R.string.token),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
@@ -465,7 +464,7 @@ fun AddWalletAddressScreen(
                     onBackClick()
                 }
             ) {
-                Text(text = "Save")
+                Text(text = stringResource(id = R.string.save))
             }
         }
 }

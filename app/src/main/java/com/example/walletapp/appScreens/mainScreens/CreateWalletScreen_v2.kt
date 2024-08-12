@@ -82,7 +82,6 @@ import androidx.wear.compose.material.swipeable
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
-import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
@@ -97,21 +96,14 @@ fun CreateWalletScreen_v2(
     onCreateClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
-
     val context = LocalContext.current
     val networks by viewModel.networks.observeAsState(initial = emptyList())
-    val iam = GetMyAddr(context)
-
     val coroutineScope = rememberCoroutineScope()
-
     val numberOfSigner = 9
     val signerKeys = remember { mutableStateListOf("") }
-    val IamSigner = remember {mutableStateListOf(iam)}
-
     var walletNameText by remember { mutableStateOf("") }
     var selectedNetwork by remember { mutableStateOf("") }
     var selectedNetworkId by remember { mutableStateOf<Int?>(null) }
-
     var requiredSigners by remember { mutableIntStateOf(1) }
 
     fun checkWalletName(walletNameText: String): String {
@@ -236,7 +228,7 @@ fun CreateWalletScreen_v2(
                     when (pagerState.currentPage) {
                         0 -> inBetweenText = checkWalletName(walletNameText)
                         1 -> inBetweenText = checkNetwork(selectedNetwork)
-                        2 -> inBetweenText = "Create"
+                        2 -> inBetweenText = stringResource(id = R.string.create_wallet)
                     }
 
                     Box(
@@ -271,7 +263,7 @@ fun CreateWalletScreen_v2(
                                     .align(Alignment.Center)
                             ) {
                                 Icon(
-                                    Icons.AutoMirrored.Rounded.ArrowForward, "Forward"
+                                    Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = "Forward"
                                 )
                             }
                         }
@@ -307,10 +299,10 @@ fun CreateWalletScreen_v2(
                                         showDialog.value = false
                                     },
                                     title = {
-                                        Text(text = "Вы готовы создать кошелек?")
+                                        Text(text = stringResource(id = R.string.ask_about_creating), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
                                     },
                                     text = {
-                                        Text("Далее вы не сможете изменить данные, касающиеся вашего кошелька. Если вы не уверены в введенной информации, пожалуйста, перепроверьте ее.")
+                                        Text(stringResource(id = R.string.explain_ask_about_creating), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Light)
                                     },
                                     shape = newRoundedShape,
                                     confirmButton = {
@@ -325,14 +317,14 @@ fun CreateWalletScreen_v2(
                                             )
                                             onCreateClick()
                                         }) {
-                                            Text("Да", color = MaterialTheme.colorScheme.onSurface)
+                                            Text(stringResource(id = R.string.yes), color = MaterialTheme.colorScheme.onSurface)
                                         }
                                     },
                                     dismissButton = {
                                         TextButton(onClick = {
                                             showDialog.value = false
                                         }) {
-                                            Text("Нет", color = MaterialTheme.colorScheme.onSurface)
+                                            Text(stringResource(id = R.string.no), color = MaterialTheme.colorScheme.onSurface)
                                         }
                                     }
                                 )
@@ -366,7 +358,7 @@ fun NameStep(walletNameText: String, onNameChange: (String) -> Unit) {
     ) {
 
         Text(
-            text = "Введите имя кошелька:",
+            text = stringResource(id = R.string.enter_wallet_name),
             fontSize = 20.sp,
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold,
@@ -403,7 +395,7 @@ fun NameStep(walletNameText: String, onNameChange: (String) -> Unit) {
         )
 
         Text(
-            text = "Зачем это нужно? ",
+            text = stringResource(id = R.string.why),
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.primary,
@@ -412,7 +404,7 @@ fun NameStep(walletNameText: String, onNameChange: (String) -> Unit) {
         )
 
         Text(
-            text = "Имя вашего кошелька поможет вам легко идентифицировать его среди других кошельков. Это особенно полезно, если вы используете несколько кошельков для различных целей, например, для личных и рабочих нужд.",
+            text = stringResource(id = R.string.explain_why),
             fontSize = 12.sp,
             fontWeight = FontWeight.Light,
             color = MaterialTheme.colorScheme.onSurface,
@@ -422,7 +414,7 @@ fun NameStep(walletNameText: String, onNameChange: (String) -> Unit) {
         )
 
         Text(
-            text = "Выбор уникального и запоминающегося имени сделает использование вашего кошелька более удобным.",
+            text = stringResource(id = R.string.your_choose),
             fontSize = 12.sp,
             fontWeight = FontWeight.Light,
             color = MaterialTheme.colorScheme.onSurface,
@@ -447,7 +439,7 @@ fun NetworkStep(
     ) {
 
         Text(
-            text = "Выберите блокчейн-сеть кошелька:",
+            text = stringResource(id = R.string.choose_network_blockchain),
             fontSize = 20.sp,
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold,
@@ -527,7 +519,7 @@ fun NetworkStep(
         }
 
         Text(
-            text = "Зачем это нужно?",
+            text = stringResource(id = R.string.why),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
@@ -536,7 +528,7 @@ fun NetworkStep(
         )
 
         Text(
-            text = "Разные блокчейн-сети предлагают различные функции и уровни безопасности. Выбор сети зависит от ваших целей и нужд.",
+            text = stringResource(id = R.string.explain_why_blockchain),
             fontSize = 12.sp,
             fontWeight = FontWeight.Light,
             color = MaterialTheme.colorScheme.onSurface,
@@ -546,10 +538,10 @@ fun NetworkStep(
         )
 
         val text = buildAnnotatedString {
-            append("Вы можете включить или отключить показ тестовых сетей в настройках, выбрав опцию ")
+            append(stringResource(id = R.string.enabled_test))
 
             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                append("\"Показывать тестовые сети\".")
+                append(stringResource(id = R.string.enabled_option))
             }
         }
 
@@ -560,7 +552,6 @@ fun NetworkStep(
             fontWeight = FontWeight.Light,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
-
     }
 }
 
@@ -697,7 +688,7 @@ fun SignersStep(
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Text(
                 text =
-                "Необходимое количество подписантов: $requiredSigners "
+                stringResource(id = R.string.need_anount_signer) + requiredSigners
                         + stringResource(id = R.string.of)
                         + " ${signerKeys.size}",
 
@@ -848,10 +839,10 @@ fun SignerRow_v2(
 
         if (swipeableState.offset.value < -sizePx / 2) {
             Text(
-                "Remove item?",
+                text = stringResource(id = R.string.remove_item),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Normal,
+                fontWeight = FontWeight.Light,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = 16.dp)
@@ -876,7 +867,6 @@ fun SignerRow_v2(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Add,
-
                         contentDescription = "add",
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.scale(1.2f)

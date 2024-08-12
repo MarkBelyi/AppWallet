@@ -1,7 +1,6 @@
 package com.example.walletapp.repository
 
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.asFlow
 import com.example.walletapp.DataBase.DAO.AllTxDAO
 import com.example.walletapp.DataBase.DAO.BalansDAO
 import com.example.walletapp.DataBase.DAO.NetworkBalance
@@ -51,19 +50,8 @@ class AppRepository(
 
 
     // Wallets
-    val allWallets: Flow<List<Wallets>> = walletsDAO.getLiveWallets().asFlow() // Получаем кошельки
-
     suspend fun addWallets(wallets: List<Wallets>) {
         walletsDAO.addWallets(wallets)
-    }
-
-    // New methods
-    suspend fun getOnlyHiddenWallets(): List<Wallets> {
-        return walletsDAO.getOnlyHiddenWallets()
-    }
-
-    suspend fun getVisibleWallets(): List<Wallets> {
-        return walletsDAO.getVisibleWallets()
     }
 
     //NEW
@@ -103,8 +91,6 @@ class AppRepository(
     }
 
     //Network
-    val allNetworks: Flow<List<Networks>> = networksDAO.getNetworks()
-
     suspend fun addNetworks(networks: List<Networks>){
         networksDAO.addNetworks(networks)
     }
@@ -120,10 +106,6 @@ class AppRepository(
     //SignTX
     val allTX: Flow<List<TX>> = txDAO.getAll()
 
-    suspend fun insertTransaction(tx: TX) {
-        txDAO.insert(tx)
-    }
-
     suspend fun insertAllTransactions(txList: List<TX>) {
         txDAO.add(txList)
     }
@@ -136,16 +118,8 @@ class AppRepository(
         txDAO.updateTransactionRejectReason(unid, reason)
     }
 
-    suspend fun getTransactionStatus(unid: String): Int? {
-        return txDAO.getStatus(unid)
-    }
-
     //AllUserTX
     val allUserTX: Flow<List<AllTX>> = allTxDAO.getAll()
-
-    suspend fun insertUserTransaction(tx: AllTX) {
-        allTxDAO.insert(tx)
-    }
 
     suspend fun insertAllUserTransactions(txList: List<AllTX>) {
         allTxDAO.add(txList)
@@ -157,18 +131,6 @@ class AppRepository(
 
     suspend fun getAllTransactions(): Flow<List<AllTX>> {
         return allTxDAO.getAll()
-    }
-
-    suspend fun updateUserTransactionStatus(unid: String, status: Int) {
-        allTxDAO.updateTransactionStatus(unid, status)
-    }
-
-    suspend fun updateUserTransactionRejectReason(unid: String, reason: String) {
-        allTxDAO.updateTransactionRejectReason(unid, reason)
-    }
-
-    suspend fun getUserTransactionStatus(unid: String): Int? {
-        return allTxDAO.getStatus(unid)
     }
 
     //WalletAddresses
