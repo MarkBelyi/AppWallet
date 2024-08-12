@@ -38,6 +38,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -94,13 +95,11 @@ fun AddSignerScreen(
         }
     }
 
-
-
     Scaffold(
         containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Add Signer", color = colorScheme.onSurface) },
+                title = { Text(text = stringResource(id = R.string.add_signer), color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface,
@@ -126,7 +125,7 @@ fun AddSignerScreen(
             CustomOutlinedTextField(
                 value = name,
                 onValueChange = updateState { name = it },
-                placeholder = "Name",
+                placeholder = stringResource(id = R.string.name_of_signer),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
                     focusManager.moveFocus(FocusDirection.Down) // Переход к следующему элементу
@@ -135,7 +134,7 @@ fun AddSignerScreen(
             CustomOutlinedTextFieldWithIcon(
                 value = address,
                 onValueChange = updateState { address = it },
-                placeholder = "Address",
+                placeholder = stringResource(id = R.string.address_of_signer),
                 onClick = { openQRBottomSheet = true },  // При нажатии открывать ModalBottomSheet
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
@@ -145,7 +144,7 @@ fun AddSignerScreen(
             CustomOutlinedTextField(
                 value = email,
                 onValueChange = updateState { email = it },
-                placeholder = "Email",
+                placeholder = stringResource(id = R.string.email_of_signer),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
                     focusManager.moveFocus(FocusDirection.Down) // Переход к следующему элементу
@@ -154,7 +153,7 @@ fun AddSignerScreen(
             CustomOutlinedTextField(
                 value = telephone,
                 onValueChange = updateState { telephone = it },
-                placeholder = "Phone number",
+                placeholder = stringResource(id = R.string.phone_of_signer),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
                     // Действие для кнопки "Done"
@@ -180,7 +179,7 @@ fun AddSignerScreen(
                     onBackClick()
                 }
             ) {
-                Text(text = "Save")
+                Text(text = stringResource(id = R.string.save_of_signer))
             }
         }
 

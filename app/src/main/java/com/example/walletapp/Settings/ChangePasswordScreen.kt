@@ -141,7 +141,7 @@ fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit, context: Co
                 val decrypt = DESCrypt.decrypt(bytes)
                 val text = String(decrypt, StandardCharsets.UTF_8)
                 if (!isBigInteger(text)) {
-                    Toast.makeText(context, "Неправильный ключ", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.wrong_key, Toast.LENGTH_SHORT).show()
                     return@let
                 }
                 val k: ECKeyPair = ECKeyPair.create(BigInteger(text))
@@ -149,11 +149,11 @@ fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit, context: Co
                 // Проверка схожести ключей
                 val currentPrivateKey = ps.getData("MyPrivateKey")
                 if (k.privateKey.toByteArray().contentEquals(currentPrivateKey)) {
-                    Toast.makeText(context, "Импортируемый ключ совпадает с вашим ключем", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.accept_mnem, Toast.LENGTH_SHORT).show()
                     isKeyMatching.value = true
                     onClick()
                 } else {
-                    Toast.makeText(context, "Импортируемый ключ не совпадает с вашим ключем", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.not_accept_mnem, Toast.LENGTH_SHORT).show()
                     isKeyMatching.value = false
                 }
             }
@@ -173,7 +173,7 @@ fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit, context: Co
         Spacer(modifier = Modifier.weight(0.3f))
 
         Text(
-            text = "Введите мнемоническую фразу",
+            text = stringResource(id = R.string.enter_mnem),
             fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold,
             color = colorScheme.onSurface,
@@ -219,7 +219,7 @@ fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit, context: Co
             shape = newRoundedShape,
             enabled = true,
         ) {
-            Text("Импорт ключей из файла")
+            Text(stringResource(id = R.string.import_key))
         }
 
         Spacer(modifier = Modifier.weight(0.45f))
@@ -343,7 +343,7 @@ fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit){
         Spacer(modifier = Modifier.weight(0.75f))
 
         Text(
-            text = "Выберите тип авторизации",
+            text = stringResource(id = R.string.choose_type_autho),
             fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold,
             color = colorScheme.onSurface,
@@ -369,7 +369,7 @@ fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit){
             ){
                 Icon(imageVector = Icons.Rounded.Lock, contentDescription = "password_icon", tint = colorScheme.primary, modifier = Modifier.scale(1.5f))
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "PIN-код", color = colorScheme.onSurface, fontWeight = FontWeight.SemiBold, fontSize = 24.sp)
+                Text(text = stringResource(id = R.string.pin), color = colorScheme.onSurface, fontWeight = FontWeight.SemiBold, fontSize = 24.sp)
             }
 
         }
@@ -393,7 +393,7 @@ fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit){
             ){
                 Icon(painter = painterResource(id = R.drawable.pass), contentDescription = "password_icon", tint = colorScheme.primary, modifier = Modifier.scale(1.5f))
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "Пароль", color = colorScheme.onSurface, fontWeight = FontWeight.SemiBold, fontSize = 24.sp)
+                Text(text = stringResource(id = R.string.pass), color = colorScheme.onSurface, fontWeight = FontWeight.SemiBold, fontSize = 24.sp)
             }
 
         }

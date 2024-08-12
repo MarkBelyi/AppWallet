@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -105,6 +106,7 @@ fun SettingsScreen(
     val gson = Gson()
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
+    val ps = PasswordStorageHelper(context)
 
     /*fun deleteAccount(){
         val builder = AlertDialog.Builder(context)
@@ -166,7 +168,6 @@ fun SettingsScreen(
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.data?.let { uri ->
                     val outputStream = context.contentResolver.openOutputStream(uri)!!
-                    val ps = PasswordStorageHelper(context)
                     val privKey = ps.getData("MyPrivateKey") ?: return@let ""
                     val realpriv = BigInteger(1, privKey).toString()
                     val encrypt = DESCrypt.encrypt(realpriv)
@@ -199,7 +200,6 @@ fun SettingsScreen(
                 val inputStream = context.contentResolver.openInputStream(uri)!!
                 val bytes = inputStream.readBytes()
                 inputStream.close()
-                val ps = PasswordStorageHelper(context)
 
                 val pk = ps.getData("MyPublicKey")
                 println("Public Key: {$pk}")
@@ -207,7 +207,7 @@ fun SettingsScreen(
 
                 val decrypt = DESCrypt.decrypt(bytes)
                 val text=String(decrypt, StandardCharsets.UTF_8)
-                if (!isBigInteger(text)) { Toast.makeText(context, "Неправильный ключ", Toast.LENGTH_SHORT).show(); return@let}
+                if (!isBigInteger(text)) { Toast.makeText(context, R.string.wrong_key, Toast.LENGTH_SHORT).show(); return@let}
                 val k: ECKeyPair = ECKeyPair.create(BigInteger(text))
 
                 ps.setData("MyPrivateKey",k.privateKey.toByteArray())
@@ -220,7 +220,6 @@ fun SettingsScreen(
                 val pk_new = ps.getData("MyPublicKey")
                 println("Public Key: {$pk_new}")
                 println(GetMyAddr(context))
-                //viewModel.deleteSigner(Signer(name = "", email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
                 viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
 
                 val builder: AlertDialog.Builder = AlertDialog.Builder(context)
@@ -250,7 +249,7 @@ fun SettingsScreen(
         containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Settings", color = colorScheme.onSurface) },
+                title = { Text(stringResource(id = R.string.settings), color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface
@@ -328,7 +327,9 @@ fun SettingsScreen(
             item(1){
                 Text(
                     text = "Safina Wallet: $versionName",
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     color = colorScheme.scrim,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,

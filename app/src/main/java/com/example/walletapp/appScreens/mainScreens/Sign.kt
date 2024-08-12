@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.TX
 import com.example.walletapp.PullToRefreshLazyColumn.PullToRefreshWithCustomIndicator
+import com.example.walletapp.R
 import com.example.walletapp.Server.GetMyAddr
 import com.example.walletapp.Settings.PasswordInputField
 import com.example.walletapp.Settings.verifyPin
@@ -103,7 +105,7 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
-            title = { Text("Причина отказа") },
+            title = { Text(stringResource(id = R.string.reject_reason)) },
             text = {
                 OutlinedTextField(
                     value = rejectReason.value,
@@ -112,7 +114,7 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
                     maxLines = 1,
                     shape = newRoundedShape,
                     placeholder = {
-                        Text(text = "Напишите причину отказа", fontWeight = FontWeight.Light)
+                        Text(text = stringResource(id = R.string.write_reject_reason), fontWeight = FontWeight.Light)
                     },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = colorScheme.surface,
@@ -133,7 +135,7 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
             },
             dismissButton = {
                 Button(onClick = { showDialog.value = false }) {
-                    Text("Отмена")
+                    Text(stringResource(id = R.string.cancel))
                 }
             }
         )
@@ -179,7 +181,7 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
                     maxLines = 1
                 )
                 Text(
-                    text = "To address: ${tx.to_addr}",
+                    text = stringResource(id = R.string.to_address) + tx.to_addr,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
@@ -187,7 +189,7 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
                     maxLines = 1
                 )
                 Text(
-                    text = "Amount: ${tx.tx_value} ${tx.token}",
+                    text = stringResource(id = R.string.amount_of_money) + tx.tx_value + " " + tx.token,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     overflow = TextOverflow.Ellipsis,
@@ -210,7 +212,7 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
                                 ),
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Text("Sign")
+                                Text(stringResource(id = R.string.sign))
                             }
                             OutlinedButton( onClick = {
                                 showAuthSheet.value = true
@@ -225,13 +227,13 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
                                 ),
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Text("Reject")
+                                Text(stringResource(id = R.string.reject))
                             }
                         }
                     }
                     2 -> { // SIGNED
                         Text(
-                            text = "Транзакция подписана вами",
+                            text = stringResource(id = R.string.you_signed),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Light,
                             overflow = TextOverflow.Ellipsis,
@@ -241,7 +243,7 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
                     }
                     3 -> { // REJECTED
                         Text(
-                            text = "Отказано вами по причине: ${tx.deny}",
+                            text = stringResource(id = R.string.your_reject_reason) + tx.deny,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Light,
                             maxLines = 2,
@@ -303,7 +305,7 @@ fun TXScreens(viewModel: appViewModel) {
         }else{
             item {
                 Text(
-                    text = "You don't have any transactions that you need to sign!",
+                    text = stringResource(id = R.string.no_need_to_sign),
                     color = colorScheme.onSurface,
                     fontWeight = FontWeight.Light,
                     textAlign = TextAlign.Center,
@@ -362,7 +364,7 @@ fun AuthModalBottomSheet(
                                         onAuthenticated()
                                     }
                                 } else {
-                                    Toast.makeText(context, "Incorrect PIN", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, R.string.incorrect_pin, Toast.LENGTH_SHORT).show()
                                 }
                             },
                             onBiometricAuthenticated = onAuthenticated
@@ -376,7 +378,7 @@ fun AuthModalBottomSheet(
                                     onAuthenticated()
                                 }
                             } else {
-                                Toast.makeText(context, "Incorrect password", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, R.string.incorrect_pass, Toast.LENGTH_SHORT).show()
                             }
                         })
                     }

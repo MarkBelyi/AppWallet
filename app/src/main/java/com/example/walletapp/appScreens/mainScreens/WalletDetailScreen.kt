@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -63,8 +64,7 @@ import org.json.JSONObject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit, onTransactionsClick: () -> Unit) {
-    //val wallet by viewModel.getWalletById(walletId).observeAsState()
+fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> Unit) {
     val signers by viewModel.allSigners.observeAsState(initial = emptyList())
     val context = LocalContext.current
     val (isHidden, setIsHidden) = remember { mutableStateOf(wallet.myFlags.isNotEmpty() && wallet.myFlags.first() == '1') }
@@ -177,7 +177,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
             items(1) {
 
-                Text(text = "Адрес кошелька:", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
+                Text(text = stringResource(id = R.string.wallet_address), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -193,8 +193,8 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     leadingIcon = {
                         IconButton(onClick = {
                             if(wallet.network in listOf(5010, 1010, 3040)){
-                                val url_test = "https://nile.tronscan.org/#/address/${wallet.addr}"
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url_test))
+                                val urlTest = "https://nile.tronscan.org/#/address/${wallet.addr}"
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(urlTest))
                                 context.startActivity(intent)
                             }else{
                                 val url = "https://tronscan.org/#/address/${wallet.addr}"
@@ -227,7 +227,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = "Подписанты:", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
+                Text(text = stringResource(id = R.string.signers_), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -235,7 +235,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = "Баланс:", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
+                Text(text = stringResource(id = R.string.balance_), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colorScheme.onSurface)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -253,45 +253,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                         fontSize = 14.sp,
                         color = colorScheme.onSurface
                     )
-
                 }
-
-
-
-                /*Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = colorScheme.surface, shape = roundedShape)
-                ) {
-                    Text(
-                        text = wallet.tokenShortNames.split(';').joinToString("\n"),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp),
-                        fontSize = 14.sp,
-                        color = colorScheme.onSurface
-                    )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    IconButton(
-                        onClick = { *//*onTransactionScreen()*//* },
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        enabled = true,
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.send_light),
-                            contentDescription = "send_transaction",
-                            modifier = Modifier.scale(1.5f),
-                            tint = colorScheme.primary
-                        )
-                    }
-                }*/
-
             }
         }
     }
@@ -299,10 +261,8 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
 @Composable
 fun AddressList(slist: String, signers: List<Signer>) {
-
     val slistJson = JSONObject(slist)
     val addresses = mutableListOf<String>()
-
     val keys = slistJson.keys()
 
     while (keys.hasNext()) {
@@ -335,7 +295,6 @@ fun AddressList(slist: String, signers: List<Signer>) {
             Spacer(modifier = Modifier.height(4.dp))
         }
     }
-
 }
 
 @Composable
@@ -344,25 +303,31 @@ fun HiddenItemAlertDialog(isHidden: Boolean, onDismiss: (Boolean) -> Unit) {
         onDismissRequest = { onDismiss(false) },
         confirmButton = {
             Text(
-                text = "Yes",
+                text = stringResource(id = R.string.yes),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Light,
                 color = colorScheme.onSurface,
-                modifier = Modifier.clickable { onDismiss(true) }.padding(16.dp)
+                modifier = Modifier
+                    .clickable { onDismiss(true) }
+                    .padding(16.dp)
             )
         },
         dismissButton = {
             Text(
-                text = "No",
+                text = stringResource(id = R.string.no),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Light,
                 color = colorScheme.onSurface,
-                modifier = Modifier.clickable { onDismiss(false) }.padding(16.dp)
+                modifier = Modifier
+                    .clickable { onDismiss(false) }
+                    .padding(16.dp)
             )
         },
         title = {
             Text(
-                text = if (isHidden) "Показать кошелек" else "Скрытый кошелек",
+                text = if (isHidden)
+                    stringResource(id = R.string.show_wallet)
+                else stringResource(id = R.string.hidden_wallet),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = colorScheme.onSurface
@@ -370,7 +335,7 @@ fun HiddenItemAlertDialog(isHidden: Boolean, onDismiss: (Boolean) -> Unit) {
         },
         text = {
             Text(
-                text = if (isHidden) "Вы действительно больше не хотите скрывать этот кошелек?" else "Вы действительно хотите скрыть этот кошелек?",
+                text = if (isHidden) stringResource(id = R.string.do_you_not_hide) else stringResource(id = R.string.do_you_hide),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Light,
                 color = colorScheme.onSurface

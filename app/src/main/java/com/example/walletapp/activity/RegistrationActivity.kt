@@ -61,7 +61,6 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
             targetState = selectedTabIndex,
             modifier = Modifier.background(color = colorScheme.background),
             transitionSpec = {
-                //anim.slideTransitionSpec()
                 anim.fadeTransitionSpec()
             }, label = ""
         ) { screen ->
@@ -88,10 +87,7 @@ fun RegistrationActivity(activity: Activity, navHostController: NavHostControlle
                 5 -> PinLockScreen(
                     onAction = {
                         if (isAddClicked) switchToPage(4) else switchToPage(2)
-                    },
-                    /*onBiometricAuthenticated = {
-                        if (isAddClicked) switchToPage(4) else switchToPage(2)
-                    }*/
+                    }
                 )
                 3 -> TapSeedPhraseScreen(
                     navHostController = navHostController,

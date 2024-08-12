@@ -36,25 +36,12 @@ fun MnemonicPhraseGrid(wordsList: List<String>, showWords: Boolean, onCloudyClic
             modifier = modifier
         )
     } else {
-        /*Cloudy(
-            radius = 25,
-            modifier = modifier.clickable(onClick = onCloudyClick)
-        ) {
-            MnemonicCells(
-                displayedWords,
-                itemSpacing,
-                modifier = modifier
-            )
-        }*/
-
         MnemonicCells(
             displayedWords,
             itemSpacing,
             modifier = modifier
                 .clickable(onClick = onCloudyClick)
         )
-
-
     }
 }
 

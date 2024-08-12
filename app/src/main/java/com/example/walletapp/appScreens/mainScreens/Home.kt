@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.example.walletapp.R
 import com.example.walletapp.appScreens.Actions
 import com.example.walletapp.appScreens.actionItems
 import com.example.walletapp.appViewModel.appViewModel
@@ -74,8 +75,6 @@ import com.example.walletapp.ui.theme.roundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.web3j.crypto.Credentials
-import org.web3j.crypto.WalletUtils
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -194,8 +193,8 @@ fun Home(
             containerColor = colorScheme.surface,
             textContentColor = colorScheme.onSurface,
             titleContentColor = colorScheme.primary,
-            title = { Text("Недоступная функция") },
-            text = { Text("К сожалению, данная функция пока недоступна.") }
+            title = { Text(text = stringResource(id = R.string.unavailable_fun), color = colorScheme.onSurface, fontWeight = FontWeight.SemiBold) },
+            text = { Text(text = stringResource(R.string.explain_unavailable_fun), color = colorScheme.onSurface, fontWeight = FontWeight.Light) }
         )
     }
 
@@ -277,7 +276,7 @@ fun Home(
                 Actions.support -> {
                     showUnavailableFeatureDialog = true
                 }
-                else -> onMatrixClick()
+                //else -> onMatrixClick()
             }
         }, modifier = Modifier
             .constrainAs(gridRef) {
@@ -303,7 +302,7 @@ fun AssetsWidget(viewModel: appViewModel) {
             .fillMaxWidth()
     ) {
         Text(
-            text = "Мои Активы:",
+            text = stringResource(id = R.string.my_assets),
             maxLines = 1,
             color = colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold,
@@ -328,7 +327,7 @@ fun BalancesView(viewModel: appViewModel) {
 
         if (nonZeroBalances.isEmpty()) {
             Text(
-                text = "У вас нет доступных активов!",
+                text = stringResource(id = R.string.you_have_not_assets),
                 maxLines = 1,
                 color = colorScheme.onSurface,
                 fontWeight = FontWeight.Light,
@@ -364,14 +363,14 @@ fun TableHeader() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = "Token",
+            text = stringResource(id = R.string.token),
             fontWeight = FontWeight.Normal,
             color = colorScheme.onSurface,
             modifier = Modifier.weight(1f),
             fontSize = 14.sp
         )
         Text(
-            text = "Total Balance",
+            text = stringResource(id = R.string.total_balance),
             fontWeight = FontWeight.Normal,
             color = colorScheme.onSurface,
             modifier = Modifier.weight(1f),
@@ -515,7 +514,7 @@ fun SecondBottomSheetContent(
                     viewModel.setQrResult(qrResult)
                     onSend()
                 } else {
-                    Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.empty_string, Toast.LENGTH_SHORT).show()
                 }
             },
             shape = newRoundedShape,
@@ -527,7 +526,7 @@ fun SecondBottomSheetContent(
                 contentColor = colorScheme.onPrimary,
             )
         ) {
-            Text("Перевести")
+            Text(stringResource(id = R.string.send))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -537,9 +536,9 @@ fun SecondBottomSheetContent(
                 if (qrResult != null) {
                     onHideButtonClick()
                     viewModel.addNewSignerFromQR(qrResult)
-                    Toast.makeText(context, "Подписант создан", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.signer_plus, Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.empty_string, Toast.LENGTH_SHORT).show()
                 }
             },
             shape = newRoundedShape,
@@ -551,7 +550,7 @@ fun SecondBottomSheetContent(
                 contentColor = colorScheme.onPrimary,
             )
         ) {
-            Text("Новый подписант")
+            Text(stringResource(id = R.string.new_signer))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -561,9 +560,9 @@ fun SecondBottomSheetContent(
                 if (qrResult != null) {
                     onHideButtonClick()
                     viewModel.addNewAddressFromQR(qrResult)
-                    Toast.makeText(context, "Адрес кошелька добавлен", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.add_wallet_address, Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Пустая строка адреса", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.empty_string, Toast.LENGTH_SHORT).show()
                 }
             },
             shape = newRoundedShape,
@@ -575,42 +574,9 @@ fun SecondBottomSheetContent(
                 contentColor = colorScheme.onPrimary,
             )
         ) {
-            Text("Новый адрес кошелька")
+            Text(stringResource(id = R.string.new_wallet_address))
         }
 
         Spacer(modifier = Modifier.height(48.dp))
     }
-}
-
-
-@Composable
-fun ShowKeyDialog(onDismiss: () -> Unit) {
-    val mnemonic = "We are such stuff as dreams are made on"
-    val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials(mnemonic, mnemonic)
-    val privateKeyBytes = restoreCredentials.ecKeyPair.privateKey.toByteArray()
-    val publicKeyBytes = restoreCredentials.ecKeyPair.publicKey.toByteArray()
-
-    val privateKey = privateKeyBytes.toHexString()
-    val publicKey = publicKeyBytes.toHexString()
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Ключи") },
-        text = {
-            Column {
-                Text("Private Key: $privateKey")
-                Text("Public Key: $publicKey")
-            }
-        },
-        confirmButton = {
-            ElevatedButton(onClick = onDismiss) {
-                Text("Закрыть")
-            }
-        }
-    )
-}
-
-// Extension function to convert ByteArray to hexadecimal String
-fun ByteArray.toHexString(): String {
-    return joinToString("") { "%02x".format(it) }
 }

@@ -149,7 +149,7 @@ fun PasswordInputField(onPasswordSubmitted: (String) -> Unit) {
         Spacer(modifier = Modifier.weight(0.2f))
 
         Text(
-            text = "Введите пароль",
+            text = stringResource(id = R.string.enterPassword),
             fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold,
             color = colorScheme.onSurface,

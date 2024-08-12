@@ -1,6 +1,5 @@
 package com.example.walletapp.appScreens.mainScreens
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,7 +43,7 @@ import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateSimpleWalletScreen(
     viewModel: appViewModel,
@@ -54,7 +53,6 @@ fun CreateSimpleWalletScreen(
     val context = LocalContext.current
     val iam = GetMyAddr(context)
     val IamSigner = remember { mutableStateListOf(iam) }
-
     var walletNameText by remember { mutableStateOf("") }
 
     Scaffold(
@@ -106,7 +104,7 @@ fun CreateSimpleWalletScreen(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .padding(horizontal = 28.dp)
-                    .constrainAs(warning){
+                    .constrainAs(warning) {
                         top.linkTo(content.bottom, margin = 16.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -119,7 +117,7 @@ fun CreateSimpleWalletScreen(
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 Text(
-                    text = "Вы создаете кошелек на сети TRON, в котором функции подписанта выполняются исключительно вами. Для более детальной настройки кошелька, пожалуйста, активируйте опцию \"Продвинутый пользователь\" в настройках приложения.",
+                    text = stringResource(id = R.string.explain_simple_user),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     color = MaterialTheme.colorScheme.primary,
@@ -153,7 +151,7 @@ fun CreateSimpleWalletScreen(
                         disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 ) {
-                    Text(text = "Create", color = MaterialTheme.colorScheme.onPrimary)
+                    Text(text = stringResource(id = R.string.create_wallet), color = MaterialTheme.colorScheme.onPrimary)
                     Icon(
                         painter = painterResource(id = R.drawable.done),
                         contentDescription = "Create Wallet",
@@ -168,10 +166,10 @@ fun CreateSimpleWalletScreen(
                             showDialog.value = false
                         },
                         title = {
-                            Text(text = "Вы готовы создать кошелек?")
+                            Text(text = stringResource(id = R.string.ask_about_creating), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
                         },
                         text = {
-                            Text("Далее вы не сможете изменить данные, касающиеся вашего кошелька. Если вы не уверены в введенной информации, пожалуйста, перепроверьте ее.")
+                            Text(stringResource(id = R.string.explain_ask_about_creating), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Light)
                         },
                         shape = newRoundedShape,
                         confirmButton = {
@@ -186,14 +184,14 @@ fun CreateSimpleWalletScreen(
                                 )
                                 onCreateClick()
                             }) {
-                                Text("Да", color = MaterialTheme.colorScheme.onSurface)
+                                Text(stringResource(id = R.string.yes), color = MaterialTheme.colorScheme.onSurface)
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = {
                                 showDialog.value = false
                             }) {
-                                Text("Нет", color = MaterialTheme.colorScheme.onSurface)
+                                Text(stringResource(id = R.string.no), color = MaterialTheme.colorScheme.onSurface)
                             }
                         }
                     )

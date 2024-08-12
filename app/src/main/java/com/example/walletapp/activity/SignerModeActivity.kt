@@ -78,6 +78,7 @@ fun SignerModeActivity(
                     onSuccessClick = {switchToPage(0)},
                     viewModel = viewModel
                 )
+
                 13 -> ChangeLanguageScreen(
                     viewModel = viewModel,
                     onBackClick = {switchToPage(0)}
