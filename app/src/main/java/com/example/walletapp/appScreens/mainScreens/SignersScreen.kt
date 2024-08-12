@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -39,6 +41,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -79,6 +82,8 @@ fun SignersScreen(
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
 
+
+
     val signersExportFilePicker = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
@@ -99,6 +104,7 @@ fun SignersScreen(
             }
         }
     }
+
 
     fun showExportSignersDialog() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -143,6 +149,11 @@ fun SignersScreen(
         }
         signersImportFilePicker.launch(intent)
     }
+
+
+
+
+
 
 
 
@@ -213,7 +224,9 @@ fun SignersScreen(
         ) {
             item {
                 AddSignerCard(
-                    onClick = { onAddSignerClick() }
+                    onClick = {
+                        onAddSignerClick()
+                    }
                 )
             }
             items(sortedSigners) { signer ->
@@ -224,6 +237,7 @@ fun SignersScreen(
                         onCurrentSignerClick(signer.address)
                     }
                 )
+
             }
         }
 
@@ -233,6 +247,47 @@ fun SignersScreen(
 
 @Composable
 fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Unit) {
+
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text("Подтверждение удаления",
+                fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                    fontSize = 18.sp
+            ) },
+            text = { Text("Вы уверены, что хотите удалить этого подписанта?",
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
+            ) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteSigner(signer)
+                    showDialog = false
+                }) {
+                    Text("Удалить",
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                        )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Отмена",
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
     Card(
         onClick = { onClick(signer.address) },
         shape = newRoundedShape,
@@ -318,7 +373,7 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
                 modifier = Modifier.padding(16.dp)
             ) {
                 IconButton(
-                    onClick = { viewModel.deleteSigner(signer) },
+                    onClick = { showDialog = true },
                     modifier = Modifier
                         .scale(1.2f)
                         .alpha(0.9f),

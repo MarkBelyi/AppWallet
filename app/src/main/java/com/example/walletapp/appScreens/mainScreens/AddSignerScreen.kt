@@ -11,7 +11,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,7 +53,7 @@ import com.example.walletapp.ui.theme.roundedShape
 @Composable
 fun AddSignerScreen(
     viewModel: appViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -62,6 +64,7 @@ fun AddSignerScreen(
     var address by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var telephone by remember { mutableStateOf("") }
+
 
     //AlertDialog для подтверждения сохранения изменений
     //TODO(сделать AlertDialog для подтверждения сохранения изменений создания нового подписанта)

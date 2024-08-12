@@ -105,6 +105,8 @@ fun SettingsScreen(
     val gson = Gson()
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
+    val ps = PasswordStorageHelper(context)
+
 
     /*fun deleteAccount(){
         val builder = AlertDialog.Builder(context)
@@ -182,6 +184,14 @@ fun SettingsScreen(
             }
         }
 
+    fun logout(){
+        viewModel.clearDataBase()
+        ps.remove("MyPublicKey");
+        ps.remove("MyPrivateKey");
+        val sharedPrefs = context.getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
+        sharedPrefs.edit().putBoolean("VisitedApp", false).apply()
+        navHostController.navigate("Registration")
+    }
     fun showExportBookmarksDialog() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -199,7 +209,6 @@ fun SettingsScreen(
                 val inputStream = context.contentResolver.openInputStream(uri)!!
                 val bytes = inputStream.readBytes()
                 inputStream.close()
-                val ps = PasswordStorageHelper(context)
 
                 val pk = ps.getData("MyPublicKey")
                 println("Public Key: {$pk}")
@@ -319,6 +328,7 @@ fun SettingsScreen(
                                 "change_language" -> onChangeLanguageClick()
                                 "import_secret_key" -> showImportBookmarksDialog()
                                 "export_secret_key" -> showExportBookmarksDialog()
+                                "logout_account" -> logout()
                             }
                         }
                     )

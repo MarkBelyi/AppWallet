@@ -703,6 +703,9 @@ class appViewModel(private val repository: AppRepository, application: Applicati
     fun getSignerAddress(address: String): LiveData<Signer?> = liveData {
         emit(repository.getSignerAddress(address))
     }
+    fun getCount() = viewModelScope.launch(Dispatchers.IO) {
+        repository.getCount()
+    }
 
     // Network
     fun addNetworks(context: Context) = viewModelScope.launch(Dispatchers.IO) {

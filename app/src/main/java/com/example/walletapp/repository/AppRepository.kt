@@ -86,6 +86,11 @@ class AppRepository(
     //Singer
     val allSigners: Flow<List<Signer>> = signersDao.getSignersByName()
 
+
+    suspend fun getCount():Int{
+        return signersDao.getCount()
+    }
+
     suspend fun upsertSigner(signer: Signer){
         signersDao.upsertSigner(signer)
     }
