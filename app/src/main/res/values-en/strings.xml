@@ -100,6 +100,13 @@
     <string name="do_you_not_hide">Do you really no longer want to hide this wallet?</string>
     <string name="do_you_hide">Do you really want to hide this wallet?</string>
 
+    <string name="accept">Confirm</string>
+    <string name="accept_tx">Transaction confirmation</string>
+    <string name="are_you_sure_tx">Are you sure you want to proceed with the transaction?</string>
+
+    <string name="delete_confirm">Подтверждение удаления</string>
+    <string name="are_you_sure_delete_signer">Вы уверены, что хотите удалить этого подписанта?</string>
+
     //Wallet
     <string name="no_wallets">You have no active wallets!</string>
     <string name="name_of_wallet">Wallet\'s name:</string>

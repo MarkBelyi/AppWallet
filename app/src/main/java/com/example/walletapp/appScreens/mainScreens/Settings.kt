@@ -108,6 +108,15 @@ fun SettingsScreen(
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
     val ps = PasswordStorageHelper(context)
 
+    fun logout(){
+        viewModel.clearDataBase()
+        ps.remove("MyPublicKey");
+        ps.remove("MyPrivateKey");
+        val sharedPrefs = context.getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
+        sharedPrefs.edit().putBoolean("VisitedApp", false).apply()
+        navHostController.navigate("Registration")
+    }
+
     /*fun deleteAccount(){
         val builder = AlertDialog.Builder(context)
         builder.setMessage(context.getString(R.string.delete_me_warning))
@@ -217,9 +226,6 @@ fun SettingsScreen(
                 viewModel.clearDataBase()
 
                 //Теперь это наш текущий ключ.
-                val pk_new = ps.getData("MyPublicKey")
-                println("Public Key: {$pk_new}")
-                println(GetMyAddr(context))
                 viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
 
                 val builder: AlertDialog.Builder = AlertDialog.Builder(context)
@@ -318,6 +324,7 @@ fun SettingsScreen(
                                 "change_language" -> onChangeLanguageClick()
                                 "import_secret_key" -> showImportBookmarksDialog()
                                 "export_secret_key" -> showExportBookmarksDialog()
+                                "logout_account" -> logout()
                             }
                         }
                     )

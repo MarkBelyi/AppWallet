@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,6 +36,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -197,7 +199,6 @@ fun SelectTokenScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAddress: String, onNextClick: () -> Unit) {
-
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openQRBottomSheet by remember { mutableStateOf(false) }
     var address by remember { mutableStateOf(initialAddress) }
@@ -206,6 +207,49 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
     val context = LocalContext.current
     val walletAddressesBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openWalletAddressesBottomSheet by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(
+                    stringResource(id = R.string.accept_tx),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                    fontSize = 18.sp
+                ) },
+            text = { Text(
+                stringResource(id = R.string.are_you_sure_tx),
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
+            ) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onNextClick()
+                    showDialog = false
+                }) {
+                    Text(
+                        stringResource(id = R.string.accept),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
 
     if (openQRBottomSheet) {
         ModalBottomSheet(
@@ -344,7 +388,7 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                                     context = context
                                 )
                             }
-                            onNextClick()
+                            showDialog = true
                         },
                         enabled = isButtonEnabled
                     )
