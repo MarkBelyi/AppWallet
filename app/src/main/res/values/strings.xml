@@ -103,8 +103,12 @@
     <string name="accept_tx">Подтверждение транзакции</string>
     <string name="are_you_sure_tx">Вы уверены, что хотите cовершить транзакцию?</string>
 
-    <string name="delete_confirm">Delete confirmation</string>
-    <string name="are_you_sure_delete_signer">Are you sure you want to delete this signer?</string>
+    <string name="delete_confirm">Подтверждение удаления</string>
+    <string name="are_you_sure_delete_signer">Вы уверены, что хотите удалить этого подписанта?</string>
+
+    <string name="confirm_changes">Подтвердить изменения?</string>
+    <string name="add_this_signer">Добавить данного подписанта?</string>
+
 
     //Wallet
     <string name="no_wallets">У вас нет активных кошельков!</string>
