@@ -107,7 +107,7 @@ fun SignersScreen(
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             putExtra(Intent.EXTRA_TITLE, "signers_backup.asfn")
-            setType("*/*") // Необходимый тип, чтобы избежать сбоев
+            type = "*/*"
             putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json"))
         }
         signersExportFilePicker.launch(intent)
@@ -153,7 +153,7 @@ fun SignersScreen(
         containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Signers", color = colorScheme.onSurface) },
+                title = { Text(text = stringResource(id = R.string.action_signers), color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface,

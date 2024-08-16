@@ -25,6 +25,7 @@ import com.example.walletapp.R
 import com.example.walletapp.Server.GetAPIString
 import com.example.walletapp.Server.Getsign
 import com.example.walletapp.appScreens.mainScreens.Blockchain
+import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
 import com.example.walletapp.parse.parseWallets
@@ -834,7 +835,7 @@ class appViewModel(private val repository: AppRepository, private val applicatio
     }
 
     fun addNewAddressFromQR(result: String) {
-        val newAddress = WalletAddress(ownerName = "Новый Адрес Кошелька", address = result, blockchain = "", token = "")
+        val newAddress = WalletAddress(ownerName = R.string.new_wallet_address.toString(), address = result, blockchain = "", token = "")
         insertWalletAddress(newAddress)
     }
 
@@ -845,9 +846,24 @@ class appViewModel(private val repository: AppRepository, private val applicatio
         }
     }
 
-    suspend fun deleteMyAccount(reason: String): String{
-        return GetAPIString(con = context, api = "uuid", mes = reason, POST = true)
+    fun deleteMyAccount(reason: String) = viewModelScope.launch(Dispatchers.IO) {
+        var s: String = GetAPIString(con = context, api = "uuid")
+        val json = JSONObject(s)
+        if (json.has("uuid")) s = json["uuid"].toString()
+        val body = "\"uuid\":\"$s\",\"reason\":\"$reason\""
+        val status = GetAPIString(con = context, api = "erase_account\\$s", mes = body, POST = true)
+        println(status)
+
+        // Предположим, что статус успешного удаления аккаунта возвращает "DONE"
+        if (status.contains("\"STATUS\":\"DONE\"")) { // Проверяем успешное удаление
+            // Удаляем ключи и очищаем SharedPreferences
+            val ps = PasswordStorageHelper(context)
+            ps.remove("MyPublicKey")
+            ps.remove("MyPrivateKey")
+            context.getSharedPreferences(context.getString(R.string.preferens_file_name), 0).edit().clear().apply()
+        }
     }
+
 }
 
 class AppViewModelFactory(private val repository: AppRepository, private val application: Application) : ViewModelProvider.Factory {

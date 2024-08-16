@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">Safina</string>
     <string name="user_agreement">https://safina.pro/offer_en</string>
-
     <string name="accept_mnem">The imported key matches your key</string>
     <string name="not_accept_mnem">The imported key does not match your key</string>
     <string name="enter_mnem">Enter mnemonic phrase</string>
@@ -99,16 +98,16 @@
     <string name="hidden_wallet">Hidden wallet</string>
     <string name="do_you_not_hide">Do you really no longer want to hide this wallet?</string>
     <string name="do_you_hide">Do you really want to hide this wallet?</string>
-
     <string name="accept">Confirm</string>
     <string name="accept_tx">Transaction confirmation</string>
     <string name="are_you_sure_tx">Are you sure you want to proceed with the transaction?</string>
-
     <string name="delete_confirm">Delete confirmation</string>
     <string name="are_you_sure_delete_signer">Are you sure you want to delete this signer?</string>
-
     <string name="confirm_changes">Confirm changes?</string>
     <string name="add_this_signer">Add this signer?</string>
+    <string name="exit_from_account">Are you sure you want to log out of your account?</string>
+    <string name="delete_account">Are you sure you want to delete this account?</string>
+    <string name="write_delete_reason">Write the deletion reason</string>
 
     //Wallet
     <string name="no_wallets">You have no active wallets!</string>
