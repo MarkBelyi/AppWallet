@@ -153,10 +153,6 @@ fun SignersScreen(
 
 
 
-
-
-
-
     Scaffold(
         containerColor = colorScheme.background,
         topBar = {

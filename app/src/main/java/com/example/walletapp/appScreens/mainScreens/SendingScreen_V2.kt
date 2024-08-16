@@ -1,5 +1,12 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -21,17 +28,22 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -64,6 +76,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Balans
+import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.WalletAddress
 import com.example.walletapp.DataBase.Entities.Wallets
 import com.example.walletapp.Element.CustomButton
@@ -71,7 +84,10 @@ import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -90,6 +106,72 @@ fun SendingScreen_V2(
     val coroutineScope = rememberCoroutineScope()
     val address by viewModel.qrResult.observeAsState(initial = "")
     val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
+    var expanded by remember { mutableStateOf(false) }
+
+    val signersExportFilePicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val outputStream = context.contentResolver.openOutputStream(uri)!!
+                val signers = viewModel.allSigners.value ?: emptyList()
+                val json = Gson().toJson(signers)
+
+                outputStream.write(json.toByteArray())
+                outputStream.flush()
+                outputStream.close()
+                Toast.makeText(
+                    context,
+                    "Адресная книга экспортирована",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    fun showExportSignersDialog() {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            putExtra(Intent.EXTRA_TITLE, "signers_backup.json")
+            setType("*/*") // Необходимый тип, чтобы избежать сбоев
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json"))
+        }
+        signersExportFilePicker.launch(intent)
+    }
+
+    val signersImportFilePicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val inputStream = context.contentResolver.openInputStream(uri)!!
+                val bytes = inputStream.readBytes()
+                inputStream.close()
+
+                val json = String(bytes, StandardCharsets.UTF_8)
+                val type = object : TypeToken<List<Signer>>() {}.type
+                val signers: List<Signer> = Gson().fromJson(json, type)
+
+                signers.forEach { signer ->
+                    viewModel.insertSigner(signer)
+                }
+
+                Toast.makeText(
+                    context,
+                    "Адресная книга импортирована",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    fun showImportSignersDialog() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            setType("*/*")
+        }
+        signersImportFilePicker.launch(intent)
+    }
 
     Scaffold(
         containerColor = colorScheme.background,
@@ -104,6 +186,45 @@ fun SendingScreen_V2(
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
                     }
+                },
+                actions = {
+                IconButton(onClick = { expanded = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "More", tint = colorScheme.onSurface)
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.background(color = colorScheme.surface)
+                ) {
+                    DropdownMenuItem(
+                        onClick = {
+                            expanded = false
+                            showExportSignersDialog()
+                        },
+                        text = { Text("Экспорт адресной книги", fontWeight = FontWeight.Light) },
+                        leadingIcon = {
+                            Icon(Icons.Rounded.Share, contentDescription = "Export")
+                        },
+                        colors = MenuDefaults.itemColors(
+                            textColor = colorScheme.onSurface,
+                            leadingIconColor = colorScheme.onSurface
+                        )
+                    )
+                    DropdownMenuItem(
+                        onClick = {
+                            expanded = false
+                            showImportSignersDialog()
+                        },
+                        text = { Text("Импорт адресной книги", fontWeight = FontWeight.Light) },
+                        leadingIcon = {
+                            Icon(painterResource(id = R.drawable.receive), contentDescription = "Import")
+                        },
+                        colors = MenuDefaults.itemColors(
+                            textColor = colorScheme.onSurface,
+                            leadingIconColor = colorScheme.onSurface
+                        )
+                    )
+                }
                 }
             )
         }
@@ -151,6 +272,7 @@ fun SendingScreen_V2(
             }
         }
     }
+
 }
 
 
@@ -172,6 +294,9 @@ fun WalletsListScreen(
         viewModel = viewModel,
     )
 }
+
+
+
 
 @Composable
 fun SelectTokenScreen(
@@ -307,6 +432,39 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                     },
                     onAddWalletAddressClick = { showAddWalletScreen = true }  // Показать экран добавления
                 )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    ElevatedButton(
+                        onClick = {
+                            // Action to choose wallet address
+                            // You can trigger selecting a wallet address here
+                        },
+                        colors = ButtonDefaults.elevatedButtonColors(
+                            containerColor = colorScheme.primary,
+                            contentColor = colorScheme.onPrimary
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Choose Wallet Address")
+                    }
+
+                    ElevatedButton(
+                        onClick = { showAddWalletScreen = true },
+                        colors = ButtonDefaults.elevatedButtonColors(
+                            containerColor = colorScheme.primary,
+                            contentColor = colorScheme.onPrimary
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Add Wallet Address")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -440,76 +598,76 @@ fun AddWalletAddressScreen(
     var blockchain by remember { mutableStateOf("") }
     var token by remember { mutableStateOf("") }
 
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        CustomOutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            placeholder = "Name",
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = {
+                focusManager.moveFocus(FocusDirection.Down)
+            })
+        )
+        CustomOutlinedTextField(
+            value = address,
+            onValueChange = { address = it },
+            placeholder = "Address",
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = {
+                focusManager.moveFocus(FocusDirection.Down)
+            })
+        )
+        CustomOutlinedTextField(
+            value = blockchain,
+            onValueChange = { blockchain = it },
+            placeholder = "Blockchain",
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = {
+                focusManager.moveFocus(FocusDirection.Down)
+            })
+        )
+        CustomOutlinedTextField(
+            value = token,
+            onValueChange = { token = it },
+            placeholder = "Token",
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {
+                focusManager.clearFocus()
+            })
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        ElevatedButton(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            CustomOutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholder = "Name",
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = {
-                    focusManager.moveFocus(FocusDirection.Down)
-                })
-            )
-            CustomOutlinedTextField(
-                value = address,
-                onValueChange = { address = it },
-                placeholder = "Address",
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = {
-                    focusManager.moveFocus(FocusDirection.Down)
-                })
-            )
-            CustomOutlinedTextField(
-                value = blockchain,
-                onValueChange = { blockchain = it },
-                placeholder = "Blockchain",
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = {
-                    focusManager.moveFocus(FocusDirection.Down)
-                })
-            )
-            CustomOutlinedTextField(
-                value = token,
-                onValueChange = { token = it },
-                placeholder = "Token",
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = {
-                    focusManager.clearFocus()
-                })
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            ElevatedButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp, max = 64.dp),
-                shape = newRoundedShape,
-                colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = colorScheme.primary,
-                    contentColor = colorScheme.onPrimary,
-                    disabledContainerColor = colorScheme.primaryContainer,
-                    disabledContentColor = colorScheme.onPrimaryContainer
-                ),
-                onClick = {
-                    viewModel.insertWalletAddress(
-                        WalletAddress(
-                            ownerName = name,
-                            address = address,
-                            blockchain = blockchain,
-                            token = token
-                        )
+                .fillMaxWidth()
+                .heightIn(min = 48.dp, max = 64.dp),
+            shape = newRoundedShape,
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary,
+                disabledContainerColor = colorScheme.primaryContainer,
+                disabledContentColor = colorScheme.onPrimaryContainer
+            ),
+            onClick = {
+                viewModel.insertWalletAddress(
+                    WalletAddress(
+                        ownerName = name,
+                        address = address,
+                        blockchain = blockchain,
+                        token = token
                     )
-                    onBackClick()
-                }
-            ) {
-                Text(text = "Save")
+                )
+                onBackClick()
             }
+        ) {
+            Text(text = "Save")
         }
+    }
 }
 
 @Composable
