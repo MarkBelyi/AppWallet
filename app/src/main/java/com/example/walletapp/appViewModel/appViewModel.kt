@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
+import android.os.LocaleList
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -130,10 +131,19 @@ class appViewModel(private val repository: AppRepository, private val applicatio
             Locale("ru")
         }
         Locale.setDefault(locale)
-        val config = context.resources.configuration
+
+        val resources = context.resources
+        val config = resources.configuration
+
         config.setLocale(locale)
-        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+        val localeList = LocaleList(locale)
+        LocaleList.setDefault(localeList)
+        config.setLocales(localeList)
+
+        @Suppress("DEPRECATION")
+        resources.updateConfiguration(config, resources.displayMetrics)
     }
+
 
     //AuthMethod
     private val _selectedAuthMethod = MutableLiveData<AuthMethod>()
@@ -278,15 +288,15 @@ class appViewModel(private val repository: AppRepository, private val applicatio
         onComplete: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val EC = signerKeys
-                .filter { /*!it.isNullOrEmpty()*/ it.isNotEmpty() }
+            val ec = signerKeys
+                .filter {it.isNotEmpty() }
                 .toList()
 
             var ss = ""
             ss = "\"slist\":{"
-            for (i in EC.indices) {
-                ss += "\"$i\":{\"type\":\"any\",\"ecaddress\":\"${EC[i]}\"}"
-                if (i < EC.size - 1) ss += ","
+            for (i in ec.indices) {
+                ss += "\"$i\":{\"type\":\"any\",\"ecaddress\":\"${ec[i]}\"}"
+                if (i < ec.size - 1) ss += ","
             }
 
             if (requiredSigners > 0)
@@ -540,21 +550,94 @@ class appViewModel(private val repository: AppRepository, private val applicatio
                     val transactionId = jsonResponse.getString("tx_unid")
                     println("Transaction Successful: ID $transactionId")
                     viewModelScope.launch(Dispatchers.IO) {
-                        val tx = TX(
-                            unid = transactionId,
-                            tx = "",
-                            network = token.network_id,
-                            token = token.name,
-                            to_addr = address,
-                            info = info,
-                            tx_value = formattedAmount.toDouble(),
-                            from = wallet.name
-                        )
                         println("Transaction ID saved to database successfully.")
                     }
                 }
             }
         })
+    }
+
+    fun sendTransactionWithAutoExchange(token: Balans, wallet: Wallets, address: String, amount: Double, info: String, context: Context) = viewModelScope.launch(Dispatchers.IO) {
+        val symbols = DecimalFormatSymbols(Locale.getDefault()).apply {
+            decimalSeparator = '.'
+        }
+
+        val formatter = DecimalFormat("0.00", symbols)
+        val formattedAmount = formatter.format(amount)
+
+        val transactionDetails = JSONObject().apply {
+            put("autoExchange", "0")
+            put("token", "${token.network_id}:::${token.name}###${wallet.name}")
+            put("info", info)
+            put("value", formattedAmount)
+            put("toAddress", address)
+        }
+
+        val jsonString = transactionDetails.toString()
+        val modifiedString = jsonString.substring(1, jsonString.length - 1)
+        println("Transaction Details: $modifiedString")
+        val rsva = Getsign(context, modifiedString)
+        val requestBody = jsonString.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        val request = Request.Builder()
+            .url(context.getString(R.string.base_url) + "ece/tx")
+            .addHeader("x-app-ec-from", rsva[3])
+            .addHeader("x-app-ec-sign-r", rsva[0])
+            .addHeader("x-app-ec-sign-s", rsva[1])
+            .addHeader("x-app-ec-sign-v", rsva[2])
+            .method("POST", requestBody)
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                println("Transaction failed: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                if (!response.isSuccessful || responseBody.isNullOrEmpty()) {
+                    println("Transaction Failed")
+                    return
+                }
+
+                val jsonResponse = JSONObject(responseBody)
+                if (jsonResponse.has("ERROR")) {
+                    println("Transaction Failed with Error")
+                } else if (jsonResponse.has("tx_unid")) {
+                    val transactionId = jsonResponse.getString("tx_unid")
+                    println("Transaction Successful: ID $transactionId")
+                    viewModelScope.launch(Dispatchers.IO) {
+                        println("Transaction ID saved to database successfully.")
+                    }
+                }
+            }
+        })
+    }
+
+    private val _walletLiveData = MutableLiveData<Wallets?>()
+    val walletLiveData: LiveData<Wallets?> get() = _walletLiveData
+
+    fun get() = viewModelScope.launch(Dispatchers.IO) {
+        val s = GetAPIString(context, "tokensinfo")
+        println(s)
+    }
+
+    suspend fun getTrxBalance(walletAddress: String): Double {
+
+        if (walletAddress.isBlank()) {
+            return 0.0
+        }
+
+        val wallet = repository.getWalletByAddress(walletAddress)
+        return wallet?.let {
+            it.tokenShortNames.split(";")
+                .firstOrNull { token -> token.contains("TRX") }
+                ?.split(" ")
+                ?.firstOrNull()
+                ?.toDoubleOrNull() ?: 0.0
+        } ?: 0.0
+
     }
 
     fun refreshWallets(context: Context, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
@@ -588,7 +671,7 @@ class appViewModel(private val repository: AppRepository, private val applicatio
         }
     }
 
-    fun createWallet(context: Context, msg: String) = viewModelScope.launch(Dispatchers.IO) {
+    private fun createWallet(context: Context, msg: String) = viewModelScope.launch(Dispatchers.IO) {
         val jsonString = GetAPIString(context, "newWallet", msg, true)
         val jsonconversion = JSONObject(jsonString)
         if (jsonconversion.has("ERROR")) return@launch
@@ -628,9 +711,6 @@ class appViewModel(private val repository: AppRepository, private val applicatio
         _chooseWallet.value = wallet
     }
 
-    private val _visibilityUpdateStatus = MutableLiveData<Boolean>()
-    val visibilityUpdateStatus: LiveData<Boolean> get() = _visibilityUpdateStatus
-
     //Overloading function
     fun updateWalletFlags(unid: String, newFlags: String, onComplete: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -667,7 +747,7 @@ class appViewModel(private val repository: AppRepository, private val applicatio
 
     private suspend fun visibilityWallet(context: Context, unid: String, newFlags: String): String {
         val apiEndpoint = "set_wallet_flag/$unid"
-        val requestBody = "\"wallet_flags\":\"" + newFlags + "\""
+        val requestBody = "\"wallet_flags\":\"$newFlags\""
         return GetAPIString(context, apiEndpoint, requestBody, POST = true)
     }
 
@@ -714,12 +794,6 @@ class appViewModel(private val repository: AppRepository, private val applicatio
     val allUserTX: LiveData<List<AllTX>> = repository.allUserTX.asLiveData()
     private val _filteredTransactions = MutableLiveData<List<AllTX>>()
     val filteredTransactions: LiveData<List<AllTX>> get() = _filteredTransactions
-
-    fun filterTxByName(name: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _filteredTransactions.postValue(repository.getTransactionsByName(name))
-        }
-    }
 
     fun filterTX(name: String, token: String, completedOnly: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

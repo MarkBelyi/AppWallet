@@ -108,6 +108,7 @@
     <string name="exit_from_account">Are you sure you want to log out of your account?</string>
     <string name="delete_account">Are you sure you want to delete this account?</string>
     <string name="write_delete_reason">Write the deletion reason</string>
+    <string name="use_auto_exchange">Use autoexchange</string>
 
     //Wallet
     <string name="no_wallets">You have no active wallets!</string>

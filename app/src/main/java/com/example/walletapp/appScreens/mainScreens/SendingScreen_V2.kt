@@ -21,12 +21,15 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -196,6 +200,7 @@ fun SelectTokenScreen(
     }
 }
 
+/*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAddress: String, onNextClick: () -> Unit) {
@@ -208,6 +213,7 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
     val walletAddressesBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openWalletAddressesBottomSheet by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    var useAutoExchange by remember { mutableStateOf(false) }
 
     if (showDialog) {
         AlertDialog(
@@ -398,6 +404,285 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
         }
     } ?: Text(stringResource(id = R.string.no_wallet_or_token), color = colorScheme.onSurface)
 }
+*/
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAddress: String, onNextClick: () -> Unit) {
+    val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var openQRBottomSheet by remember { mutableStateOf(false) }
+    var address by remember { mutableStateOf(initialAddress) }
+    var amount by remember { mutableStateOf("") }
+    var paymentPurpose by remember { mutableStateOf("") }
+    var useAutoExchange by remember { mutableStateOf(false) }  // Новая переменная для CheckBox
+    val context = LocalContext.current
+    val walletAddressesBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var openWalletAddressesBottomSheet by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(
+                    stringResource(id = R.string.accept_tx),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                    fontSize = 18.sp
+                ) },
+            text = { Text(
+                stringResource(id = R.string.are_you_sure_tx),
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
+            ) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onNextClick()
+                    showDialog = false
+                }) {
+                    Text(
+                        stringResource(id = R.string.accept),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
+
+    if (openQRBottomSheet) {
+        ModalBottomSheet(
+            shape = topRoundedShape,
+            containerColor = colorScheme.background,
+            sheetState = qrBottomSheetState,
+            tonalElevation = 0.dp,
+            onDismissRequest = { openQRBottomSheet = false },
+            dragHandle = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            }
+        ) {
+            BottomSheetContent(
+                onQRScanned = { result ->
+                    address = result
+                    openQRBottomSheet = false
+                }
+            )
+        }
+    }
+
+    if (openWalletAddressesBottomSheet) {
+        ModalBottomSheet(
+            shape = topRoundedShape,
+            containerColor = colorScheme.background,
+            sheetState = walletAddressesBottomSheetState,
+            tonalElevation = 0.dp,
+            onDismissRequest = { openWalletAddressesBottomSheet = false },
+            dragHandle = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            }
+        ) {
+            var showAddWalletScreen by remember { mutableStateOf(false) }
+
+            if (showAddWalletScreen) {
+                AddWalletAddressScreen(
+                    viewModel = viewModel,
+                    onBackClick = { showAddWalletScreen = false }  // Вернуться к списку адресов
+                )
+            } else {
+                WalletAddressesContent(
+                    viewModel = viewModel,
+                    onWalletAddressClick = { selectedAddress ->
+                        address = selectedAddress
+                        openWalletAddressesBottomSheet = false
+                    },
+                    onAddWalletAddressClick = { showAddWalletScreen = true }  // Показать экран добавления
+                )
+            }
+        }
+    }
+
+    val selectedWallet by viewModel.selectedWallet.observeAsState()
+    var trxBalance by remember { mutableDoubleStateOf(0.0) }
+
+    LaunchedEffect(selectedWallet?.addr) {
+        selectedWallet?.addr?.let { addr ->
+            trxBalance = viewModel.getTrxBalance(addr)
+        }
+    }
+
+    var showInfoDialog by remember { mutableStateOf(false) }
+
+    if(showInfoDialog){
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialog = false },
+            text = {
+                Text(
+                    stringResource(id = R.string.exchange_explain),
+                    fontWeight = FontWeight.Light,
+                    color = colorScheme.onSurface
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showInfoDialog = false
+                }) {
+                    Text(
+                        text = "OK",
+                        fontWeight = FontWeight.Light,
+                        color = colorScheme.onSurface
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
+
+
+    selectedWallet?.let { wallet ->
+        selectedToken?.let { token ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(stringResource(id = R.string.wallet_name) + " : " + wallet.addr, color = colorScheme.onSurface)
+                    Text(stringResource(id = R.string.balance) + " : " + token.amount + " " + token.name, color = colorScheme.onSurface)
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row (
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        CustomOutlinedTextFieldWithTwoIcon(
+                            value = address,
+                            onValueChange = { address = it },
+                            placeholder = stringResource(id = R.string.address),
+                            onClick = { openQRBottomSheet = true },
+                            onOpenWalletAddressesBottomSheet = { openWalletAddressesBottomSheet = true }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    CustomOutlinedTextField(
+                        value = amount,
+                        onValueChange = { amount = it },
+                        placeholder = stringResource(id = R.string.amount),
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (token.name == "USDT" && trxBalance < 60.0) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            IconButton(onClick = { showInfoDialog = true }) {
+                                Icon(Icons.Outlined.Info, contentDescription = "info", tint = colorScheme.primary, modifier = Modifier.scale(1.2f))
+                            }
+                            Text(
+                                text = stringResource(id = R.string.use_auto_exchange),
+                                color = colorScheme.onSurface,
+                                fontWeight = FontWeight.Normal,
+                            )
+                            Checkbox(
+                                checked = useAutoExchange,
+                                onCheckedChange = { useAutoExchange = it },
+                                modifier = Modifier
+                                    .scale(1.2f),
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Color.Transparent,
+                                    uncheckedColor = colorScheme.primaryContainer,
+                                    checkmarkColor = colorScheme.primary
+                                ),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(stringResource(id = R.string.comission), color = colorScheme.onSurface)
+                    Text(stringResource(id = R.string.min_comission), color = colorScheme.onSurface)
+                    Text(stringResource(id = R.string.max_comission), color = colorScheme.onSurface)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(stringResource(id = R.string.input_purpose), color = colorScheme.onSurface)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomOutlinedTextField(
+                        value = paymentPurpose,
+                        onValueChange = { paymentPurpose = it },
+                        placeholder = stringResource(id = R.string.purpose)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    val isButtonEnabled = address.isNotBlank() && amount.isNotBlank() && paymentPurpose.isNotBlank()
+
+                    CustomButton(
+                        text = stringResource(id = R.string.send),
+                        onClick = {
+                            amount.toDoubleOrNull()?.let { amt ->
+                                // Здесь можно использовать флаг useAutoExchange для управления API вызовом
+                                if (useAutoExchange) {
+                                    viewModel.sendTransactionWithAutoExchange(
+                                        token = token,
+                                        wallet = wallet,
+                                        amount = amt,
+                                        address = address,
+                                        info = paymentPurpose,
+                                        context = context
+                                    )
+                                } else {
+                                    viewModel.sendTransaction(
+                                        token = token,
+                                        wallet = wallet,
+                                        amount = amt,
+                                        address = address,
+                                        info = paymentPurpose,
+                                        context = context
+                                    )
+                                }
+                            }
+                            showDialog = true
+                        },
+                        enabled = isButtonEnabled
+                    )
+                }
+            }
+        }
+    } ?: Text(stringResource(id = R.string.no_wallet_or_token), color = colorScheme.onSurface)
+}
+
 
 @Composable
 fun WalletAddressesContent(

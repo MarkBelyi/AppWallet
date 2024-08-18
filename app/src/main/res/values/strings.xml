@@ -107,7 +107,7 @@
     <string name="exit_from_account">Вы точно хотите выйти из аккаунта?</string>
     <string name="delete_account">Вы точно хотите удалить этот аккаунт?</string>
     <string name="write_delete_reason">Напишите причину удаления</string>
-
+    <string name="use_auto_exchange">Использовать автообмен</string>
 
     //Wallet
     <string name="no_wallets">У вас нет активных кошельков!</string>

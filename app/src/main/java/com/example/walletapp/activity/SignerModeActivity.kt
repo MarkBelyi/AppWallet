@@ -65,7 +65,6 @@ fun SignerModeActivity(
                     viewModel = viewModel,
                     onShareClick = { switchToPage(1) },
                     navHostController = navHostController,
-                    onBackClick = {switchToPage(0)},
                     onChangePasswordClick = {switchToPage(12)},
                     onChangeLanguageClick = {switchToPage(13)}
                 )
