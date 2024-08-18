@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
@@ -22,6 +23,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -42,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
@@ -64,11 +67,49 @@ fun AddSignerScreen(
     var email by remember { mutableStateOf("") }
     var telephone by remember { mutableStateOf("") }
 
-    //AlertDialog для подтверждения сохранения изменений
-    //TODO(сделать AlertDialog для подтверждения сохранения изменений создания нового подписанта)
+    var showDialog by remember { mutableStateOf(false) }
 
     fun updateState(updateFunc: (String) -> Unit): (String) -> Unit = { newValue ->
         updateFunc(newValue)
+    }
+
+    if(showDialog){
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(
+                    stringResource(id = R.string.add_this_signer),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                    fontSize = 18.sp
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address, isFavorite = false))
+                    showDialog = false
+                    onBackClick()
+                }) {
+                    Text(
+                        stringResource(id = R.string.accept),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
     }
 
     if(openQRBottomSheet){
@@ -158,8 +199,7 @@ fun AddSignerScreen(
                 keyboardActions = KeyboardActions(onDone = {
                     // Действие для кнопки "Done"
                     focusManager.clearFocus() // Скрывает клавиатуру
-                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address, isFavorite = false))
-                    onBackClick()
+                    showDialog = true
                 })
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -175,8 +215,7 @@ fun AddSignerScreen(
                     disabledContentColor = colorScheme.onPrimaryContainer
                 ),
                 onClick = {
-                    viewModel.insertSigner(Signer(name, email, telephone, type = 1, address, isFavorite = false))
-                    onBackClick()
+                    showDialog = true
                 }
             ) {
                 Text(text = stringResource(id = R.string.save_of_signer))

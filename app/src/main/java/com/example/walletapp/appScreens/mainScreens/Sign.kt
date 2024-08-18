@@ -203,7 +203,11 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
                             OutlinedButton(
                                 onClick = {
                                     showAuthSheet.value = true
-                                    authAction.value = onSign
+                                    authAction.value = {
+                                        onSign()
+                                        showAuthSheet.value = false
+                                    }
+
                                 },
                                 shape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp, topEnd = 0.dp, bottomEnd = 0.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(
@@ -214,10 +218,12 @@ fun SignItem(tx: TX, onSign: () -> Unit, onReject: (String) -> Unit, viewModel: 
                             ) {
                                 Text(stringResource(id = R.string.sign))
                             }
+
                             OutlinedButton( onClick = {
                                 showAuthSheet.value = true
                                 authAction.value = {
                                     showDialog.value = true
+                                    showAuthSheet.value = false
                                 }
                             },
                                 shape = RoundedCornerShape(topStart = 0.dp, bottomStart = 0.dp, topEnd = 24.dp, bottomEnd = 24.dp),
@@ -304,18 +310,26 @@ fun TXScreens(viewModel: appViewModel) {
             }
         }else{
             item {
-                Text(
-                    text = stringResource(id = R.string.no_need_to_sign),
-                    color = colorScheme.onSurface,
-                    fontWeight = FontWeight.Light,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    fontSize = 14.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                ) 
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+
+                ){
+                    Text(
+                        text = stringResource(id = R.string.no_need_to_sign),
+                        color = colorScheme.onSurface,
+                        fontWeight = FontWeight.Light,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        fontSize = 14.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
             }
         }
         

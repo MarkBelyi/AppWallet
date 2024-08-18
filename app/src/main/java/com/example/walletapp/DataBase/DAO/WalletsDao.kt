@@ -38,6 +38,9 @@ interface WalletsDAO {
     @Query("SELECT * FROM Wallets WHERE info LIKE '%' || :name || '%' ORDER BY info")
     suspend fun getWalletsByName(name: String): List<Wallets>
 
+    @Query("SELECT * FROM Wallets WHERE addr = :address LIMIT 1")
+    suspend fun getWalletByAddress(address: String): Wallets?
+
     @Query("SELECT * FROM Wallets")
     suspend fun fetchAllWallets(): List<Wallets>
 
@@ -45,7 +48,8 @@ interface WalletsDAO {
     suspend fun updateWalletFlags(unid: String, newFlags: String)
 
     @Query("SELECT * FROM Wallets WHERE myUNID = :unid")
-    suspend fun getWalletByUNID(unid: String): Wallets?
+    suspend fun getWalletByUNID(unid: String):  Wallets?
+
 
     @Query("DELETE FROM Wallets")
     fun clearWallets()

@@ -1,5 +1,11 @@
 package com.example.walletapp.appScreens.mainScreens
 
+import android.app.Activity
+import android.content.Intent
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -21,20 +27,30 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,6 +59,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,7 +87,10 @@ import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.topRoundedShape
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -89,6 +109,72 @@ fun SendingScreen_V2(
     val coroutineScope = rememberCoroutineScope()
     val address by viewModel.qrResult.observeAsState(initial = "")
     val wallets by viewModel.filteredWallets.observeAsState(initial = emptyList())
+    var expanded by remember { mutableStateOf(false) }
+
+    val walletAddressExportFilePicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val outputStream = context.contentResolver.openOutputStream(uri)!!
+                val walletAddresses = viewModel.allWalletAddresses.value ?: emptyList()
+                val json = Gson().toJson(walletAddresses)
+
+                outputStream.write(json.toByteArray())
+                outputStream.flush()
+                outputStream.close()
+                Toast.makeText(
+                    context,
+                    "Адресная книга экспортирована",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    fun showExportSignersDialog() {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            putExtra(Intent.EXTRA_TITLE, "wallet_address_backup.asfn")
+            type = "*/*"
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json"))
+        }
+        walletAddressExportFilePicker.launch(intent)
+    }
+
+    val signersImportFilePicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val inputStream = context.contentResolver.openInputStream(uri)!!
+                val bytes = inputStream.readBytes()
+                inputStream.close()
+
+                val json = String(bytes, StandardCharsets.UTF_8)
+                val type = object : TypeToken<List<WalletAddress>>() {}.type
+                val walletAddresses: List<WalletAddress> = Gson().fromJson(json, type)
+
+                walletAddresses.forEach { walletAddress ->
+                    viewModel.insertWalletAddress(walletAddress)
+                }
+
+                Toast.makeText(
+                    context,
+                    "Адресная книга импортирована",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    fun showImportSignersDialog() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+        }
+        signersImportFilePicker.launch(intent)
+    }
 
     Scaffold(
         containerColor = colorScheme.background,
@@ -102,6 +188,45 @@ fun SendingScreen_V2(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More", tint = colorScheme.onSurface)
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.background(color = colorScheme.surface)
+                    ) {
+                        DropdownMenuItem(
+                            onClick = {
+                                expanded = false
+                                showExportSignersDialog()
+                            },
+                            text = { Text("Экспорт адресной книги", fontWeight = FontWeight.Light) },
+                            leadingIcon = {
+                                Icon(Icons.Rounded.Share, contentDescription = "Export")
+                            },
+                            colors = MenuDefaults.itemColors(
+                                textColor = colorScheme.onSurface,
+                                leadingIconColor = colorScheme.onSurface
+                            )
+                        )
+                        DropdownMenuItem(
+                            onClick = {
+                                expanded = false
+                                showImportSignersDialog()
+                            },
+                            text = { Text("Импорт адресной книги", fontWeight = FontWeight.Light) },
+                            leadingIcon = {
+                                Icon(painterResource(id = R.drawable.receive), contentDescription = "Import")
+                            },
+                            colors = MenuDefaults.itemColors(
+                                textColor = colorScheme.onSurface,
+                                leadingIconColor = colorScheme.onSurface
+                            )
+                        )
                     }
                 }
             )
@@ -197,15 +322,58 @@ fun SelectTokenScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAddress: String, onNextClick: () -> Unit) {
-
     val qrBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openQRBottomSheet by remember { mutableStateOf(false) }
     var address by remember { mutableStateOf(initialAddress) }
     var amount by remember { mutableStateOf("") }
     var paymentPurpose by remember { mutableStateOf("") }
+    var useAutoExchange by remember { mutableStateOf(false) }  // Новая переменная для CheckBox
     val context = LocalContext.current
     val walletAddressesBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openWalletAddressesBottomSheet by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(
+                    stringResource(id = R.string.accept_tx),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                    fontSize = 18.sp
+                ) },
+            text = { Text(
+                stringResource(id = R.string.are_you_sure_tx),
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
+            ) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onNextClick()
+                    showDialog = false
+                }) {
+                    Text(
+                        stringResource(id = R.string.accept),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
 
     if (openQRBottomSheet) {
         ModalBottomSheet(
@@ -268,8 +436,44 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
         }
     }
 
-
     val selectedWallet by viewModel.selectedWallet.observeAsState()
+    var trxBalance by remember { mutableDoubleStateOf(0.0) }
+
+    LaunchedEffect(selectedWallet?.addr) {
+        selectedWallet?.addr?.let { addr ->
+            trxBalance = viewModel.getTrxBalance(addr)
+        }
+    }
+
+    var showInfoDialog by remember { mutableStateOf(false) }
+
+    if(showInfoDialog){
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialog = false },
+            text = {
+                Text(
+                    stringResource(id = R.string.exchange_explain),
+                    fontWeight = FontWeight.Light,
+                    color = colorScheme.onSurface
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showInfoDialog = false
+                }) {
+                    Text(
+                        text = "OK",
+                        fontWeight = FontWeight.Light,
+                        color = colorScheme.onSurface
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
+
 
     selectedWallet?.let { wallet ->
         selectedToken?.let { token ->
@@ -296,12 +500,9 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                             onValueChange = { address = it },
                             placeholder = stringResource(id = R.string.address),
                             onClick = { openQRBottomSheet = true },
-                            onOpenWalletAddressesBottomSheet = {openWalletAddressesBottomSheet = true}
+                            onOpenWalletAddressesBottomSheet = { openWalletAddressesBottomSheet = true }
                         )
-
                     }
-
-
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -310,6 +511,35 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                         onValueChange = { amount = it },
                         placeholder = stringResource(id = R.string.amount),
                     )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (token.name == "USDT" && trxBalance < 60.0) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            IconButton(onClick = { showInfoDialog = true }) {
+                                Icon(Icons.Outlined.Info, contentDescription = "info", tint = colorScheme.primary, modifier = Modifier.scale(1.2f))
+                            }
+                            Text(
+                                text = stringResource(id = R.string.use_auto_exchange),
+                                color = colorScheme.onSurface,
+                                fontWeight = FontWeight.Normal,
+                            )
+                            Checkbox(
+                                checked = useAutoExchange,
+                                onCheckedChange = { useAutoExchange = it },
+                                modifier = Modifier
+                                    .scale(1.2f),
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Color.Transparent,
+                                    uncheckedColor = colorScheme.primaryContainer,
+                                    checkmarkColor = colorScheme.primary
+                                ),
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -335,25 +565,37 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                         text = stringResource(id = R.string.send),
                         onClick = {
                             amount.toDoubleOrNull()?.let { amt ->
-                                viewModel.sendTransaction(
-                                    token = token,
-                                    wallet = wallet,
-                                    amount = amt,
-                                    address = address,
-                                    info = paymentPurpose,
-                                    context = context
-                                )
+                                // Здесь можно использовать флаг useAutoExchange для управления API вызовом
+                                if (useAutoExchange) {
+                                    viewModel.sendTransactionWithAutoExchange(
+                                        token = token,
+                                        wallet = wallet,
+                                        amount = amt,
+                                        address = address,
+                                        info = paymentPurpose,
+                                        context = context
+                                    )
+                                } else {
+                                    viewModel.sendTransaction(
+                                        token = token,
+                                        wallet = wallet,
+                                        amount = amt,
+                                        address = address,
+                                        info = paymentPurpose,
+                                        context = context
+                                    )
+                                }
                             }
-                            onNextClick()
+                            showDialog = true
                         },
                         enabled = isButtonEnabled
                     )
-
                 }
             }
         }
     } ?: Text(stringResource(id = R.string.no_wallet_or_token), color = colorScheme.onSurface)
 }
+
 
 @Composable
 fun WalletAddressesContent(

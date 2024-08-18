@@ -71,6 +71,14 @@ class AppRepository(
         walletsDAO.updateWalletFlags(unid, newFlags)
     }
 
+    suspend fun getWalletByAddress(address: String): Wallets? {
+        return walletsDAO.getWalletByAddress(address)
+    }
+
+    suspend fun getWalletByUNID(unid: String): Wallets? {
+        return walletsDAO.getWalletByUNID(unid)
+    }
+
     //Singer
     val allSigners: Flow<List<Signer>> = signersDao.getSignersByName()
 
@@ -125,10 +133,6 @@ class AppRepository(
         allTxDAO.add(txList)
     }
 
-    suspend fun getTransactionsByName(name: String): List<AllTX> {
-        return allTxDAO.getTransactionsByName(name)
-    }
-
     suspend fun getAllTransactions(): Flow<List<AllTX>> {
         return allTxDAO.getAll()
     }
@@ -143,7 +147,6 @@ class AppRepository(
     suspend fun deleteWalletAddress(item: WalletAddress){
         walletAddressDAO.deleteWalletAddresses(item)
     }
-
 
     //DataBase
     suspend fun clearDataBase() {

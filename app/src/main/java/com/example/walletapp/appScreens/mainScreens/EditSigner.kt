@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -31,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -41,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.walletapp.R
 import com.example.walletapp.appViewModel.appViewModel
 import com.example.walletapp.ui.theme.newRoundedShape
@@ -64,7 +68,6 @@ fun EditSigner(
     val typeState = remember { mutableStateOf("") }
     val isAddressLocked = remember { mutableStateOf(true) }
 
-    // Обновляем состояния полей, когда объект signer загружен или его данные изменены
     LaunchedEffect(signer) {
         nameState.value = signer?.name ?: ""
         emailState.value = signer?.email ?: ""
@@ -73,8 +76,54 @@ fun EditSigner(
         typeState.value = signer?.type?.toString() ?: ""
     }
 
-    //AlertDialog для подтверждения сохранения изменений
-    //TODO(сделать AlertDialog для подтверждения сохранения изменений)
+    var showDialog by remember { mutableStateOf(false) }
+
+    if(showDialog){
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(
+                    stringResource(id = R.string.confirm_changes),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                    fontSize = 18.sp
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val updatedSigner = signer?.copy(
+                        name = nameState.value,
+                        address = addressState.value,
+                        email = emailState.value,
+                        telephone = telephoneState.value
+                    )
+                    if (updatedSigner != null) {
+                        viewModel.updateSigner(updatedSigner)
+                    }
+                    showDialog = false
+                    onSaveClick()
+                }) {
+                    Text(
+                        stringResource(id = R.string.accept),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
 
     Scaffold(
         containerColor = colorScheme.background,
@@ -149,18 +198,7 @@ fun EditSigner(
                 placeholder = stringResource(id = R.string.phone_of_signer),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
-                    // Действие для кнопки "Done"
-                    focusManager.clearFocus() // Скрывает клавиатуру
-                    val updatedSigner = signer?.copy(
-                        name = nameState.value,
-                        address = addressState.value,
-                        email = emailState.value,
-                        telephone = telephoneState.value
-                    )
-                    if (updatedSigner != null) {
-                        viewModel.updateSigner(updatedSigner)
-                    }
-                    onSaveClick()
+                    showDialog = true
                 })
             )
 
@@ -177,20 +215,8 @@ fun EditSigner(
                     disabledContainerColor = colorScheme.primaryContainer,
                     disabledContentColor = colorScheme.onPrimaryContainer
                 ),
-                onClick = {
-                // Обработка нажатия на кнопку "Сохранить"
-                val updatedSigner = signer?.copy(
-                    name = nameState.value,
-                    address = addressState.value,
-                    email = emailState.value,
-                    telephone = telephoneState.value
-                )
-                if (updatedSigner != null) {
-                    viewModel.updateSigner(updatedSigner)
-                }
-                onSaveClick()
-
-            }) {
+                onClick = { showDialog = true }
+            ) {
                 Text(stringResource(id = R.string.save_of_signer))
             }
         }

@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -31,17 +32,22 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -107,60 +113,154 @@ fun SettingsScreen(
     val type = object : TypeToken<List<SettingsBlock>>() {}.type
     val settingsBlocks: List<SettingsBlock> = gson.fromJson(jsonStr, type)
     val ps = PasswordStorageHelper(context)
+    var showDialogLogOut by remember { mutableStateOf(false) }
+    var showDialogDelete by remember { mutableStateOf(false) }
+    var deleteReason by remember { mutableStateOf("") }
 
-    /*fun deleteAccount(){
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage(context.getString(R.string.delete_me_warning))
-            .setCancelable(true)
-            .setPositiveButton(context.getString(R.string.yes)) {_, _ ->
-
-            }
-    }
-    fun deleteMyAccountClick(reason: String) {
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle(context.getString(R.string.delete_me_reason))
-        val input = EditText(context)
-
-        builder.setView(input)
-        builder.setPositiveButton(context.getString(R.string.delete)) { dialog, which ->
-            val reason = input.text.toString()
-            var s: String = viewModel.deleteMyAccount()
-            val json = JSONObject(s)
-            if (json.has("uuid")) s = json["uuid"].toString()
-            val body = "\"uuid\":\"$s\",\"reason\":\"$reason\"" //  val z:String=NW().GetNetString(this@Settings,"erase_account\\$s",body,true)
-            val z = "{\"STATUS\":\"DONE\"}"
-            if (z.equals("{\"STATUS\":\"DONE\"}")) { // Всё, сервер нас успешно замочил. Удалим наши ключи
-                // Начинаем локальную зачистку:
-                val ps = PasswordStorageHelper(context)
-                ps.remove("MyPublicKey");
-                ps.remove("MyPrivateKey");
-                context.getSharedPreferences(context.getString(R.string.preferens_file_name), 0).edit().clear().apply();
-
-                //Теперь оповестим юзера о том что всё удалено и закроем приложение
-                builder.setMessage(context.getString(R.string.user_deleted))
-                    .setPositiveButton("OK") { _, _ -> (context as Activity).finishAffinity() }
-                    .setOnDismissListener { (context as Activity).finishAffinity() }
-                builder.create().show()
-            }
-        }
-        builder.setNegativeButton(context.getString(R.string.cancel)) { dialog, which -> dialog.cancel() }
-        builder.show()
+    fun logout(){
+        viewModel.clearDataBase()
+        ps.remove("MyPublicKey");
+        ps.remove("MyPrivateKey");
+        val sharedPrefs = context.getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
+        sharedPrefs.edit().putBoolean("VisitedApp", false).apply()
+        navHostController.navigate("Registration")
     }
 
-    fun requestDeletionReason(){
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle(context.getString(R.string.delete_me_reason))
-        val input = EditText(context)
-        builder.setView(input)
-        builder.setPositiveButton(context.getString(R.string.delete)){dialog, _ ->
-            val reason = input.text.toString()
-            deleteMyAccountClick(reason)
-        }
-        builder.setNegativeButton(context.getString(R.string.cancel)){dialog, _ ->
-            dialog.cancel()
-        }
-        builder.show()
-    }*/
+    // Функция для показа уведомления об успешном удалении и закрытия приложения
+    fun showDeletionSuccessDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(context)
+        builder.setMessage(context.getString(R.string.user_deleted))
+            .setPositiveButton("OK") { _, _ ->
+                (context as? Activity)?.finishAffinity()
+                val sharedPrefs = context.getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
+                sharedPrefs.edit().putBoolean("VisitedApp", false).apply()
+                navHostController.navigate("Registration")
+            }
+            .setOnDismissListener {
+                (context as? Activity)?.finishAffinity()
+                val sharedPrefs = context.getSharedPreferences("com.example.h2k.PREFS", Context.MODE_PRIVATE)
+                sharedPrefs.edit().putBoolean("VisitedApp", false).apply()
+                navHostController.navigate("Registration")
+            }
+        builder.create().show()
+
+    }
+
+    if(showDialogDelete){
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialogDelete = false },
+            title = {
+                Text(
+                    stringResource(id = R.string.delete_account),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                    fontSize = 18.sp
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        text = stringResource(id = R.string.delete_me_warning),
+                        fontWeight = FontWeight.Light,
+                        color = colorScheme.onSurface,
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = deleteReason,
+                        onValueChange = { deleteReason = it },
+                        singleLine = true,
+                        maxLines = 1,
+                        shape = newRoundedShape,
+                        placeholder = {
+                            Text(
+                                text = stringResource(id = R.string.write_delete_reason),
+                                fontWeight = FontWeight.Light
+                            )
+                        },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = colorScheme.surface,
+                            focusedLabelColor = colorScheme.primary,
+                            unfocusedContainerColor = colorScheme.surface,
+                            unfocusedLabelColor = colorScheme.onBackground,
+                            cursorColor = colorScheme.primary
+                        )
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (deleteReason.isNotEmpty()) {
+                        viewModel.deleteMyAccount(deleteReason)
+                        showDialogDelete = false // Закрыть диалог после подтверждения
+                        showDeletionSuccessDialog()
+                    }
+                    else{
+                        Toast.makeText(context, R.string.write_delete_reason, Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Text(
+                        stringResource(id = R.string.accept),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDialogDelete = false
+                }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
+
+
+    if(showDialogLogOut){
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialogLogOut = false },
+            title = {
+                Text(
+                    stringResource(id = R.string.exit_from_account),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                    fontSize = 18.sp
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    logout()
+                }) {
+                    Text(
+                        stringResource(id = R.string.accept),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialogLogOut = false }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
 
     //export and import
     val bookmarkExportFilePicker =
@@ -217,9 +317,6 @@ fun SettingsScreen(
                 viewModel.clearDataBase()
 
                 //Теперь это наш текущий ключ.
-                val pk_new = ps.getData("MyPublicKey")
-                println("Public Key: {$pk_new}")
-                println(GetMyAddr(context))
                 viewModel.insertSigner(Signer(name = context.getString(R.string.default_name_of_signer), email = "", telephone = "", type = 1, address = GetMyAddr(context), isFavorite = false))
 
                 val builder: AlertDialog.Builder = AlertDialog.Builder(context)
@@ -318,6 +415,8 @@ fun SettingsScreen(
                                 "change_language" -> onChangeLanguageClick()
                                 "import_secret_key" -> showImportBookmarksDialog()
                                 "export_secret_key" -> showExportBookmarksDialog()
+                                "logout_account" -> showDialogLogOut = true
+                                "delete_account" -> showDialogDelete = true
                             }
                         }
                     )

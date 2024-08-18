@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Safina</string>
     <string name="user_agreement">https://safina.pro/offer</string>
-
     <string name="accept_mnem">Импортируемый ключ совпадает с вашим ключем</string>
     <string name="not_accept_mnem">Импортируемый ключ не совпадает с вашим ключем</string>
     <string name="enter_mnem">Введите мнемоническую фразу</string>
@@ -98,8 +97,17 @@
     <string name="hidden_wallet">Скрытый кошелек</string>
     <string name="do_you_not_hide">Вы действительно больше не хотите скрывать этот кошелек?</string>
     <string name="do_you_hide">Вы действительно хотите скрыть этот кошелек?</string>
-
-
+    <string name="accept">Подтвердить</string>
+    <string name="accept_tx">Подтверждение транзакции</string>
+    <string name="are_you_sure_tx">Вы уверены, что хотите cовершить транзакцию?</string>
+    <string name="delete_confirm">Подтверждение удаления</string>
+    <string name="are_you_sure_delete_signer">Вы уверены, что хотите удалить этого подписанта?</string>
+    <string name="confirm_changes">Подтвердить изменения?</string>
+    <string name="add_this_signer">Добавить данного подписанта?</string>
+    <string name="exit_from_account">Вы точно хотите выйти из аккаунта?</string>
+    <string name="delete_account">Вы точно хотите удалить этот аккаунт?</string>
+    <string name="write_delete_reason">Напишите причину удаления</string>
+    <string name="use_auto_exchange">Использовать автообмен</string>
 
     //Wallet
     <string name="no_wallets">У вас нет активных кошельков!</string>

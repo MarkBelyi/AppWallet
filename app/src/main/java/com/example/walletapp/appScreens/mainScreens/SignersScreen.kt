@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -39,6 +40,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -105,7 +107,7 @@ fun SignersScreen(
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             putExtra(Intent.EXTRA_TITLE, "signers_backup.asfn")
-            setType("*/*") // Необходимый тип, чтобы избежать сбоев
+            type = "*/*"
             putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json"))
         }
         signersExportFilePicker.launch(intent)
@@ -151,7 +153,7 @@ fun SignersScreen(
         containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Signers", color = colorScheme.onSurface) },
+                title = { Text(text = stringResource(id = R.string.action_signers), color = colorScheme.onSurface) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorScheme.surface,
                     titleContentColor = colorScheme.onSurface,
@@ -234,6 +236,51 @@ fun SignersScreen(
 
 @Composable
 fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Unit) {
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            containerColor = colorScheme.surface,
+            tonalElevation = 0.dp,
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(
+                    stringResource(id = R.string.delete_confirm),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                    fontSize = 18.sp
+                ) },
+            text = { Text(
+                stringResource(id = R.string.are_you_sure_delete_signer),
+                fontWeight = FontWeight.Light,
+                color = colorScheme.onSurface
+            ) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteSigner(signer)
+                    showDialog = false
+                }) {
+                    Text(
+                        stringResource(id = R.string.delete),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary
+                    )
+                }
+            },
+            shape = newRoundedShape
+        )
+    }
+    
     Card(
         onClick = { onClick(signer.address) },
         shape = newRoundedShape,
@@ -319,7 +366,7 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
                 modifier = Modifier.padding(16.dp)
             ) {
                 IconButton(
-                    onClick = { viewModel.deleteSigner(signer) },
+                    onClick = { showDialog = true },
                     modifier = Modifier
                         .scale(1.2f)
                         .alpha(0.9f),
@@ -339,12 +386,12 @@ fun SignerItem(signer: Signer, viewModel: appViewModel, onClick: (String) -> Uni
 fun AddSignerCard(onClick: () -> Unit) {
 
     Box(
-        modifier = Modifier.fillMaxSize(), // This makes the Box fill the entire screen
-        contentAlignment = Alignment.BottomEnd // This aligns the content to the bottom-end corner
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomEnd
     ) {
         Card(
             modifier = Modifier
-                .height(48.dp), // Высота карточки
+                .height(48.dp),
             shape = newRoundedShape,
             colors = CardDefaults.cardColors(
                 containerColor = colorScheme.surface
@@ -353,15 +400,15 @@ fun AddSignerCard(onClick: () -> Unit) {
             onClick = onClick
         ) {
             Box(
-                contentAlignment = Alignment.Center, // Центрирование содержимого
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f) // Заполняет весь размер карточки
+                    .weight(1f)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = "Add signer",
-                    modifier = Modifier.size(24.dp), // Размер иконки
+                    modifier = Modifier.size(24.dp),
                     tint = colorScheme.primary
                 )
             }
