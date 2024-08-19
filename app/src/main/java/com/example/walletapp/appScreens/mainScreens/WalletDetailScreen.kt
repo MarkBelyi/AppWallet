@@ -90,10 +90,6 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
         })
     }
 
-    // Обновление данных при изменении кошелька
-
-    val updatedWallet by viewModel.walletLiveData.observeAsState(wallet)
-
     BackHandler(onBack = onBack)
     
     Scaffold(
@@ -108,7 +104,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                         horizontalArrangement = Arrangement.Start,
                         modifier = Modifier.fillMaxSize()
                     ){
-                        if(updatedWallet!!.network in listOf(5010, 1010, 3040)){
+                        if(wallet.network in listOf(5010, 1010, 3040)){
                             Card(
                                 shape = newRoundedShape,
                                 border = BorderStroke(width = 0.5.dp, color = colorScheme.primary),
@@ -128,7 +124,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = updatedWallet!!.info,
+                            text = wallet.info,
                             color = colorScheme.onSurface,
                             fontWeight = FontWeight.Normal,
                             maxLines = 1,
@@ -186,7 +182,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = updatedWallet!!.addr,
+                    value = wallet.addr,
                     onValueChange = {},
                     textStyle = TextStyle(color = colorScheme.onSurface),
                     modifier = Modifier.fillMaxWidth(),
@@ -196,12 +192,12 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     maxLines = 1,
                     leadingIcon = {
                         IconButton(onClick = {
-                            if(updatedWallet!!.network in listOf(5010, 1010, 3040)){
-                                val urlTest = "https://nile.tronscan.org/#/address/${updatedWallet!!.addr}"
+                            if(wallet.network in listOf(5010, 1010, 3040)){
+                                val urlTest = "https://nile.tronscan.org/#/address/${wallet.addr}"
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(urlTest))
                                 context.startActivity(intent)
                             }else{
-                                val url = "https://tronscan.org/#/address/${updatedWallet!!.addr}"
+                                val url = "https://tronscan.org/#/address/${wallet.addr}"
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                 context.startActivity(intent)
                             }
@@ -212,7 +208,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                     trailingIcon = {
                         IconButton(onClick = {
                             val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            val clip = ClipData.newPlainText("address", updatedWallet!!.addr)
+                            val clip = ClipData.newPlainText("address", wallet.addr)
                             clipboardManager.setPrimaryClip(clip)
                             Toast.makeText(context, R.string.copytobuffer, Toast.LENGTH_SHORT).show()
                         }) {
@@ -235,7 +231,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                AddressList(slist = updatedWallet!!.slist, signers = signers)
+                AddressList(slist = wallet.slist, signers = signers)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -251,7 +247,7 @@ fun WalletDetailScreen(wallet: Wallets, viewModel: appViewModel, onBack: () -> U
                         .padding(8.dp),
                 ){
                     Text(
-                        text = wallet.tokenShortNames.split(';').joinToString("\n"),
+                        text =  wallet.tokenShortNames.split(';').joinToString("\n"),
                         modifier = Modifier
                             .padding(8.dp),
                         fontSize = 14.sp,

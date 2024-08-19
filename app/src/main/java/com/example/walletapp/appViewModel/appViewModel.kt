@@ -29,6 +29,7 @@ import com.example.walletapp.appScreens.mainScreens.Blockchain
 import com.example.walletapp.helper.PasswordStorageHelper
 import com.example.walletapp.parse.jsonArray
 import com.example.walletapp.parse.parseNetworks
+import com.example.walletapp.parse.parseTokensInfo
 import com.example.walletapp.parse.parseWallets
 import com.example.walletapp.registrationScreens.AuthMethod
 import com.example.walletapp.repository.AppRepository
@@ -615,14 +616,6 @@ class appViewModel(private val repository: AppRepository, private val applicatio
         })
     }
 
-    private val _walletLiveData = MutableLiveData<Wallets?>()
-    val walletLiveData: LiveData<Wallets?> get() = _walletLiveData
-
-    fun get() = viewModelScope.launch(Dispatchers.IO) {
-        val s = GetAPIString(context, "tokensinfo")
-        println(s)
-    }
-
     suspend fun getTrxBalance(walletAddress: String): Double {
 
         if (walletAddress.isBlank()) {
@@ -670,6 +663,7 @@ class appViewModel(private val repository: AppRepository, private val applicatio
             }
         }
     }
+
 
     private fun createWallet(context: Context, msg: String) = viewModelScope.launch(Dispatchers.IO) {
         val jsonString = GetAPIString(context, "newWallet", msg, true)
@@ -788,6 +782,59 @@ class appViewModel(private val repository: AppRepository, private val applicatio
         val jsonString = GetAPIString(context, "netlist/1")
         val loadedNetworks = parseNetworks(jsonString)
         repository.addNetworks(loadedNetworks)
+    }
+
+    //Tokens
+    private val _tokens = MutableLiveData<List<Tokens>>()
+    val tokens: LiveData<List<Tokens>> get() = _tokens
+
+    fun getTokensInfoComission() = viewModelScope.launch(Dispatchers.IO) {
+        val s = GetAPIString(context, "tokensinfo")
+        println(s)
+
+        // Преобразуем ответ в список объектов
+        val tokensList = parseTokensInfo(s)
+
+        // Пройдемся по каждому токену и обновим его в базе данных
+        tokensList.forEach { tokenInfo ->
+            val networkId = tokenInfo.token.split(":::")[0].toInt()
+            val name = tokenInfo.token.split(":::")[1]
+
+            val existingToken = repository.getToken(networkId, name)
+
+            if (existingToken != null) {
+                // Обновляем только нужные поля
+                repository.updateTokenCommissions(
+                    networkId = networkId,
+                    name = name,
+                    c = tokenInfo.c.toFloat(),
+                    cMin = tokenInfo.cMin.toFloat(),
+                    cMax = tokenInfo.cMax.toFloat(),
+                    cBase = tokenInfo.cBase.toFloat()
+                )
+            }
+        }
+    }
+
+    fun getToken(networkId: Int, name: String, address: String) = viewModelScope.launch(Dispatchers.IO){
+        repository.getToken(networkId, name, address)
+    }
+
+    private val _tokenWithCommission = MutableLiveData<Tokens?>()
+    val tokenWithCommission: LiveData<Tokens?> get() = _tokenWithCommission
+
+    fun getTokenCommission(networkId: Int, name: String, addr: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Получаем токен из базы данных
+                val token = repository.getToken(networkId, name, addr)
+                // Обновляем LiveData с полученными данными
+                _tokenWithCommission.postValue(token)
+            } catch (e: Exception) {
+                // Обрабатываем ошибку, если необходимо (например, логирование)
+                Log.e("appViewModel", "Error fetching token commission", e)
+            }
+        }
     }
 
     //AllTX

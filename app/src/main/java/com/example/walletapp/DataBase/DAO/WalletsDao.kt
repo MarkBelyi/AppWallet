@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.walletapp.DataBase.Entities.Wallets
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WalletsDAO {
@@ -50,6 +51,8 @@ interface WalletsDAO {
     @Query("SELECT * FROM Wallets WHERE myUNID = :unid")
     suspend fun getWalletByUNID(unid: String):  Wallets?
 
+    @Query("SELECT * FROM wallets WHERE wallet_id = :walletId LIMIT 1")
+    fun getWalletById(walletId: Int): Flow<Wallets>
 
     @Query("DELETE FROM Wallets")
     fun clearWallets()

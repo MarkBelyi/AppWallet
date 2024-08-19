@@ -17,3 +17,14 @@ data class Tokens(
     val cMax:Float=0f, //Верхний порог комиссии
     val cBase:Float=0f //примерная комиссия СЕТИ в базовых токенах сети
 )
+
+// Класс для парсинга JSON
+data class TokenInfo(
+    val token: String,
+    val name: String,
+    val decimals: String,
+    val c: String,
+    val cMin: String,
+    val cMax: String,
+    val cBase: String
+)

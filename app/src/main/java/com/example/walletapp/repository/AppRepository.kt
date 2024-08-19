@@ -46,15 +46,42 @@ class AppRepository(
     }
 
     //tokens
-    suspend fun insertToken(item: Tokens) = tokensDAO.insert(item)
+    suspend fun insertToken(item: Tokens) {
+        val existingToken = tokensDAO.getToken(item.network_id, item.name, item.addr)
 
+        if (existingToken != null) {
+            // Сохраняем существующие значения комиссий
+            val tokenToInsert = item.copy(
+                c = existingToken.c,
+                cMin = existingToken.cMin,
+                cMax = existingToken.cMax,
+                cBase = existingToken.cBase
+            )
+            tokensDAO.insert(tokenToInsert)
+        } else {
+            // Вставляем новый токен как есть
+            tokensDAO.insert(item)
+        }
+    }
+
+
+    suspend fun getToken(networkId: Int, name: String): Tokens? {
+        return tokensDAO.getToken(networkId, name)
+    }
+
+    suspend fun getToken(networkId: Int, name: String, address: String): Tokens? {
+        return tokensDAO.getToken(networkId, name, address)
+    }
+
+    suspend fun updateTokenCommissions(networkId: Int, name: String, c: Float, cMin: Float, cMax: Float, cBase: Float) {
+        tokensDAO.updateTokenCommissions(networkId, name, c, cMin, cMax, cBase)
+    }
 
     // Wallets
     suspend fun addWallets(wallets: List<Wallets>) {
         walletsDAO.addWallets(wallets)
     }
 
-    //NEW
     suspend fun getWalletsByNetwork(network: Int, testNetwork: Int): List<Wallets> {
         return walletsDAO.getWalletsByNetwork(network, testNetwork)
     }
@@ -77,6 +104,10 @@ class AppRepository(
 
     suspend fun getWalletByUNID(unid: String): Wallets? {
         return walletsDAO.getWalletByUNID(unid)
+    }
+
+    fun getWalletById(walletId: Int): Flow<Wallets> {
+        return walletsDAO.getWalletById(walletId)
     }
 
     //Singer

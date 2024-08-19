@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Share
@@ -327,11 +328,19 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
     var address by remember { mutableStateOf(initialAddress) }
     var amount by remember { mutableStateOf("") }
     var paymentPurpose by remember { mutableStateOf("") }
-    var useAutoExchange by remember { mutableStateOf(false) }  // Новая переменная для CheckBox
+    var useAutoExchange by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val walletAddressesBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var openWalletAddressesBottomSheet by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    val tokenWithCommission by viewModel.tokenWithCommission.observeAsState()
+
+    // Вызываем получение комиссий при старте
+    LaunchedEffect(selectedToken) {
+        selectedToken?.let { token ->
+            viewModel.getTokenCommission(token.network_id, token.name, token.addr)
+        }
+    }
 
     if (showDialog) {
         AlertDialog(
@@ -506,10 +515,18 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
 
                     Spacer(modifier = Modifier.height(8.dp))
 
+                    /*val maxAmount = remember(token, tokenWithCommission) {
+                        tokenWithCommission?.let { commission ->
+                            val commissionRate = commission.c
+                            val calculatedMaxAmount = token.amount / (1 + commissionRate)
+                            String.format("%.2f", calculatedMaxAmount.coerceAtLeast(0.0))
+                        } ?: "0.00"
+                    }*/
+
                     CustomOutlinedTextField(
                         value = amount,
                         onValueChange = { amount = it },
-                        placeholder = stringResource(id = R.string.amount),
+                        placeholder = stringResource(id = R.string.amount)
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -543,9 +560,31 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(stringResource(id = R.string.comission), color = colorScheme.onSurface)
-                    Text(stringResource(id = R.string.min_comission), color = colorScheme.onSurface)
-                    Text(stringResource(id = R.string.max_comission), color = colorScheme.onSurface)
+
+                    tokenWithCommission?.let { token ->
+                        val calculatedCommission = remember(amount, token) {
+                            val enteredAmount = amount.toDoubleOrNull() ?: 0.0
+                            val rawCommission = enteredAmount * token.c
+                            when {
+                                rawCommission < token.cMin -> token.cMin
+                                rawCommission > token.cMax -> token.cMax
+                                else -> rawCommission
+                            }
+                        }
+
+                        Text(
+                            text = stringResource(id = R.string.comission) + " " + String.format("%.2f", calculatedCommission),
+                            color = colorScheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(id = R.string.min_comission) + " " + String.format("%.2f", token.cMin),
+                            color = colorScheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(id = R.string.max_comission) + " " + String.format("%.2f", token.cMax),
+                            color = colorScheme.onSurface
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -565,7 +604,6 @@ fun TransactionScreen(viewModel: appViewModel, selectedToken: Balans?, initialAd
                         text = stringResource(id = R.string.send),
                         onClick = {
                             amount.toDoubleOrNull()?.let { amt ->
-                                // Здесь можно использовать флаг useAutoExchange для управления API вызовом
                                 if (useAutoExchange) {
                                     viewModel.sendTransactionWithAutoExchange(
                                         token = token,
@@ -855,4 +893,40 @@ fun WalletAddressItem(walletAddress: WalletAddress, viewModel: appViewModel, onC
             }
         }
     }
+}
+
+@Composable
+fun CustomOutlinedTextFieldWithMaxAmount(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    maxAmount: Double
+) {
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(),
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = {
+            Text(
+                text = placeholder,
+                fontWeight = FontWeight.Normal,
+                color = Color.Gray
+            ) },
+        singleLine = true,
+        shape = newRoundedShape,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = colorScheme.onSurface,
+            unfocusedTextColor = colorScheme.onSurface,
+            focusedContainerColor = colorScheme.surface,
+            unfocusedContainerColor = colorScheme.surface,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent
+        ),
+        trailingIcon = {
+            IconButton(onClick = { onValueChange(maxAmount.toString()) }) {
+                Icon(Icons.Default.ThumbUp, contentDescription = "Max amount", tint = colorScheme.primary)
+            }
+        },
+        maxLines = 1,
+    )
 }
