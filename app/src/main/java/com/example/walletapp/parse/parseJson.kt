@@ -2,8 +2,10 @@ package com.example.walletapp.parse
 
 import android.util.Log
 import com.example.walletapp.DataBase.Entities.Networks
+import com.example.walletapp.DataBase.Entities.TokenInfo
 import com.example.walletapp.DataBase.Entities.Tokens
 import com.example.walletapp.DataBase.Entities.Wallets
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import com.google.gson.reflect.TypeToken
@@ -30,6 +32,12 @@ fun parseNetworksJsonWithGson(jsonString: String): List<Networks> {
 
     val type = object : TypeToken<List<Networks>>() {}.type
     return gson.fromJson(jsonString, type)
+}
+
+fun parseTokensInfo(json: String): List<TokenInfo> {
+    val gson = Gson()
+    val tokenType = object : TypeToken<List<TokenInfo>>() {}.type
+    return gson.fromJson(json, tokenType)
 }
 
 /**Принимает строку и пытается сделать из неё JSONArray. Если строка оказывается не массивом, то молча возвратит пустой массив [] */

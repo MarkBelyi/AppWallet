@@ -93,6 +93,7 @@ fun Home(
     onCreateSimpleWalletClick: () -> Unit,
 ) {
     val networks by viewModel.networks.observeAsState(initial = emptyList())
+    val tokens by viewModel.tokens.observeAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
@@ -123,6 +124,12 @@ fun Home(
     LaunchedEffect(openSecondBottomSheet && !preventSecondBottomSheetReopening) {
         if (openSecondBottomSheet) {
             secondBottomSheetState.show()
+        }
+    }
+
+    LaunchedEffect(tokens) {
+        coroutineScope.launch {
+            viewModel.getTokensInfoComission()
         }
     }
 
@@ -217,9 +224,9 @@ fun Home(
                     bottom.linkTo(gridRef.top)
                 }
         ) {
-            val pageCount = 1//4
+            val pageCount = 1
             val pagerState = rememberPagerState(pageCount = { pageCount })
-            val pages = listOf(Page.Assets/*, Page.Future0, Page.Future1, Page.Future2*/)
+            val pages = listOf(Page.Assets)
 
             HorizontalPager(state = pagerState,
                 modifier = Modifier
@@ -232,9 +239,6 @@ fun Home(
             ) { pageIndex ->
                 when (pages[pageIndex]) {
                     Page.Assets -> AssetsWidget(viewModel = viewModel)
-                    /*Page.Future0 -> Future(pageNum = pagerState.currentPage)
-                    Page.Future1 -> Future(pageNum = pagerState.currentPage)
-                    Page.Future2 -> Future(pageNum = pagerState.currentPage)*/
                 }
             }
 
@@ -276,7 +280,6 @@ fun Home(
                 Actions.support -> {
                     showUnavailableFeatureDialog = true
                 }
-                //else -> onMatrixClick()
             }
         }, modifier = Modifier
             .constrainAs(gridRef) {

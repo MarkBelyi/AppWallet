@@ -305,7 +305,7 @@
     <string name="ar_u_makeawallet">Have you already created a wallet?</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
-    <string name="comission">Commission</string>
+    <string name="comission">Commission: </string>
     <string name="comission_topay">The commission will be</string>
     <string name="comi_min">Minimum commission</string>
     <string name="comi_max">Maximum commission</string>

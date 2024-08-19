@@ -305,7 +305,7 @@
     <string name="ar_u_makeawallet">Вы уже создали кошелёк?</string>
     <string name="delete">Удалить</string>
     <string name="cancel">Отмена</string>
-    <string name="comission">Комиссия</string>
+    <string name="comission">Комиссия: </string>
     <string name="comission_topay">Комиссия составит</string>
     <string name="comi_min">Минимальная комиссия</string>
     <string name="comi_max">Максимальная комиссия</string>
