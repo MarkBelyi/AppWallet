@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="tron_scan_api_url">https://apilist.tronscanapi.com/api/</string>
     <string name="app_name">Safina</string>
     <string name="user_agreement">https://safina.pro/offer_en</string>
     <string name="accept_mnem">The imported key matches your key</string>

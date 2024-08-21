@@ -13,19 +13,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.walletapp.Activity.AppActivity
+import com.example.walletapp.Activity.RegistrationActivity
+import com.example.walletapp.Activity.SignerModeActivity
+import com.example.walletapp.AppViewModel.AppViewModelFactory
+import com.example.walletapp.AppViewModel.RegistrationViewModel
+import com.example.walletapp.AppViewModel.appViewModel
 import com.example.walletapp.DataBase.DataBase
+import com.example.walletapp.Repository.AppRepository
 import com.example.walletapp.Settings.AuthModalBottomSheet
-import com.example.walletapp.activity.AppActivity
-import com.example.walletapp.activity.RegistrationActivity
-import com.example.walletapp.activity.SignerModeActivity
-import com.example.walletapp.appViewModel.AppViewModelFactory
-import com.example.walletapp.appViewModel.RegistrationViewModel
-import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.repository.AppRepository
 import com.example.walletapp.ui.theme.WalletAppTheme
 
-class MainApplication : Application(){
-    var isInBackground=false // Применяется для понимания что приложение перешло в фоновый режим работы
+class MainApplication : Application() {
+    var isInBackground =
+        false // Применяется для понимания что приложение перешло в фоновый режим работы
     val database by lazy { DataBase.getDatabase(this) }
     val repository by lazy {
         AppRepository(
@@ -58,12 +59,11 @@ class MainActivity : AppCompatActivity() {
             WalletAppTheme(isDarkTheme) {
                 val registrationViewModel: RegistrationViewModel by viewModels()
                 val navController = rememberNavController()
-                val startDestination = if (hasVisitedApp()){
-                    if(getElectronicApprovalEnabled()){
+                val startDestination = if (hasVisitedApp()) {
+                    if (getElectronicApprovalEnabled()) {
                         "SignerMode"
-                    }
-                    else "App"
-                }  else {
+                    } else "App"
+                } else {
                     "Registration"
                 }
 
@@ -83,20 +83,27 @@ class MainActivity : AppCompatActivity() {
                             navHostController = navController,
                         )
                     }
-                    composable("SignerMode"){
-                        SignerModeActivity(activity = this@MainActivity, navHostController = navController, viewModel = appViewModel)
+                    composable("SignerMode") {
+                        SignerModeActivity(
+                            activity = this@MainActivity,
+                            navHostController = navController,
+                            viewModel = appViewModel
+                        )
                     }
-                    
+
                 }
 
                 if (showAuthSheet.value) {
-                    AuthModalBottomSheet(showAuthSheet, onAuthenticated = { showAuthSheet.value = false }, viewModel = appViewModel)
+                    AuthModalBottomSheet(
+                        showAuthSheet,
+                        onAuthenticated = { showAuthSheet.value = false },
+                        viewModel = appViewModel
+                    )
                 }
             }
             requestAuth()
         }
     }
-
 
 
     /*override fun onResume() {
@@ -121,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getElectronicApprovalEnabled():Boolean{
+    private fun getElectronicApprovalEnabled(): Boolean {
         val sharedPrefs = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
         return sharedPrefs.getBoolean("electronic_approval", false)
     }

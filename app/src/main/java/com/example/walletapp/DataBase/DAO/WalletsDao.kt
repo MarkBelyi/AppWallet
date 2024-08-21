@@ -16,7 +16,7 @@ interface WalletsDAO {
     suspend fun getCount(): Int
 
     @Query("SELECT * FROM Wallets")
-     fun getLiveWallets(): LiveData<List<Wallets>>
+    fun getLiveWallets(): LiveData<List<Wallets>>
 
     @Delete
     suspend fun deleteWallet(item: Wallets)
@@ -49,7 +49,7 @@ interface WalletsDAO {
     suspend fun updateWalletFlags(unid: String, newFlags: String)
 
     @Query("SELECT * FROM Wallets WHERE myUNID = :unid")
-    suspend fun getWalletByUNID(unid: String):  Wallets?
+    suspend fun getWalletByUNID(unid: String): Wallets?
 
     @Query("SELECT * FROM wallets WHERE wallet_id = :walletId LIMIT 1")
     fun getWalletById(walletId: Int): Flow<Wallets>

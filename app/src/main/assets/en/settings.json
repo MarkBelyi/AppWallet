@@ -64,12 +64,14 @@
         "description": "",
         "type": "SWITCH",
         "prefsKey": "change_theme"
-      },{
+      },
+      {
         "name": "Log out",
         "description": "Log out from the account",
         "type": "ARROW",
         "prefsKey": "logout_account"
-      },{
+      },
+      {
         "name": "Delete Account",
         "description": "Delete my account and all my data from the server",
         "type": "ARROW",

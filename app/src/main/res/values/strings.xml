@@ -1,4 +1,5 @@
 <resources>
+    <string name="tron_scan_api_url">https://apilist.tronscanapi.com/api/</string>
     <string name="app_name">Safina</string>
     <string name="user_agreement">https://safina.pro/offer</string>
     <string name="accept_mnem">Импортируемый ключ совпадает с вашим ключем</string>
@@ -132,7 +133,7 @@
     <string name="action_support">Поддержка</string>
     <string name="action_settings">Настройки</string>
     <string name="action_qr">QR</string>
-    
+
     //BottomBar
     <string name="wallet_name">Кошелек</string>
     <string name="home">Главная</string>
@@ -193,7 +194,7 @@
     <string name="why_i_need_this">Зачем мне это нужно?</string>
     <string name="default_name_wallet">Имя кошелька</string>
     <string name="select_blockchain">Выберите сеть блокчейна</string>
-    
+
     <string name="cybersecurity_title">Предупреждение о безопасности</string>
     <string name="cybersecurity_body">Не делайте скриншоты и не используйте приложения для записи экрана, пока отображается ваша мнемоническая фраза. Это может поставить под угрозу безопасность вашего кошелька.</string>
     <string name="Understand">Понятно</string>

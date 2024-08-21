@@ -26,7 +26,14 @@ interface TokensDAO {
     suspend fun getToken(networkId: Int, name: String, addr: String): Tokens?
 
     @Query("UPDATE Tokens SET c = :c, cMin = :cMin, cMax = :cMax, cBase = :cBase WHERE network_id = :networkId AND name = :name")
-    fun updateTokenCommissions(networkId: Int, name: String, c: Float, cMin: Float, cMax: Float, cBase: Float)
+    fun updateTokenCommissions(
+        networkId: Int,
+        name: String,
+        c: Float,
+        cMin: Float,
+        cMax: Float,
+        cBase: Float
+    )
 
     @Delete
     suspend fun deleteItem(item: Tokens)

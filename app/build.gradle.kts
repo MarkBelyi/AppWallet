@@ -79,8 +79,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     //для horizontal pager
-    implementation ("androidx.compose.foundation:foundation:1.6.8")
-    implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
+    implementation("androidx.compose.foundation:foundation:1.6.8")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 
     //используется для изменения UI элементов самого андроида
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
@@ -136,15 +136,15 @@ dependencies {
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:16.1.3")
 
     //Animation
-    implementation ("androidx.compose.animation:animation:1.6.8")
-    implementation ("androidx.compose.ui:ui:1.6.8")
-    implementation ("androidx.compose.runtime:runtime:1.6.8")
-    implementation ("androidx.compose.animation:animation:1.6.8")
+    implementation("androidx.compose.animation:animation:1.6.8")
+    implementation("androidx.compose.ui:ui:1.6.8")
+    implementation("androidx.compose.runtime:runtime:1.6.8")
+    implementation("androidx.compose.animation:animation:1.6.8")
 
     //для horizontal pager
-    implementation ("androidx.compose.foundation:foundation:1.6.8")
-    implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
+    implementation("androidx.compose.foundation:foundation:1.6.8")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 
     //SwipeRefresh
-    implementation (platform("androidx.compose:compose-bom:2024.06.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
 }

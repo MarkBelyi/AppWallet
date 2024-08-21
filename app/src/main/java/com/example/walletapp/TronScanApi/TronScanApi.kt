@@ -5,9 +5,9 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
-fun TronScanApi(){
+fun TronScanApi() {
     val apiKey = "bbd6e3b5-09ed-4d2a-b429-df66d18d6006"
-    val endpoint = "https://apilist.tronscanapi.com/api/block"
+    val endpoint = ""//TODO(Добавить BAse URL TronScanAPI)  + "block"
 
     try {
         val url = URL(endpoint)
