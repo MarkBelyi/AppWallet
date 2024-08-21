@@ -26,7 +26,11 @@ fun generateQRCode(
         for (x in 0 until size) {
             val offset = y * size
             //прозрачный цвет для фона и черный для QR-кода
-            pixels[offset + x] = if (bitMatrix.get(x, y)) foregroundArgb else backgroundArgb //android.graphics.Color.BLACK else android.graphics.Color.TRANSPARENT
+            pixels[offset + x] = if (bitMatrix.get(
+                    x,
+                    y
+                )
+            ) foregroundArgb else backgroundArgb //android.graphics.Color.BLACK else android.graphics.Color.TRANSPARENT
         }
     }
     //ARGB_8888 для поддержки прозрачности

@@ -16,7 +16,7 @@ interface BalansDAO {
     suspend fun getCount(): Int
 
     @Query("SELECT * FROM Balans WHERE addr = :adr")
-    suspend fun getAllByAddr(adr:String): List<Balans>
+    suspend fun getAllByAddr(adr: String): List<Balans>
 
     @Delete
     suspend fun deleteItem(item: Balans)

@@ -35,7 +35,7 @@ import com.example.walletapp.DataBase.Entities.Wallets
     version = 6,
     exportSchema = false
 )
-abstract class DataBase: RoomDatabase(){
+abstract class DataBase : RoomDatabase() {
     abstract fun signerDao(): SignerDao
     abstract fun networksDao(): NetworksDAO
     abstract fun walletsDao(): WalletsDAO
@@ -46,12 +46,12 @@ abstract class DataBase: RoomDatabase(){
     abstract fun walletAddressDao(): WalletAddressDao
 
 
-    companion object{
+    companion object {
         @Volatile
         private var INSTANCE: DataBase? = null
 
-        fun getDatabase(context: Context): DataBase{
-            return INSTANCE ?: synchronized(this){
+        fun getDatabase(context: Context): DataBase {
+            return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     DataBase::class.java,

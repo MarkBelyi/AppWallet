@@ -1,7 +1,7 @@
 package com.example.walletapp.Server
 
 import android.content.Context
-import com.example.walletapp.helper.PasswordStorageHelper
+import com.example.walletapp.AuxiliaryFunctions.HelperClass.PasswordStorageHelper
 import org.web3j.crypto.Keys
 import org.web3j.utils.Numeric
 import java.math.BigInteger
@@ -17,7 +17,7 @@ fun bytesToHex(bytes: ByteArray): String {
     return result.toString()
 }
 
-fun GetMyAddr(context: Context):String {
+fun GetMyAddr(context: Context): String {
     val ps = PasswordStorageHelper(context)
     val pubKey = ps.getData("MyPublicKey") ?: return ""
     val hexString = bytesToHex(pubKey)

@@ -10,7 +10,7 @@ import com.example.walletapp.DataBase.Entities.Signer
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface SignerDao{
+interface SignerDao {
     @Upsert
     suspend fun upsertSigner(signer: Signer)
 

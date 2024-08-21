@@ -64,18 +64,19 @@
         "description": "",
         "type": "SWITCH",
         "prefsKey": "change_theme"
-      },{
+      },
+      {
         "name": "Выйти из аккаунта",
         "description": "Выйти из аккаунта",
         "type": "ARROW",
         "prefsKey": "logout_account"
-      },{
+      },
+      {
         "name": "Удалить аккаунт",
         "description": "Удалить мой аккаунт и все мои данные с сервера",
         "type": "ARROW",
         "prefsKey": "delete_account"
       }
-
     ]
   }
 ]

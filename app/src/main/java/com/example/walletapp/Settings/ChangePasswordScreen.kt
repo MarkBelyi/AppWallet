@@ -59,18 +59,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.walletapp.Element.CustomButton
-import com.example.walletapp.Element.PasswordAlertDialog
-import com.example.walletapp.Element.PasswordFieldWithLabel
+import com.example.walletapp.AppViewModel.appViewModel
+import com.example.walletapp.AuxiliaryFunctions.ENUM.AuthMethod
+import com.example.walletapp.AuxiliaryFunctions.Element.CustomButton
+import com.example.walletapp.AuxiliaryFunctions.Element.PasswordAlertDialog
+import com.example.walletapp.AuxiliaryFunctions.Element.PasswordFieldWithLabel
+import com.example.walletapp.AuxiliaryFunctions.Functions.checkPasswordsMatch
+import com.example.walletapp.AuxiliaryFunctions.Functions.isPasswordValid
+import com.example.walletapp.AuxiliaryFunctions.HelperClass.DESCrypt
+import com.example.walletapp.AuxiliaryFunctions.HelperClass.PasswordStorageHelper
+import com.example.walletapp.AuxiliaryFunctions.HelperClass.isBigInteger
 import com.example.walletapp.R
-import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.helper.DESCrypt
-import com.example.walletapp.helper.PasswordStorageHelper
-import com.example.walletapp.helper.isBigInteger
-import com.example.walletapp.registrationScreens.AuthMethod
-import com.example.walletapp.registrationScreens.PinLockScreen
-import com.example.walletapp.registrationScreens.checkPasswordsMatch
-import com.example.walletapp.registrationScreens.isPasswordValid
+import com.example.walletapp.Screens.registrationScreens.PinLockScreen
 import com.example.walletapp.ui.theme.newRoundedShape
 import com.example.walletapp.ui.theme.paddingColumn
 import kotlinx.coroutines.launch
@@ -81,10 +81,9 @@ import org.web3j.crypto.WalletUtils
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChangePasswordScreen(onSuccessClick: () -> Unit, viewModel: appViewModel){
+fun ChangePasswordScreen(onSuccessClick: () -> Unit, viewModel: appViewModel) {
     val context = LocalContext.current
     val ps = PasswordStorageHelper(context)
     val state = rememberPagerState(pageCount = { 4 })
@@ -94,14 +93,17 @@ fun ChangePasswordScreen(onSuccessClick: () -> Unit, viewModel: appViewModel){
         state = state,
         modifier = Modifier.fillMaxSize(),
         userScrollEnabled = false
-    ) {page ->
-        when(page){
-            0 -> VerifyMnemScreen(ps = ps, onClick = {
-                coroutineScope.launch {
-                    state.animateScrollToPage(page = 1)
-                }
-            },
-                context = context)
+    ) { page ->
+        when (page) {
+            0 -> VerifyMnemScreen(
+                ps = ps, onClick = {
+                    coroutineScope.launch {
+                        state.animateScrollToPage(page = 1)
+                    }
+                },
+                context = context
+            )
+
             1 -> ChooseAuthMethod(onPINclick = {
                 coroutineScope.launch {
                     state.animateScrollToPage(page = 2)
@@ -111,14 +113,18 @@ fun ChangePasswordScreen(onSuccessClick: () -> Unit, viewModel: appViewModel){
                     state.animateScrollToPage(page = 3)
                 }
             })
-            2 -> PINScreen(onClick = {
+
+            2 -> PINScreen(
+                onClick = {
                     onSuccessClick()
                 },
                 viewModel = viewModel
             )
-            3 -> PASSWORDScreen(onClick = {
-                onSuccessClick()
-            },
+
+            3 -> PASSWORDScreen(
+                onClick = {
+                    onSuccessClick()
+                },
                 viewModel = viewModel
             )
         }
@@ -127,38 +133,40 @@ fun ChangePasswordScreen(onSuccessClick: () -> Unit, viewModel: appViewModel){
 }
 
 @Composable
-fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit, context: Context){
+fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit, context: Context) {
     val isContinueEnabled = remember { mutableStateOf(false) }
-    val isKeyMatching = remember { mutableStateOf(false) } // Состояние для проверки совпадения ключей
+    val isKeyMatching =
+        remember { mutableStateOf(false) } // Состояние для проверки совпадения ключей
 
-    val bookmarkImportFilePicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri ->
-                val inputStream = context.contentResolver.openInputStream(uri)!!
-                val bytes = inputStream.readBytes()
-                inputStream.close()
+    val bookmarkImportFilePicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    val inputStream = context.contentResolver.openInputStream(uri)!!
+                    val bytes = inputStream.readBytes()
+                    inputStream.close()
 
-                val decrypt = DESCrypt.decrypt(bytes)
-                val text = String(decrypt, StandardCharsets.UTF_8)
-                if (!isBigInteger(text)) {
-                    Toast.makeText(context, R.string.wrong_key, Toast.LENGTH_SHORT).show()
-                    return@let
-                }
-                val k: ECKeyPair = ECKeyPair.create(BigInteger(text))
+                    val decrypt = DESCrypt.decrypt(bytes)
+                    val text = String(decrypt, StandardCharsets.UTF_8)
+                    if (!isBigInteger(text)) {
+                        Toast.makeText(context, R.string.wrong_key, Toast.LENGTH_SHORT).show()
+                        return@let
+                    }
+                    val k: ECKeyPair = ECKeyPair.create(BigInteger(text))
 
-                // Проверка схожести ключей
-                val currentPrivateKey = ps.getData("MyPrivateKey")
-                if (k.privateKey.toByteArray().contentEquals(currentPrivateKey)) {
-                    Toast.makeText(context, R.string.accept_mnem, Toast.LENGTH_SHORT).show()
-                    isKeyMatching.value = true
-                    onClick()
-                } else {
-                    Toast.makeText(context, R.string.not_accept_mnem, Toast.LENGTH_SHORT).show()
-                    isKeyMatching.value = false
+                    // Проверка схожести ключей
+                    val currentPrivateKey = ps.getData("MyPrivateKey")
+                    if (k.privateKey.toByteArray().contentEquals(currentPrivateKey)) {
+                        Toast.makeText(context, R.string.accept_mnem, Toast.LENGTH_SHORT).show()
+                        isKeyMatching.value = true
+                        onClick()
+                    } else {
+                        Toast.makeText(context, R.string.not_accept_mnem, Toast.LENGTH_SHORT).show()
+                        isKeyMatching.value = false
+                    }
                 }
             }
         }
-    }
 
 
     Column(
@@ -168,7 +176,7 @@ fun VerifyMnemScreen(ps: PasswordStorageHelper, onClick: () -> Unit, context: Co
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-    ){
+    ) {
 
         Spacer(modifier = Modifier.weight(0.3f))
 
@@ -236,6 +244,7 @@ fun WriteForCheck(isContinueEnabled: MutableState<Boolean>, ps: PasswordStorageH
 
     val userPhrases = remember { mutableStateListOf(*Array(12) { "" }) }
     val con = LocalContext.current
+
     @Composable
     fun WordInputBox(index: Int) {
         TextField(
@@ -262,21 +271,25 @@ fun WriteForCheck(isContinueEnabled: MutableState<Boolean>, ps: PasswordStorageH
                 }
 
                 // Итак, в итоге мы здесь имеем 12 слов.
-                if (userPhrases.filter { it.isNotBlank() }.size==12) {
+                if (userPhrases.filter { it.isNotBlank() }.size == 12) {
                     // Вот наша мнемоФраза одной строкой
                     val mnemonic = userPhrases.joinToString(" ")
                     // проверка на валидность фразы, ато мош юзер навтыкал слов ваще не отсюда
                     if (!MnemonicUtils.validateMnemonic(mnemonic)) {// проверка на валидность не прошла, всё плохо и ключи из этих слов сгенерить не получится
-                        Toast.makeText(con, R.string.toast_write_seed_phrase, Toast.LENGTH_SHORT).show(); isContinueEnabled.value = false; return@TextField
+                        Toast.makeText(con, R.string.toast_write_seed_phrase, Toast.LENGTH_SHORT)
+                            .show(); isContinueEnabled.value = false; return@TextField
                     }
                     // ну раз мы добрались досюда, значит всё круто. Создаём ключи по фразе:
-                    val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials("We are such stuff as dreams are made on", mnemonic)
+                    val restoreCredentials: Credentials = WalletUtils.loadBip39Credentials(
+                        "We are such stuff as dreams are made on",
+                        mnemonic
+                    )
 
                     // Сохраняем эти новые ключи в наше шифрохранилище
-                    val new_private = restoreCredentials.ecKeyPair.privateKey.toByteArray()
-                    val new_public = restoreCredentials.ecKeyPair.publicKey.toByteArray()
+                    val newPrivate = restoreCredentials.ecKeyPair.privateKey.toByteArray()
+                    val newPublic = restoreCredentials.ecKeyPair.publicKey.toByteArray()
 
-                    if (private.contentEquals(new_private) && public.contentEquals(new_public)) {
+                    if (private.contentEquals(newPrivate) && public.contentEquals(newPublic)) {
                         // всё хорошо, активируем кнопку шо мол можно идти дальше
                         isContinueEnabled.value = true
                     }
@@ -330,7 +343,7 @@ fun WriteForCheck(isContinueEnabled: MutableState<Boolean>, ps: PasswordStorageH
 }
 
 @Composable
-fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit){
+fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -338,7 +351,7 @@ fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit){
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
-    ){
+    ) {
 
         Spacer(modifier = Modifier.weight(0.75f))
 
@@ -366,10 +379,20 @@ fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit){
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .padding(16.dp)
-            ){
-                Icon(imageVector = Icons.Rounded.Lock, contentDescription = "password_icon", tint = colorScheme.primary, modifier = Modifier.scale(1.5f))
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Lock,
+                    contentDescription = "password_icon",
+                    tint = colorScheme.primary,
+                    modifier = Modifier.scale(1.5f)
+                )
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = stringResource(id = R.string.pin), color = colorScheme.onSurface, fontWeight = FontWeight.SemiBold, fontSize = 24.sp)
+                Text(
+                    text = stringResource(id = R.string.pin),
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 24.sp
+                )
             }
 
         }
@@ -390,49 +413,54 @@ fun ChooseAuthMethod(onPINclick: () -> Unit, onPASSclick: () -> Unit){
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .padding(16.dp)
-            ){
-                Icon(painter = painterResource(id = R.drawable.pass), contentDescription = "password_icon", tint = colorScheme.primary, modifier = Modifier.scale(1.5f))
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.pass),
+                    contentDescription = "password_icon",
+                    tint = colorScheme.primary,
+                    modifier = Modifier.scale(1.5f)
+                )
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = stringResource(id = R.string.pass), color = colorScheme.onSurface, fontWeight = FontWeight.SemiBold, fontSize = 24.sp)
+                Text(
+                    text = stringResource(id = R.string.pass),
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 24.sp
+                )
             }
 
         }
 
         Spacer(modifier = Modifier.weight(1f))
-
-
     }
 }
 
 @Composable
-fun PINScreen(onClick: () -> Unit, viewModel: appViewModel){
+fun PINScreen(onClick: () -> Unit, viewModel: appViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
-    ){
-
+    ) {
         PinLockScreen(
             onAction = {
                 viewModel.setAuthMethod(authMethod = AuthMethod.PINCODE)
                 onClick()
             }
         )
-
     }
 }
 
 @Composable
-fun PASSWORDScreen(onClick: () -> Unit, viewModel: appViewModel){
+fun PASSWORDScreen(onClick: () -> Unit, viewModel: appViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
-    ){
+    ) {
         CreatePasswordScreenWithoutPIN(onNextAction = { onClick() }, viewModel = viewModel)
-
     }
 }
 

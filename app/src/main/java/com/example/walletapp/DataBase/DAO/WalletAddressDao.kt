@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface WalletAddressDao {
     @Query("SELECT * FROM WalletAddress")
-    fun getAllAddresses() : Flow<List<WalletAddress>>
+    fun getAllAddresses(): Flow<List<WalletAddress>>
 
     @Upsert
     fun insertWalletAddress(item: WalletAddress)
