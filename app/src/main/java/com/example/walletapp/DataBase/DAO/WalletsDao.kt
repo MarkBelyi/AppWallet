@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.walletapp.DataBase.Entities.Wallets
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WalletsDAO {
@@ -15,7 +16,7 @@ interface WalletsDAO {
     suspend fun getCount(): Int
 
     @Query("SELECT * FROM Wallets")
-     fun getLiveWallets(): LiveData<List<Wallets>>
+    fun getLiveWallets(): LiveData<List<Wallets>>
 
     @Delete
     suspend fun deleteWallet(item: Wallets)
@@ -32,14 +33,14 @@ interface WalletsDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWallet(wallet: Wallets)
 
-
-
-    //NEW
     @Query("SELECT * FROM Wallets WHERE network = :network OR network = :testNetwork ORDER BY info")
     suspend fun getWalletsByNetwork(network: Int, testNetwork: Int): List<Wallets>
 
     @Query("SELECT * FROM Wallets WHERE info LIKE '%' || :name || '%' ORDER BY info")
     suspend fun getWalletsByName(name: String): List<Wallets>
+
+    @Query("SELECT * FROM Wallets WHERE addr = :address LIMIT 1")
+    suspend fun getWalletByAddress(address: String): Wallets?
 
     @Query("SELECT * FROM Wallets")
     suspend fun fetchAllWallets(): List<Wallets>
@@ -47,13 +48,13 @@ interface WalletsDAO {
     @Query("UPDATE wallets SET myFlags = :newFlags WHERE myUNID = :unid")
     suspend fun updateWalletFlags(unid: String, newFlags: String)
 
-    @Query("SELECT * FROM Wallets WHERE myFlags LIKE '1%'")
-    suspend fun getOnlyHiddenWallets(): List<Wallets>
-
-    @Query("SELECT * FROM Wallets WHERE myFlags NOT LIKE '1%'")
-    suspend fun getVisibleWallets(): List<Wallets>
-
     @Query("SELECT * FROM Wallets WHERE myUNID = :unid")
     suspend fun getWalletByUNID(unid: String): Wallets?
+
+    @Query("SELECT * FROM wallets WHERE wallet_id = :walletId LIMIT 1")
+    fun getWalletById(walletId: Int): Flow<Wallets>
+
+    @Query("DELETE FROM Wallets")
+    fun clearWallets()
 
 }

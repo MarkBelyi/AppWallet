@@ -1,0 +1,24 @@
+@startuml
+entity Signer {
+    +String name
+    +String email
+    +String telephone
+    +Int type
+    +String address
+    +Boolean isFavorite
+}
+
+' Annotations and additional metadata
+note right of Signer::address
+  PrimaryKey
+  Description: EC-aдрес подписанта
+end note
+
+note right of Signer::type
+  Description: Техническое поле. принадлежность адреса владельцу
+end note
+
+note right of Signer::isFavorite
+  Description: Indicates whether the signer is a favorite
+end note
+@enduml

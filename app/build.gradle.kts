@@ -14,7 +14,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.92"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -69,6 +69,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
     implementation("androidx.wear.compose:compose-material:1.3.1")
     implementation("androidx.compose.material3:material3-android:1.2.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose-android:2.8.3")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -78,8 +79,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     //для horizontal pager
-    implementation ("androidx.compose.foundation:foundation:1.6.8")
-    implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
+    implementation("androidx.compose.foundation:foundation:1.6.8")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 
     //используется для изменения UI элементов самого андроида
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
@@ -135,15 +136,15 @@ dependencies {
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:16.1.3")
 
     //Animation
-    implementation ("androidx.compose.animation:animation:1.6.8")
-    implementation ("androidx.compose.ui:ui:1.6.8")
-    implementation ("androidx.compose.runtime:runtime:1.6.8")
-    implementation ("androidx.compose.animation:animation:1.6.8")
+    implementation("androidx.compose.animation:animation:1.6.8")
+    implementation("androidx.compose.ui:ui:1.6.8")
+    implementation("androidx.compose.runtime:runtime:1.6.8")
+    implementation("androidx.compose.animation:animation:1.6.8")
 
     //для horizontal pager
-    implementation ("androidx.compose.foundation:foundation:1.6.8")
-    implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
+    implementation("androidx.compose.foundation:foundation:1.6.8")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 
     //SwipeRefresh
-    implementation (platform("androidx.compose:compose-bom:2024.06.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
 }

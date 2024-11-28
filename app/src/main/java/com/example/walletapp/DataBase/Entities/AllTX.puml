@@ -1,0 +1,83 @@
+@startuml
+entity AllTX {
+    +String unid
+    +Int id
+    +String tx
+    +Int minsign
+    +String waitEC
+    +String signedEC
+    +String waitEmail
+    +String signedEmail
+    +String waitSMS
+    +String signedSMS
+    +Int network
+    +String token
+    +String to_addr
+    +String info
+    +Double tx_value
+    +String value_hex
+    +Int init_ts
+    +String eMSG
+    +Int instant
+    +String json_info
+    +Int lifetime
+    +Int cancel
+    +String deny
+    +String from
+    +Int status
+    +Int type
+    +String r1
+}
+
+' Annotations and additional metadata
+note right of AllTX::unid
+  PrimaryKey
+  ColumnInfo(NOCASE)
+  Description: unid транзакции на сервере
+end note
+
+note right of AllTX::tx
+  ColumnInfo(NOCASE)
+  Description: реальный хэш транзакции в сети блокчейна
+end note
+
+note right of AllTX::waitEC
+  ColumnInfo(NOCASE)
+  Description: EC Адреса подписантов, подписи которых ждёт транзакция
+end note
+
+note right of AllTX::signedEC
+  ColumnInfo(NOCASE)
+  Description: EC Адреса подписантов, которые уже подписали
+end note
+
+note right of AllTX::network
+  Description: Код сети блокчейна (например 1000 для битка)
+end note
+
+note right of AllTX::token
+  Description: имя токена (например TRX для трона)
+end note
+
+note right of AllTX::to_addr
+  ColumnInfo(NOCASE)
+  Description: куда (адрес)
+end note
+
+note right of AllTX::tx_value
+  Description: сумма транзакции
+end note
+
+note right of AllTX::deny
+  Description: транзакция запрещена. Используется для хранения причины отказа
+end note
+
+note right of AllTX::status
+  Description: Используется для (поле)
+end note
+
+note right of AllTX::init_ts
+  Description: Время создания транзакции
+end note
+
+@enduml

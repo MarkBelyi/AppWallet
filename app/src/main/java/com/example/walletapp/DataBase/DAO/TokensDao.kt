@@ -15,17 +15,25 @@ interface TokensDAO {
 
     @Query("SELECT * FROM Tokens")
     fun getLiveTokens(): LiveData<List<Tokens>>
-    @Query("SELECT * FROM Tokens WHERE network_id IN (:network_id)")
-    suspend fun getAllForNets(network_id:List<Int>): List<Tokens>
-
-    @Query("SELECT * FROM Tokens WHERE network_id = :network_id")
-    suspend fun getAllForNet(network_id:Int): List<Tokens>
 
     @Query("SELECT COUNT(*) FROM Tokens")
     suspend fun getCount(): Int
 
-    @Query("SELECT * FROM Tokens")
-    suspend fun getAll(): List<Tokens>
+    @Query("SELECT * FROM Tokens WHERE network_id = :networkId AND name = :name LIMIT 1")
+    fun getToken(networkId: Int, name: String): Tokens?
+
+    @Query("SELECT * FROM Tokens WHERE network_id = :networkId AND name = :name AND addr = :addr LIMIT 1")
+    suspend fun getToken(networkId: Int, name: String, addr: String): Tokens?
+
+    @Query("UPDATE Tokens SET c = :c, cMin = :cMin, cMax = :cMax, cBase = :cBase WHERE network_id = :networkId AND name = :name")
+    fun updateTokenCommissions(
+        networkId: Int,
+        name: String,
+        c: Float,
+        cMin: Float,
+        cMax: Float,
+        cBase: Float
+    )
 
     @Delete
     suspend fun deleteItem(item: Tokens)
@@ -38,4 +46,7 @@ interface TokensDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: Tokens)
+
+    @Query("DELETE FROM Tokens")
+    fun clearTokens()
 }

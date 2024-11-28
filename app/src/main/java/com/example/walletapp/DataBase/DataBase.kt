@@ -4,17 +4,21 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.walletapp.DataBase.DAO.AllTxDAO
 import com.example.walletapp.DataBase.DAO.BalansDAO
 import com.example.walletapp.DataBase.DAO.NetworksDAO
 import com.example.walletapp.DataBase.DAO.SignerDao
 import com.example.walletapp.DataBase.DAO.TokensDAO
 import com.example.walletapp.DataBase.DAO.TxDAO
+import com.example.walletapp.DataBase.DAO.WalletAddressDao
 import com.example.walletapp.DataBase.DAO.WalletsDAO
+import com.example.walletapp.DataBase.Entities.AllTX
 import com.example.walletapp.DataBase.Entities.Balans
 import com.example.walletapp.DataBase.Entities.Networks
 import com.example.walletapp.DataBase.Entities.Signer
 import com.example.walletapp.DataBase.Entities.TX
 import com.example.walletapp.DataBase.Entities.Tokens
+import com.example.walletapp.DataBase.Entities.WalletAddress
 import com.example.walletapp.DataBase.Entities.Wallets
 
 @Database(
@@ -24,25 +28,30 @@ import com.example.walletapp.DataBase.Entities.Wallets
         Wallets::class,
         TX::class,
         Tokens::class,
-        Balans::class
+        Balans::class,
+        AllTX::class,
+        WalletAddress::class
     ],
-    version = 3,
+    version = 6,
     exportSchema = false
 )
-abstract class DataBase: RoomDatabase(){
+abstract class DataBase : RoomDatabase() {
     abstract fun signerDao(): SignerDao
     abstract fun networksDao(): NetworksDAO
     abstract fun walletsDao(): WalletsDAO
     abstract fun tokensDao(): TokensDAO
     abstract fun TxDAO(): TxDAO
     abstract fun balansDAO(): BalansDAO
+    abstract fun allTXDAO(): AllTxDAO
+    abstract fun walletAddressDao(): WalletAddressDao
 
-    companion object{
+
+    companion object {
         @Volatile
         private var INSTANCE: DataBase? = null
 
-        fun getDatabase(context: Context): DataBase{
-            return INSTANCE ?: synchronized(this){
+        fun getDatabase(context: Context): DataBase {
+            return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     DataBase::class.java,

@@ -1,0 +1,73 @@
+@startuml
+entity Wallets {
+    +Int wallet_id
+    +Int network
+    +String myFlags
+    +Int wallet_type
+    +String name
+    +String info
+    +String addr
+    +String addr_info
+    +String myUNID
+    +String tokenShortNames
+    +String slist
+    +Int minSignersCount
+    +String group_id
+}
+
+' Annotations and additional metadata
+note right of Wallets::wallet_id
+  PrimaryKey
+  Description: id кошелька на сервере
+end note
+
+note right of Wallets::network
+  Description: Код сети блокчейна
+end note
+
+note right of Wallets::myFlags
+  Description: свойства кошелька отвечающие за видимость и другие
+end note
+
+note right of Wallets::wallet_type
+  Description: Тип кошелька. В норме 1 Если 3, то это кэшбэк
+end note
+
+note right of Wallets::name
+  Description: Идентификатор кошелька на сервере
+end note
+
+note right of Wallets::info
+  Description: Имя данное кошельку владельцем при создании
+end note
+
+note right of Wallets::addr
+  ColumnInfo(NOCASE)
+  Description: Реальный адрес кошелька в блокчейне
+end note
+
+note right of Wallets::addr_info
+  Description: Информация о кошельке, которую владелец пожелал поведать миру
+end note
+
+note right of Wallets::myUNID
+  Description: Идентификатор кошелька в чёрном ящике
+end note
+
+note right of Wallets::tokenShortNames
+  Description: Tокены, имеющиеся в кошельке
+end note
+
+note right of Wallets::slist
+  ColumnInfo(NOCASE)
+  Description: Адреса подписантов для этого кошелька через запятую
+end note
+
+note right of Wallets::minSignersCount
+  Description: минимальное необходимое количество подписантов
+end note
+
+note right of Wallets::group_id
+  Description: не применяется пока. Видимо маркаровская тема какая-то
+end note
+@enduml

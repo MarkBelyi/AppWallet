@@ -1,0 +1,15 @@
+@startuml
+entity WalletAddress {
+    +String ownerName
+    +String address
+    +String blockchain
+    +String token
+}
+
+' Annotations and additional metadata
+note right of WalletAddress::address
+  PrimaryKey
+  ColumnInfo(NOCASE)
+  Description: The address of the wallet (case-insensitive)
+end note
+@enduml

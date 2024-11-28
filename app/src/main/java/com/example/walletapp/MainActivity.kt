@@ -7,23 +7,26 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.walletapp.Activity.AppActivity
+import com.example.walletapp.Activity.RegistrationActivity
+import com.example.walletapp.Activity.SignerModeActivity
+import com.example.walletapp.AppViewModel.AppViewModelFactory
+import com.example.walletapp.AppViewModel.RegistrationViewModel
+import com.example.walletapp.AppViewModel.appViewModel
 import com.example.walletapp.DataBase.DataBase
+import com.example.walletapp.Repository.AppRepository
 import com.example.walletapp.Settings.AuthModalBottomSheet
-import com.example.walletapp.activity.AppActivity
-import com.example.walletapp.activity.RegistrationActivity
-import com.example.walletapp.activity.SignerModeActivity
-import com.example.walletapp.appViewModel.AppViewModelFactory
-import com.example.walletapp.appViewModel.RegistrationViewModel
-import com.example.walletapp.appViewModel.appViewModel
-import com.example.walletapp.repository.AppRepository
 import com.example.walletapp.ui.theme.WalletAppTheme
 
-class MainApplication : Application(){
-    var isInBackground=false // Применяется для понимания что приложение перешло в фоновый режим работы
+class MainApplication : Application() {
+    var isInBackground =
+        false // Применяется для понимания что приложение перешло в фоновый режим работы
     val database by lazy { DataBase.getDatabase(this) }
     val repository by lazy {
         AppRepository(
@@ -32,7 +35,9 @@ class MainApplication : Application(){
             database.walletsDao(),
             database.tokensDao(),
             database.balansDAO(),
-            database.TxDAO()
+            database.TxDAO(),
+            database.allTXDAO(),
+            database.walletAddressDao()
         )
     }
 }
@@ -49,15 +54,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            WalletAppTheme {
+            val isDarkTheme by appViewModel.isDarkTheme.observeAsState(false)
+
+            WalletAppTheme(isDarkTheme) {
                 val registrationViewModel: RegistrationViewModel by viewModels()
                 val navController = rememberNavController()
-                val startDestination = if (hasVisitedApp()){
-                    if(getElectronicApprovalEnabled()){
+                val startDestination = if (hasVisitedApp()) {
+                    if (getElectronicApprovalEnabled()) {
                         "SignerMode"
-                    }
-                    else "App"
-                }  else {
+                    } else "App"
+                } else {
                     "Registration"
                 }
 
@@ -74,17 +80,25 @@ class MainActivity : AppCompatActivity() {
                         AppActivity(
                             activity = this@MainActivity,
                             viewModel = appViewModel,
-                            navHostController = navController
+                            navHostController = navController,
                         )
                     }
-                    composable("SignerMode"){
-                        SignerModeActivity(activity = this@MainActivity, navHostController = navController, viewModelApp = appViewModel)
+                    composable("SignerMode") {
+                        SignerModeActivity(
+                            activity = this@MainActivity,
+                            navHostController = navController,
+                            viewModel = appViewModel
+                        )
                     }
+
                 }
 
-                // Включаем AuthModalBottomSheet в основной тематический контент
                 if (showAuthSheet.value) {
-                    AuthModalBottomSheet(showAuthSheet, onAuthenticated = { showAuthSheet.value = false }, viewModel = appViewModel)
+                    AuthModalBottomSheet(
+                        showAuthSheet,
+                        onAuthenticated = { showAuthSheet.value = false },
+                        viewModel = appViewModel
+                    )
                 }
             }
             requestAuth()
@@ -92,12 +106,19 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-    override fun onResume() {
+    /*override fun onResume() {
         super.onResume()
         if((application as MainApplication).isInBackground) {
             requestAuth()
             (application as MainApplication).isInBackground=false}
+    }*/
+
+    override fun onStop() {
+        super.onStop()
+        val app = application as MainApplication
+        if (!app.isInBackground) {
+            app.isInBackground = true
+        }
     }
 
     override fun onTrimMemory(level: Int) {
@@ -107,17 +128,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    //Пример использования настройки
-    fun Context.setContinuousAuthorizationEnabled(enabled: Boolean) {
-        val sharedPrefs = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
-        with(sharedPrefs.edit()) {
-            putBoolean("continuous_authorization", enabled)
-            apply()
-        }
-    }
-
-    private fun getElectronicApprovalEnabled():Boolean{
+    private fun getElectronicApprovalEnabled(): Boolean {
         val sharedPrefs = getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
         return sharedPrefs.getBoolean("electronic_approval", false)
     }
@@ -129,16 +140,6 @@ class MainActivity : AppCompatActivity() {
             showAuthSheet.value = true
         }
     }
-
-
-
-    // Функция для определения, требуется ли повторная аутентификация
-    private fun someConditionForReAuthentication(): Boolean {
-        // Пример условия, вы можете определить свои собственные правила
-        return true
-    }
-
-
 }
 
 
